@@ -1,0 +1,17 @@
+CACHE MANIFEST
+# v1
+
+CACHE:
+# Cache the following:
+# scripts/main.js
+# scripts/install.js
+# style/style.css
+# images/icon-128.png
+
+NETWORK:
+# Use the following from the network if available:
+# index.html (you probably don't want this uncommented!)
+
+FALLBACK:
+# Fallback content (if a connection to the server cannot be established):
+# / fallback.html

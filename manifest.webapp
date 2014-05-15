@@ -1,0 +1,24 @@
+{
+  "name": "sundriven",
+  "description": "Allows toaster-style notification reminders to be given relative to dawn, sunrise, or sunset times",
+  "type": "web",
+  "launch_path": "/index.html#lang=en",
+  "default_locale": "en",
+  "locales": {},
+  "messages": [],
+  "icons": {
+    "128": "/images/icon-128.png"
+  },
+  "developer": {
+    "name": "Brett Zamir",
+    "url": "https://github.com/brettz9/"
+  },
+  "permissions": {
+    "desktop-notification": {
+      "description": "Needed for creating system notifications."
+    },
+    "geolocation": {
+      "description": "Optionally used to find location for sunrise/sunset calculations"
+    }
+  }
+}

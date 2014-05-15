@@ -1,0 +1,20 @@
+{
+    "name": "sundriven",
+    "title": "Sun Driven",
+    "id": "sundriven@brett.zamir",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Brett Zamir",
+    "contributors": [],
+    "dependencies": {
+        "suncalc": "1.x"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/brettz9/sundriven.git"
+    },
+    "description": "Allows toaster-style notification reminders to be given relative to sunrise or sunset times",
+    "keywords": [
+        "sunrise", "sunset", "to-do"
+    ]
+}
