@@ -7,7 +7,8 @@
     "author": "Brett Zamir",
     "contributors": [],
     "dependencies": {
-        "suncalc": "1.x"
+        "suncalc": "1.x",
+        "jamilih": "0.x"
     },
     "repository": {
         "type": "git",
