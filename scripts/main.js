@@ -2,7 +2,6 @@
 /*jslint vars:true */
 /*
 Todos:
-1. Confirm if user wishes to click away and lose changes
 1. Allow editing and renaming
 
 1. Set up listeners for previously set reminders (setTimeout which calls another setTimeout with recalced time?)
@@ -61,6 +60,13 @@ function nbsp(ct) {
 }
 
 function createReminderForm (settings) {
+    if (formChanged) {
+        var continueWithNewForm = confirm("You have unsaved changes; are you sure you wish to continue and lose your unsaved changes?");
+        if (!continueWithNewForm) {
+            return;
+        }
+        formChanged = false;
+    }
     settings = settings || {};
     function radioGroup (groupName, radios, selected) {
         return ['span', radios.reduce(function (arr, radio) {
@@ -111,7 +117,9 @@ function createReminderForm (settings) {
     
     removeChild('#table-container');   
     var formID = 'set-reminder';
-    jml('form', {id: formID}, [['fieldset', [
+    jml('form', {id: formID, $on: {change: function () {
+        formChanged = true;
+    }}}, [['fieldset', [
         ['legend', [_("Set Reminder")]],
         ['label', [
             _("Name") + ' ',
@@ -213,6 +221,7 @@ document.title = _("Sun Driven");
 
 
 function buildReminderTable () {
+    formChanged = false; // Repopulating of table should always coincide with readiness to add new content
     localforage.getItem('sundriven', function (forms) {
         if (forms === null) {
             localforage.setItem('sundriven', {}, function (val) {
