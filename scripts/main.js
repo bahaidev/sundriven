@@ -7,7 +7,7 @@ var locale;
 var formChanged = false;
 var body = document.body;
 var times = SunCalc.times;
-var listeners = {};
+var listeners = {}, watchers = {};
 
 function s (obj) {
     alert(JSON.stringify(obj));
@@ -25,9 +25,14 @@ function setLocale () {
 }
 function _ (s) {
     var messages = {
-        "en-US": {}
+        "en-US": {
+            geo_error: function (code, msg) {
+                return "ERROR(" + code + "): " + msg;
+            }
+        }
     };
-    return (messages[locale] || messages['en-US'])[s] || s;
+    var msg = (messages[locale] || messages['en-US'])[s] || s;
+    return typeof msg === 'function' ? msg.apply(null, [].slice.call(arguments, 1)) : msg;
 }
 function removeElement (elemSel) {
     if ($(elemSel)) {
@@ -145,27 +150,56 @@ function createReminderForm (settings, allowRename) {
     function updateListeners (sundriven) {
         Object.keys(sundriven).forEach(function (name) {
             var data = sundriven[name];
-            clearTimeout(listeners[name]);
-            if (data.enabled === 'true') {
+            function getRelative (date) {
+                var timeoutID;
+                var minutes = parseFloat(data.minutes);
+                minutes = data.relativePosition === 'before' ? -minutes : minutes; // after|before
+                var time = date + minutes * 60 * 1000;
+                clearTimeout(listeners[name]);
                 switch(data.frequency) {
                     case 'daily':
+                        timeoutID = setTimeout(function () {
+                            
+                        }, time);
                         break;
                     default: // one-time
-                        
+                        timeoutID = setTimeout(function () {
+                            
+                        }, time);
                         break;
                 }
-                switch(data.relativeEvent) {
+                listeners[name] = timeoutID;
+            }
+            if (data.enabled === 'true') {
+                if (watchers[name]) {
+                    navigator.geolocation.clearWatch(watchers[name]);
+                }
+                var relativeEvent = data.relativeEvent;
+                switch (relativeEvent) {
                     case 'now':
+                        getRelative(new Date());
                         break;
                     default: // sunrise, etc.
-                        
+                        if (!navigator.geolocation) {
+                            alert(_("Your browser does not support or does not have Geolocation enabled"));
+                            return;
+                        }
+                        watchers[name] = navigator.geolocation.watchPosition(
+                            function geoCallback (pos) { // We could instead use getCurrentPosition, but that wouldn't update with the user's location
+                                var times = SunCalc.getTimes(new Date(), pos.coords.latitude, pos.coords.longitude);
+                                getRelative(times[relativeEvent]);
+                            },
+                            function geoErrBack (err) {
+                                alert(_("geo_error", err.code, err.message));
+                            }
+                            /*, { // Geolocation options
+                                enableHighAccuracy: true,
+                                maximumAge: 30000,
+                                timeout: 27000
+                            };*/
+                        );
                         break;
                 }
-                /*
-                listeners[name] = setTimeout(function () {}, time);
-                minutes = parseFloat(data.minutes);
-                relativePosition = data.relativePosition: 'after'|before
-                */
             }
         });
     }
