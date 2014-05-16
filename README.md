@@ -18,7 +18,7 @@ npm install .
 1. Test notifications
 1. Retry fresh installation (problems with npm on suncalc gone?)
 
-1. Add browserify to devDependencies and utilize instead of hard-coded script tags (also modularize and use localization function `_` (and separating out the locales as well), so it can be reused across modules); add bower.json and submit?
+1. Add ES6 module polyfill, requirejs, or browserify to devDependencies and utilize instead of hard-coded script tags (also modularize and use localization function `_` (and separating out the locales as well), so it can be reused across modules); add bower.json and submit?
 1. Reenable web app installation code and test; try mobile simulator; try FF Marketplace and own site?
 1. Enable offline manifest and test on server, ensuring no dependencies loaded
 
