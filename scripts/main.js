@@ -7,6 +7,8 @@ Todos:
     1. Ensure alarms cancelled if deleted or updated if modified
 
 1. Reenable web app installation code and test
+1. Retry fresh installation (problems with npm on suncalc gone?)
+1. Enable offline manifest and test on server, ensuring no dependencies loaded
 
 Possible Todos:
 1. Display text messages instead of alerts/confirm for save/delete
