@@ -16,7 +16,7 @@ npm install .
 
 # Todos
 1. Set up listeners for previously set reminders (setTimeout which calls another setTimeout with recalced time?)
-    1. Have notification indicate alarm time and current time
+    1. Have notification indicate alarm time and current time (and modified time if geoloc caused change?)
     1. Ensure alarms cancelled if deleted or updated if modified
 1. Retry fresh installation (problems with npm on suncalc gone?)
 
