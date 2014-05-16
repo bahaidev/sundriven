@@ -36,6 +36,9 @@ function removeChild (childSel) {
         $(childSel).removeChild($(childSel).firstElementChild);
     }
 }
+function nbsp(ct) {
+    return new Array((ct || 1) + 1).join('\u00a0');
+}
 
 function createReminderForm (settings) {
     settings = settings || {};
@@ -117,12 +120,12 @@ function createReminderForm (settings) {
                 return arr;
             }, [['option', {value: 'now'}, [_("now")]]]))
         ]],
-        '\u00a0 ',
+        nbsp(2),
         ['label', [
             ['input', {id: 'minutes', type: 'number', step: 1, value: settings.minutes}],
             ' ' + _("Minutes")
         ]],
-        '\u00a0 ',
+        nbsp(2),
         radioGroup('relativePosition', [
             {label: _("after"), id: 'after'},
             {label: _("before"), id: 'before'}
@@ -150,10 +153,27 @@ function createReminderForm (settings) {
                 }
                 sundriven[data.name] = data;
                 localforage.setItem('sundriven', sundriven, function () {
+                    buildReminderTable();
                     alert(_("Saved!"));
                 });
             });
-        }}}]
+        }}}],
+        ['button', {'class': 'delete', $on: {click: function (e) {
+            if (!$('#name').value) { // Required field will be used automatically
+                // alert(_("Please supply a reminder name for deletion."));
+                return;
+            }
+            var okDelete = confirm(_("Are you sure you wish to delete this reminder?"));
+            if (okDelete) {
+                localforage.getItem('sundriven', function (sundriven) {
+                    delete sundriven[$('#name').value];
+                    localforage.setItem('sundriven', sundriven, function () {
+                        buildReminderTable();
+                        alert(_("Reminder deleted!"));
+                    });
+                });
+            }
+        }}}, [_("Delete")]]
     ]]], $('#table-container'));
 }
 function createDefaultReminderForm () {
@@ -170,57 +190,61 @@ function createDefaultReminderForm () {
 setLocale();
 document.title = _("Sun Driven");
 
-localforage.getItem('sundriven', function (forms) {
-    if (forms === null) {
-        localforage.setItem('sundriven', {}, function (val) {
-            if (!val) {
-                alert(_("Error setting storage"));
-            }
-        });
-        return;
-    }
 
-    // Todo: rebuild table upon each addition or editing of a reminder form
-    
-    removeElement('#forms');
-    var table = jml('table', {id: 'forms'}, [
-        ['tbody',
-            Object.keys(forms).sort().reduce(function (rows, formKey) {
-                var form = forms[formKey];
-                rows.push(['tr', {dataset: {name: form.name}, $on: {
-                    click: function (e) {
-                        var name = this.dataset.name;
-                        localforage.getItem('sundriven', function (forms) {
-                            createReminderForm(forms[name]);
-                        });
-                    }}}, [
-                        ['td', [form.name]], ['td', {'class': 'focus'}, [form.enabled ? 'x' : '']]
-                    ]
-                ]);
-                return rows;
-            }, [
-                ['tr', [
-                    ['th', [_("Name")]],
-                    ['th', [_("Enabled")]]
-                ]],
-                ['tr', [
-                    ['td', {colspan: 2, 'class': 'focus', $on: {click: createDefaultReminderForm}}, [_("(Create new reminder)")]]
-                ]]
-            ])
-        ]
-    ], $('#forms-container'));
-    
-    createDefaultReminderForm();
-});
+function buildReminderTable () {
+    localforage.getItem('sundriven', function (forms) {
+        if (forms === null) {
+            localforage.setItem('sundriven', {}, function (val) {
+                if (!val) {
+                    alert(_("Error setting storage"));
+                }
+            });
+            return;
+        }
+        removeElement('#forms');
+        var table = jml('table', {id: 'forms'}, [
+            ['tbody',
+                Object.keys(forms).sort().reduce(function (rows, formKey) {
+                    var form = forms[formKey];
+                    rows.push(['tr', {dataset: {name: form.name}, $on: {
+                        click: function (e) {
+                            var name = this.dataset.name;
+                            localforage.getItem('sundriven', function (forms) {
+                                createReminderForm(forms[name]);
+                            });
+                        }}}, [
+                            ['td', [form.name]], ['td', {'class': 'focus'}, [form.enabled ? 'x' : '']]
+                        ]
+                    ]);
+                    return rows;
+                }, [
+                    ['tr', [
+                        ['th', [_("Name")]],
+                        ['th', [_("Enabled")]]
+                    ]],
+                    ['tr', [
+                        ['td', {colspan: 2, 'class': 'focus', $on: {click: createDefaultReminderForm}}, [_("(Create new reminder)")]]
+                    ]]
+                ])
+            ]
+        ], $('#forms-container'));
+    });
+}
+buildReminderTable();
+createDefaultReminderForm();
 
 /*
 Todos:
-1. Interface to add (and store) reminders based on sunrise, sunset, dawn, or nothing, before or after; applicable date range or all; enabled or disabled
-    1. Presets for Baha'i Fast, obligatory prayers, dawn prayers (though configurable in relative minutes after or before)
-1. Interface to edit previously added reminders
+1. Allow editing
 1. Set up listeners for previously set reminders (setTimeout which calls another setTimeout with recalced time?)
-    1. Have notification indicate alarm time and current time
+1. Have notification indicate alarm time and current time
+1. Ensure alarms cancelled if deleted or updated if modified
+1. Reenable installation code and test
+
+Possible Todos:
 1. Optionally change close event (and message for it) to give optional prompt to snooze instead of just closing
+1. Allow specification of applicable date range or all
+1. Presets for Baha'i Fast, obligatory prayers, dawn prayers (though configurable afterward, e.g., in relative minutes after or before)
 1. Add content policy directive indicating no Ajax needed, etc. (see if Firefox will display this (for privacy reassurances to user))
 */
 
