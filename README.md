@@ -18,7 +18,7 @@ npm install .
 1. Set up listeners for previously set reminders (setTimeout which calls another setTimeout with recalced time?)
     1. Have notification indicate alarm time and current time
     1. Ensure alarms cancelled if deleted or updated if modified
-1. Add browserify to devDependencies and utilize instead of hard-coded script tags; add bower.json?
+1. Add browserify to devDependencies and utilize instead of hard-coded script tags; add bower.json and submit?
 1. Reenable web app installation code and test; try mobile simulator; try FF Marketplace and own site?
 1. Retry fresh installation (problems with npm on suncalc gone?)
 1. Enable offline manifest and test on server, ensuring no dependencies loaded
