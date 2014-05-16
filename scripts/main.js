@@ -52,12 +52,32 @@ function createReminderForm (settings) {
         }
         return ['input', inputObj];
     }
+    /**
+    * @todo If no controls array is present, we could just iterate over all form controls
+    */
+    function serializeForm (targetObj, controls) {
+        // Selects, text/numeric inputs
+        controls.inputs.forEach(function (setting) {
+            targetObj[setting] = $('#' + setting).value;
+        });
+        // Checkboxes
+        controls.checkboxes.forEach(function (setting) {
+            targetObj[setting] = $('#' + setting).checked;
+        });
+        // Radio buttons
+        controls.radios.forEach(function (setting) {
+            targetObj[setting] = [].slice.call($('#' + formID)[setting]).filter(function (radio) {
+                return radio.checked;
+            })[0].id
+        });
+        return targetObj;
+    }
     var formID = 'set-reminder';
     jml('form', {id: formID}, [['fieldset', [
         ['legend', [_("Set Reminder")]],
         ['label', [
             _("Name") + ' ',
-            ['input', {id: 'name', value: settings.name || ''}]
+            ['input', {id: 'name', required: true, value: settings.name || ''}]
         ]],
         ['label', [
             checkbox('enabled'),
@@ -94,18 +114,21 @@ function createReminderForm (settings) {
         ], settings.relativePosition),
         ['br'],
         ['input', {type: 'submit', value: _("Save"), $on: {click: function () {
-            
-            ['name', 'enabled', 'frequency', 'relativeEvent', 'minutes'].forEach(function (setting) {
-                alert(setting + ':' + $('#' + setting).value);
+            var data = serializeForm({}, {
+                inputs: ['name', 'frequency', 'relativeEvent', 'minutes'],
+                checkboxes: ['enabled'],
+                radios: ['relativePosition']
             });
-            ['relativePosition'].forEach(function (setting) {
-                alert(
-                    [].slice.call($('#' + formID)[setting]).filter(function (radio) {
-                        return radio.checked;
-                    })[0].id
-                );
-            });
-            
+            if (!data.name) { // Firefox will ask for the user to fill out the required field
+//                alert(_("Please supply a name"));
+                return;
+            }
+            if (localStorage[data.name]) {
+                alert(_("ERROR: Please supply a unique name"));
+                return;
+            }
+            localStorage[data.name] = data;
+            alert(_("Saved!"));
         }}}]
     ]]], body);
 }
