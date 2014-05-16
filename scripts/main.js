@@ -159,12 +159,12 @@ function createReminderForm (settings, allowRename) {
                 switch(data.frequency) {
                     case 'daily':
                         timeoutID = setTimeout(function () {
-                            
+                            // Todo
                         }, time);
                         break;
                     default: // one-time
                         timeoutID = setTimeout(function () {
-                            
+                            // Todo
                         }, time);
                         break;
                 }

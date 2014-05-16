@@ -25,6 +25,7 @@ npm install .
 1. Enable offline manifest and test on server, ensuring no dependencies loaded
 
 # Possible Todos
+1. Allow fractional minutes (if able to keep input steps)
 1. Make geolocation options configurable
 1. Allow manual provision of latitude and longitude for people who do not wish to use Geolocation
 1. Display text messages instead of alerts/confirm for save/delete
