@@ -59,7 +59,7 @@ function nbsp(ct) {
     return new Array((ct || 1) + 1).join('\u00a0');
 }
 
-function createReminderForm (settings) {
+function createReminderForm (settings, allowRename) {
     if (formChanged) {
         var continueWithNewForm = confirm("You have unsaved changes; are you sure you wish to continue and lose your unsaved changes?");
         if (!continueWithNewForm) {
@@ -117,13 +117,27 @@ function createReminderForm (settings) {
     
     removeChild('#table-container');   
     var formID = 'set-reminder';
-    jml('form', {id: formID, $on: {change: function () {
+    jml('form', {id: formID, $on: {change: function (e) {
+        var target = e.target;
+        if (target.id === 'name' && target.defaultValue !== '') {
+            var renameReminder = confirm(_("Are you sure you wish to rename this reminder? If you wish instead to create a new one, click 'cancel' now and then click 'save' when you are ready."));
+            if (!renameReminder) {
+                var data = serializeForm(formID, {}, {
+                    inputs: ['name', 'frequency', 'relativeEvent', 'minutes'],
+                    checkboxes: ['enabled'],
+                    radios: ['relativePosition']
+                });
+                s(data);
+                //createReminderForm(data, true);
+                return;
+            }
+        }
         formChanged = true;
     }}}, [['fieldset', [
         ['legend', [_("Set Reminder")]],
         ['label', [
             _("Name") + ' ',
-            ['input', {id: 'name', required: true, value: settings.name || ''}]
+            ['input', {id: 'name', required: true, defaultValue: settings.name || '', value: settings.name || ''}]
         ]],
         ['label', [
             checkbox('enabled'),
@@ -175,7 +189,8 @@ function createReminderForm (settings) {
                     window.location.refresh();
                     return;
                 }
-                if (sundriven[data.name]) {
+                if (!settings.name && // If this form was for creating new as opposed to editing old reminders
+                    sundriven[data.name]) {
                     alert(_("ERROR: Please supply a unique name"));
                     return;
                 }
@@ -260,6 +275,16 @@ function buildReminderTable () {
         ], $('#forms-container'));
     });
 }
+
+window.addEventListener('beforeunload', function (e) {
+    if (formChanged) {
+        var msg = _("You have unsaved changes; are you sure you wish to leave the page?"); // Not utilized in Mozilla
+        e.returnValue = msg;
+        e.preventDefault();
+        return msg;
+    }
+});
+
 buildReminderTable();
 createDefaultReminderForm();
 
