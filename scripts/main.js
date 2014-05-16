@@ -172,7 +172,8 @@ function createReminderForm (settings, allowRename) {
             {label: _("before"), id: 'before'}
         ], settings.relativePosition),
         ['br'],
-        ['input', {type: 'submit', value: _("Save"), $on: {click: function () {
+        ['input', {type: 'submit', value: _("Save"), $on: {click: function (e) {
+            e.preventDefault();
             var data = serializeForm(formID, {}, {
                 inputs: ['name', 'frequency', 'relativeEvent', 'minutes'],
                 checkboxes: ['enabled'],
