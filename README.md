@@ -26,7 +26,7 @@ npm install .
 
 # Possible Todos
 1. Allow fractional minutes (if able to keep input steps)
-1. Config to auto-delete expired timeouts (esp. one-time ones) instead of just disabling
+1. Config to auto-delete expired timeouts (one-time ones) instead of just disabling
 1. Make geolocation options (and option to use getCurrentPosition in place of watchPosition) configurable
 1. Allow manual provision of latitude and longitude for people who do not wish to use Geolocation
 1. Display text messages instead of alerts/confirm for save/delete

@@ -60,7 +60,6 @@ function createDefaultReminderForm () {
 }
 
 function buildReminderTable () {
-    formChanged = false; // Repopulating of table should always coincide with readiness to add new content
     localforage.getItem('sundriven', function (forms) {
         if (forms === null) {
             localforage.setItem('sundriven', {}, function (val) {
@@ -150,6 +149,11 @@ function createReminderForm (settings, allowRename) {
     function updateListeners (sundriven) {
         Object.keys(sundriven).forEach(function (name) {
             var data = sundriven[name];
+            function clearWatch (name) {
+                if (watchers[name]) {
+                    navigator.geolocation.clearWatch(watchers[name]);
+                }
+            }
             function getRelative (date) {
                 var timeoutID;
                 var minutes = parseFloat(data.minutes);
@@ -163,20 +167,29 @@ function createReminderForm (settings, allowRename) {
                     case 'daily':
                         timeoutID = setTimeout(function () {
                             // Todo
+                            
                         }, time);
                         break;
                     default: // one-time
                         timeoutID = setTimeout(function () {
                             // Todo
+                            
+                            delete listeners[name];
+                            clearWatch(name);
+                            data.enabled = 'false';
+                            localforage.setItem('sundriven', sundriven, function () {
+                                if ($('#name').value === name) {
+                                    $('#enabled').checked = false;
+                                }
+                                buildReminderTable();
+                            });
                         }, time);
                         break;
                 }
                 listeners[name] = timeoutID;
             }
             if (data.enabled === 'true') {
-                if (watchers[name]) {
-                    navigator.geolocation.clearWatch(watchers[name]);
-                }
+                clearWatch(name);
                 var relativeEvent = data.relativeEvent;
                 switch (relativeEvent) {
                     case 'now':
@@ -302,6 +315,7 @@ function createReminderForm (settings, allowRename) {
                 }
                 sundriven[data.name] = data;
                 localforage.setItem('sundriven', sundriven, function () {
+                    formChanged = false;
                     buildReminderTable();
                     updateListeners(sundriven);
                     alert(_("Saved!"));
@@ -318,6 +332,7 @@ function createReminderForm (settings, allowRename) {
                 localforage.getItem('sundriven', function (sundriven) {
                     delete sundriven[$('#name').value];
                     localforage.setItem('sundriven', sundriven, function () {
+                        formChanged = false;
                         buildReminderTable();
                         createDefaultReminderForm();
                         alert(_("Reminder deleted!"));
