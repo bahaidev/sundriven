@@ -166,12 +166,12 @@ function createReminderForm (settings) {
                 radios: ['relativePosition']
             });
             if (!data.name) { // Firefox will ask for the user to fill out the required field
-//                alert(_("Please supply a name"));
+//                alert(_("ERROR: Please supply a name"));
                 return;
             }
             localforage.getItem('sundriven', function (sundriven) {
                 if (!sundriven) {
-                    alert(_("Problem retrieving storage; refreshing page to try to resolve..."));
+                    alert(_("ERROR: Problem retrieving storage; refreshing page to try to resolve..."));
                     window.location.refresh();
                     return;
                 }
@@ -226,7 +226,7 @@ function buildReminderTable () {
         if (forms === null) {
             localforage.setItem('sundriven', {}, function (val) {
                 if (!val) {
-                    alert(_("Error setting storage"));
+                    alert(_("ERROR: Problem setting storage"));
                 }
             });
             return;
