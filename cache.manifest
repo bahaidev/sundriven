@@ -3,14 +3,21 @@ CACHE MANIFEST
 
 CACHE:
 # Cache the following:
-# scripts/main.js
+# scripts/createNotification.js
 # scripts/install.js
+# scripts/main.js
 # style/style.css
+# node_modules/suncalc/suncalc.js
+# node_modules/jamilih/jml.js
+# bower_components/localforage/dist/localforage.min.js
+# Others needed for localforage?
+
 # images/icon-128.png
+# index.html (you probably don't want this uncommented! Also see NETWORK beow)
 
 NETWORK:
 # Use the following from the network if available:
-# index.html (you probably don't want this uncommented!)
+index.html
 
 FALLBACK:
 # Fallback content (if a connection to the server cannot be established):
