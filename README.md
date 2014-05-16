@@ -26,7 +26,7 @@ npm install .
 
 # Possible Todos
 1. Allow fractional minutes (if able to keep input steps)
-1. Make geolocation options configurable
+1. Make geolocation options (and option to use getCurrentPosition in place of watchPosition) configurable
 1. Allow manual provision of latitude and longitude for people who do not wish to use Geolocation
 1. Display text messages instead of alerts/confirm for save/delete
 1. Optionally change close event (and message for it) to give optional prompt to snooze instead of just closing
