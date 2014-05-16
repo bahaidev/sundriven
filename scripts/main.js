@@ -7,6 +7,7 @@ var locale;
 var formChanged = false;
 var body = document.body;
 var times = SunCalc.times;
+var listeners = {};
 
 function s (obj) {
     alert(JSON.stringify(obj));
@@ -42,15 +43,59 @@ function nbsp(ct) {
     return new Array((ct || 1) + 1).join('\u00a0');
 }
 
-function createReminderForm (settings, allowRename) {
-    if (formChanged) {
-        var continueWithNewForm = confirm("You have unsaved changes; are you sure you wish to continue and lose your unsaved changes?");
-        if (!continueWithNewForm) {
+function createDefaultReminderForm () {
+    createReminderForm({
+        name: '',
+        enabled: true,
+        frequency: 'daily',
+        relativeEvent: 'now',
+        minutes: 60,
+        relativePosition: 'after'
+    });
+}
+
+function buildReminderTable () {
+    formChanged = false; // Repopulating of table should always coincide with readiness to add new content
+    localforage.getItem('sundriven', function (forms) {
+        if (forms === null) {
+            localforage.setItem('sundriven', {}, function (val) {
+                if (!val) {
+                    alert(_("ERROR: Problem setting storage"));
+                }
+            });
             return;
         }
-        formChanged = false;
-    }
-    settings = settings || {};
+        removeElement('#forms');
+        var table = jml('table', {id: 'forms'}, [
+            ['tbody',
+                Object.keys(forms).sort().reduce(function (rows, formKey) {
+                    var form = forms[formKey];
+                    rows.push(['tr', {dataset: {name: form.name}, $on: {
+                        click: function (e) {
+                            var name = this.dataset.name;
+                            localforage.getItem('sundriven', function (forms) {
+                                createReminderForm(forms[name]);
+                            });
+                        }}}, [
+                            ['td', [form.name]], ['td', {'class': 'focus'}, [form.enabled ? 'x' : '']]
+                        ]
+                    ]);
+                    return rows;
+                }, [
+                    ['tr', [
+                        ['th', [_("Name")]],
+                        ['th', [_("Enabled")]]
+                    ]],
+                    ['tr', [
+                        ['td', {colspan: 2, 'class': 'focus', $on: {click: createDefaultReminderForm}}, [_("(Create new reminder)")]]
+                    ]]
+                ])
+            ]
+        ], $('#forms-container'));
+    });
+}
+
+function createReminderForm (settings, allowRename) {
     function radioGroup (groupName, radios, selected) {
         return ['span', radios.reduce(function (arr, radio) {
             var radioObj = {type:'radio', name: groupName, id: radio.id};
@@ -97,7 +142,42 @@ function createReminderForm (settings, allowRename) {
         });
         return targetObj;
     }
-    
+    function updateListeners (sundriven) {
+        Object.keys(sundriven).forEach(function (name) {
+            var data = sundriven[name];
+            clearTimeout(listeners[name]);
+            if (data.enabled === 'true') {
+                switch(data.frequency) {
+                    case 'daily':
+                        break;
+                    default: // one-time
+                        
+                        break;
+                }
+                switch(data.relativeEvent) {
+                    case 'now':
+                        break;
+                    default: // sunrise, etc.
+                        
+                        break;
+                }
+                /*
+                listeners[name] = setTimeout(function () {}, time);
+                minutes = parseFloat(data.minutes);
+                relativePosition = data.relativePosition: 'after'|before
+                */
+            }
+        });
+    }
+
+    if (formChanged) {
+        var continueWithNewForm = confirm("You have unsaved changes; are you sure you wish to continue and lose your unsaved changes?");
+        if (!continueWithNewForm) {
+            return;
+        }
+        formChanged = false;
+    }
+    settings = settings || {};
     removeChild('#table-container');   
     var formID = 'set-reminder';
     jml('form', {id: formID, $on: {change: function (e) {
@@ -180,11 +260,13 @@ function createReminderForm (settings, allowRename) {
                 var originalName = $('#name').defaultValue;
                 if ([$('#name').value, ''].indexOf(originalName) === -1) {
                     // If this is a rename, we warned the user earlier about it, so go ahead and delete now
+                    clearTimeout(listeners[originalName]); // Todo: test
                     delete sundriven[originalName];
                 }
                 sundriven[data.name] = data;
                 localforage.setItem('sundriven', sundriven, function () {
                     buildReminderTable();
+                    updateListeners(sundriven);
                     alert(_("Saved!"));
                 });
             });
@@ -208,61 +290,9 @@ function createReminderForm (settings, allowRename) {
         }}}, [_("Delete")]]
     ]]], $('#table-container'));
 }
-function createDefaultReminderForm () {
-    createReminderForm({
-        name: '',
-        enabled: true,
-        frequency: 'daily',
-        relativeEvent: 'now',
-        minutes: 60,
-        relativePosition: 'after'
-    });
-}
 
 setLocale();
 document.title = _("Sun Driven");
-
-
-function buildReminderTable () {
-    formChanged = false; // Repopulating of table should always coincide with readiness to add new content
-    localforage.getItem('sundriven', function (forms) {
-        if (forms === null) {
-            localforage.setItem('sundriven', {}, function (val) {
-                if (!val) {
-                    alert(_("ERROR: Problem setting storage"));
-                }
-            });
-            return;
-        }
-        removeElement('#forms');
-        var table = jml('table', {id: 'forms'}, [
-            ['tbody',
-                Object.keys(forms).sort().reduce(function (rows, formKey) {
-                    var form = forms[formKey];
-                    rows.push(['tr', {dataset: {name: form.name}, $on: {
-                        click: function (e) {
-                            var name = this.dataset.name;
-                            localforage.getItem('sundriven', function (forms) {
-                                createReminderForm(forms[name]);
-                            });
-                        }}}, [
-                            ['td', [form.name]], ['td', {'class': 'focus'}, [form.enabled ? 'x' : '']]
-                        ]
-                    ]);
-                    return rows;
-                }, [
-                    ['tr', [
-                        ['th', [_("Name")]],
-                        ['th', [_("Enabled")]]
-                    ]],
-                    ['tr', [
-                        ['td', {colspan: 2, 'class': 'focus', $on: {click: createDefaultReminderForm}}, [_("(Create new reminder)")]]
-                    ]]
-                ])
-            ]
-        ], $('#forms-container'));
-    });
-}
 
 window.addEventListener('beforeunload', function (e) {
     if (formChanged) {
