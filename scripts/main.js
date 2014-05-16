@@ -28,7 +28,7 @@ function _ (s) {
     var messages = {
         "en-US": {
             geo_error: function (code, msg) {
-                return "ERROR(" + code + "): " + msg;
+                return "ERROR (" + code + "): " + msg;
             },
             notification_message_onetime: function (alarmDateTime, nowDateTime) {
                 return "NOTICE: Your reminder has expired; alarm time: " + alarmDateTime + "; current time: " + nowDateTime;
