@@ -1,22 +1,5 @@
 /*globals SunCalc, jml, localforage, createNotification, Notification */
 /*jslint vars:true */
-/*
-Todos:
-1. Set up listeners for previously set reminders (setTimeout which calls another setTimeout with recalced time?)
-    1. Have notification indicate alarm time and current time
-    1. Ensure alarms cancelled if deleted or updated if modified
-
-1. Reenable web app installation code and test
-1. Retry fresh installation (problems with npm on suncalc gone?)
-1. Enable offline manifest and test on server, ensuring no dependencies loaded
-
-Possible Todos:
-1. Display text messages instead of alerts/confirm for save/delete
-1. Optionally change close event (and message for it) to give optional prompt to snooze instead of just closing
-1. Allow specification of applicable date range or all
-1. Presets for Baha'i Fast, obligatory prayers, dawn prayers (though configurable afterward, e.g., in relative minutes after or before)
-1. Add content policy directive indicating no Ajax needed, etc. (see if Firefox will display this (for privacy reassurances to user))
-*/
 
 (function () { 'use strict';
 
