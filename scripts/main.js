@@ -5,6 +5,7 @@
 
 var locale;
 var formChanged = false;
+var notificationsClosed = {};
 var body = document.body;
 var times = SunCalc.times;
 var listeners = {}, watchers = {};
@@ -28,6 +29,12 @@ function _ (s) {
         "en-US": {
             geo_error: function (code, msg) {
                 return "ERROR(" + code + "): " + msg;
+            },
+            notification_message_onetime: function (alarmDateTime, nowDateTime) {
+                return "NOTICE: Your reminder has expired; alarm time: " + alarmDateTime + "; current time: " + nowDateTime;
+            },
+            notification_message_daily: function (alarmDateTime, nowDateTime) {
+                return "NOTICE: Your reminder has expired for today; alarm time: " + alarmDateTime + "; current time: " + nowDateTime;
             }
         }
     };
@@ -47,6 +54,51 @@ function removeChild (childSel) {
 function nbsp(ct) {
     return new Array((ct || 1) + 1).join('\u00a0');
 }
+function notify (name, body) {
+    // show the notification
+    var notification = new Notification('Reminder (Click inside me to stop)', {body: body, lang: locale}); // lang=string, body=string, tag=string, icon=url, dir (ltr|rtl|auto)
+    notification.onclick = function(e) {
+        notificationsClosed[name] = true;
+    };
+    notification.onclose = function(e) {
+        if (!notificationsClosed[name]) { // Only apparent way to keep it open
+            notify(name, body);
+        }
+        else { // In case notice runs again
+            delete notificationsClosed[name];
+        }
+    };
+    /*
+    notification.onshow = function(e) {
+    };
+    */
+    // And vibrate the device if it supports vibration API
+    window.navigator.vibrate(500);
+}
+
+function storageSetterErrorWrapper (cb) {
+    return function (val) {
+        if (!val) {
+            alert(_("ERROR: Problem setting storage; refreshing page to try to resolve..."));
+            window.location.refresh();
+            return;
+        }
+        if (cb) {
+            cb(val);
+        }
+    };
+}
+
+function storageGetterErrorWrapper (cb) {
+    return function (data) {
+        if (!data) {
+            alert(_("ERROR: Problem retrieving storage; refreshing page to try to resolve..."));
+            window.location.refresh();
+            return;
+        }
+        cb(data);
+    };
+}
 
 function createDefaultReminderForm () {
     createReminderForm({
@@ -60,13 +112,9 @@ function createDefaultReminderForm () {
 }
 
 function buildReminderTable () {
-    localforage.getItem('sundriven', function (forms) {
+    localforage.getItem('sundriven', storageGetterErrorWrapper(function (forms) {
         if (forms === null) {
-            localforage.setItem('sundriven', {}, function (val) {
-                if (!val) {
-                    alert(_("ERROR: Problem setting storage"));
-                }
-            });
+            localforage.setItem('sundriven', {}, storageSetterErrorWrapper());
             return;
         }
         removeElement('#forms');
@@ -77,9 +125,9 @@ function buildReminderTable () {
                     rows.push(['tr', {dataset: {name: form.name}, $on: {
                         click: function (e) {
                             var name = this.dataset.name;
-                            localforage.getItem('sundriven', function (forms) {
+                            localforage.getItem('sundriven', storageGetterErrorWrapper(function (forms) {
                                 createReminderForm(forms[name]);
-                            });
+                            }));
                         }}}, [
                             ['td', [form.name]], ['td', {'class': 'focus'}, [form.enabled ? 'x' : '']]
                         ]
@@ -96,8 +144,86 @@ function buildReminderTable () {
                 ])
             ]
         ], $('#forms-container'));
+    }));
+}
+
+function updateListeners (sundriven) {
+    Object.keys(sundriven).forEach(function (name) {
+        var data = sundriven[name];
+        function clearWatch (name) {
+            if (watchers[name]) {
+                navigator.geolocation.clearWatch(watchers[name]);
+            }
+        }
+        function getRelative (date) {
+            var timeoutID;
+            var minutes = parseFloat(data.minutes);
+            minutes = data.relativePosition === 'before' ? -minutes : minutes; // after|before
+            var time = ((date && (date.getTime() - Date.now())) || 0) + minutes * 60 * 1000;
+            if (time < 0) {
+                time = 0;
+            }
+            clearTimeout(listeners[name]);
+            switch(data.frequency) {
+                case 'daily':
+                    timeoutID = setTimeout(function () {
+                        createNotification(function () {
+                            notify(name, alert(_("notification_message_daily", new Date(time), new Date())));
+                        });
+                        getRelative(new Date(time + 24 * 60 * 60 * 1000));
+                    }, time);
+                    break;
+                default: // one-time
+                    timeoutID = setTimeout(function () {
+                        createNotification(function () {
+                            notify(name, alert(_("notification_message_onetime", new Date(time), new Date())));
+                        });
+                        delete listeners[name];
+                        clearWatch(name);
+                        data.enabled = 'false';
+                        localforage.setItem('sundriven', sundriven, storageSetterErrorWrapper(function () {
+                            if ($('#name').value === name) {
+                                $('#enabled').checked = false;
+                            }
+                            buildReminderTable();
+                        }));
+                    }, time);
+                    break;
+            }
+            listeners[name] = timeoutID;
+        }
+        if (data.enabled === 'true') {
+            clearWatch(name);
+            var relativeEvent = data.relativeEvent;
+            switch (relativeEvent) {
+                case 'now':
+                    getRelative();
+                    break;
+                default: // sunrise, etc.
+                    if (!navigator.geolocation) {
+                        alert(_("Your browser does not support or does not have Geolocation enabled"));
+                        return;
+                    }
+                    watchers[name] = navigator.geolocation.watchPosition(
+                        function geoCallback (pos) { // We could instead use getCurrentPosition, but that wouldn't update with the user's location
+                            var times = SunCalc.getTimes(new Date(), pos.coords.latitude, pos.coords.longitude);
+                            getRelative(times[relativeEvent]);
+                        },
+                        function geoErrBack (err) {
+                            alert(_("geo_error", err.code, err.message));
+                        }
+                        /*, { // Geolocation options
+                            enableHighAccuracy: true,
+                            maximumAge: 30000,
+                            timeout: 27000
+                        };*/
+                    );
+                    break;
+            }
+        }
     });
 }
+
 
 function createReminderForm (settings, allowRename) {
     function radioGroup (groupName, radios, selected) {
@@ -146,80 +272,7 @@ function createReminderForm (settings, allowRename) {
         });
         return targetObj;
     }
-    function updateListeners (sundriven) {
-        Object.keys(sundriven).forEach(function (name) {
-            var data = sundriven[name];
-            function clearWatch (name) {
-                if (watchers[name]) {
-                    navigator.geolocation.clearWatch(watchers[name]);
-                }
-            }
-            function getRelative (date) {
-                var timeoutID;
-                var minutes = parseFloat(data.minutes);
-                minutes = data.relativePosition === 'before' ? -minutes : minutes; // after|before
-                var time = ((date && (date.getTime() - Date.now())) || 0) + minutes * 60 * 1000;
-                if (time < 0) {
-                    time = 0;
-                }
-                clearTimeout(listeners[name]);
-                switch(data.frequency) {
-                    case 'daily':
-                        timeoutID = setTimeout(function () {
-                            // Todo
-                            
-                        }, time);
-                        break;
-                    default: // one-time
-                        timeoutID = setTimeout(function () {
-                            // Todo
-                            
-                            delete listeners[name];
-                            clearWatch(name);
-                            data.enabled = 'false';
-                            localforage.setItem('sundriven', sundriven, function () {
-                                if ($('#name').value === name) {
-                                    $('#enabled').checked = false;
-                                }
-                                buildReminderTable();
-                            });
-                        }, time);
-                        break;
-                }
-                listeners[name] = timeoutID;
-            }
-            if (data.enabled === 'true') {
-                clearWatch(name);
-                var relativeEvent = data.relativeEvent;
-                switch (relativeEvent) {
-                    case 'now':
-                        getRelative();
-                        break;
-                    default: // sunrise, etc.
-                        if (!navigator.geolocation) {
-                            alert(_("Your browser does not support or does not have Geolocation enabled"));
-                            return;
-                        }
-                        watchers[name] = navigator.geolocation.watchPosition(
-                            function geoCallback (pos) { // We could instead use getCurrentPosition, but that wouldn't update with the user's location
-                                var times = SunCalc.getTimes(new Date(), pos.coords.latitude, pos.coords.longitude);
-                                getRelative(times[relativeEvent]);
-                            },
-                            function geoErrBack (err) {
-                                alert(_("geo_error", err.code, err.message));
-                            }
-                            /*, { // Geolocation options
-                                enableHighAccuracy: true,
-                                maximumAge: 30000,
-                                timeout: 27000
-                            };*/
-                        );
-                        break;
-                }
-            }
-        });
-    }
-
+    
     if (formChanged) {
         var continueWithNewForm = confirm("You have unsaved changes; are you sure you wish to continue and lose your unsaved changes?");
         if (!continueWithNewForm) {
@@ -296,12 +349,8 @@ function createReminderForm (settings, allowRename) {
 //                alert(_("ERROR: Please supply a name"));
                 return;
             }
-            localforage.getItem('sundriven', function (sundriven) {
-                if (!sundriven) {
-                    alert(_("ERROR: Problem retrieving storage; refreshing page to try to resolve..."));
-                    window.location.refresh();
-                    return;
-                }
+
+            localforage.getItem('sundriven', storageGetterErrorWrapper(function (sundriven) {
                 if (!settings.name && // If this form was for creating new as opposed to editing old reminders
                     sundriven[data.name]) {
                     alert(_("ERROR: Please supply a unique name"));
@@ -310,34 +359,36 @@ function createReminderForm (settings, allowRename) {
                 var originalName = $('#name').defaultValue;
                 if ([$('#name').value, ''].indexOf(originalName) === -1) {
                     // If this is a rename, we warned the user earlier about it, so go ahead and delete now
-                    clearTimeout(listeners[originalName]); // Todo: test
+                    clearTimeout(listeners[originalName]);
                     delete sundriven[originalName];
                 }
                 sundriven[data.name] = data;
-                localforage.setItem('sundriven', sundriven, function () {
+                localforage.setItem('sundriven', sundriven, storageSetterErrorWrapper(function () {
                     formChanged = false;
                     buildReminderTable();
                     updateListeners(sundriven);
                     alert(_("Saved!"));
-                });
-            });
+                }));
+            }));
         }}}],
         ['button', {'class': 'delete', $on: {click: function (e) {
-            if (!$('#name').value) { // Required field will be used automatically
+            var name = $('#name').value;
+            if (!name) { // Required field will be used automatically
                 // alert(_("Please supply a reminder name for deletion."));
                 return;
             }
             var okDelete = confirm(_("Are you sure you wish to delete this reminder?"));
             if (okDelete) {
-                localforage.getItem('sundriven', function (sundriven) {
-                    delete sundriven[$('#name').value];
-                    localforage.setItem('sundriven', sundriven, function () {
+                clearTimeout(listeners[name]);
+                localforage.getItem('sundriven', storageGetterErrorWrapper(function (sundriven) {
+                    delete sundriven[name];
+                    localforage.setItem('sundriven', sundriven, storageSetterErrorWrapper(function () {
                         formChanged = false;
                         buildReminderTable();
                         createDefaultReminderForm();
                         alert(_("Reminder deleted!"));
-                    });
-                });
+                    }));
+                }));
             }
         }}}, [_("Delete")]]
     ]]], $('#table-container'));
@@ -357,25 +408,9 @@ window.addEventListener('beforeunload', function (e) {
 
 buildReminderTable();
 createDefaultReminderForm();
-
-var closed = false;
-function notify () {
-    // show the notification
-    var notification = new Notification('Reminder (Click inside me to stop)', { body: 'not yet implemented' }); // lang=string, body=string, tag=string, icon=url, dir (ltr|rtl|auto)
-    notification.onclick = function(e) {
-        closed = true;
-    };
-    notification.onshow = function(e) {
-    };
-    notification.onclose = function(e) {
-        if (!closed) { // Only apparent way to keep it open
-            notify();
-        }
-    };
-    // And vibrate the device if it supports vibration API
-    window.navigator.vibrate(500);
-}
-// createNotification(notify);
+localforage.getItem('sundriven', storageGetterErrorWrapper(function (sundriven) {
+    updateListeners(sundriven);
+}));
 
 // EXPORTS
 // window. = ;

@@ -15,9 +15,7 @@ npm install .
 ```
 
 # Todos
-1. Set up listeners for previously set reminders (setTimeout which calls another setTimeout with recalced time?)
-    1. Have notification indicate alarm time and current time (and modified time if geoloc caused change?)
-    1. Ensure alarms cancelled if deleted or updated if modified
+1. Test notifications
 1. Retry fresh installation (problems with npm on suncalc gone?)
 
 1. Add browserify to devDependencies and utilize instead of hard-coded script tags (also modularize and use localization function `_` (and separating out the locales as well), so it can be reused across modules); add bower.json and submit?
@@ -25,6 +23,7 @@ npm install .
 1. Enable offline manifest and test on server, ensuring no dependencies loaded
 
 # Possible Todos
+1. Indicate original modified time on notices (since geoloc may have updated)
 1. Allow fractional minutes (if able to keep input steps)
 1. Config to auto-delete expired timeouts (one-time ones) instead of just disabling
 1. Make geolocation options (and option to use getCurrentPosition in place of watchPosition) configurable
