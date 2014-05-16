@@ -127,8 +127,8 @@ function createReminderForm (settings, allowRename) {
                     checkboxes: ['enabled'],
                     radios: ['relativePosition']
                 });
-                s(data);
-                // createReminderForm(data, true);
+                formChanged = false; // Temporarily indicate the changes are not changed
+                createReminderForm(data, true);
             }
         }
         formChanged = true;
