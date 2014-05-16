@@ -26,6 +26,16 @@ function _ (s) {
     };
     return (messages[locale] || messages['en-US'])[s] || s;
 }
+function removeElement (elemSel) {
+    if ($(elemSel)) {
+        $(elemSel).parentNode.removeChild($(elemSel));
+    }
+}
+function removeChild (childSel) {
+    if ($(childSel).firstElementChild) {
+        $(childSel).removeChild($(childSel).firstElementChild);
+    }
+}
 
 function createReminderForm (settings) {
     settings = settings || {};
@@ -75,6 +85,8 @@ function createReminderForm (settings) {
         });
         return targetObj;
     }
+    
+    removeChild('#table-container');   
     var formID = 'set-reminder';
     jml('form', {id: formID}, [['fieldset', [
         ['legend', [_("Set Reminder")]],
@@ -142,7 +154,17 @@ function createReminderForm (settings) {
                 });
             });
         }}}]
-    ]]], body);
+    ]]], $('#table-container'));
+}
+function createDefaultReminderForm () {
+    createReminderForm({
+        name: '',
+        enabled: true,
+        frequency: 'daily',
+        relativeEvent: 'now',
+        minutes: 60,
+        relativePosition: 'after'
+    });
 }
 
 setLocale();
@@ -160,6 +182,7 @@ localforage.getItem('sundriven', function (forms) {
 
     // Todo: rebuild table upon each addition or editing of a reminder form
     
+    removeElement('#forms');
     var table = jml('table', {id: 'forms'}, [
         ['tbody',
             Object.keys(forms).sort().reduce(function (rows, formKey) {
@@ -171,7 +194,7 @@ localforage.getItem('sundriven', function (forms) {
                             createReminderForm(forms[name]);
                         });
                     }}}, [
-                        ['td', [form.name]], ['td', [String(form.enabled)]]
+                        ['td', [form.name]], ['td', [form.enabled ? 'x' : '']]
                     ]
                 ]);
                 return rows;
@@ -179,19 +202,15 @@ localforage.getItem('sundriven', function (forms) {
                 ['tr', [
                     ['th', [_("Name")]],
                     ['th', [_("Enabled")]]
+                ]],
+                ['tr', [
+                    ['td', {colspan: 2, align: 'center', $on: {click: createDefaultReminderForm}}, [_("(Create new reminder)")]]
                 ]]
             ])
         ]
-    ], body);
+    ], $('#forms-container'));
     
-    createReminderForm({
-        name: '',
-        enabled: true,
-        frequency: 'daily',
-        relativeEvent: 'now',
-        minutes: 60,
-        relativePosition: 'after'
-    });
+    createDefaultReminderForm();
 });
 
 /*

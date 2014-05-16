@@ -1,3 +1,8 @@
-table {border-collapse: collapse;}
-th, td {border: 1px solid black;}
-tr:active {color:red;}
+
+#forms-container {float: left; width: 15%;}
+#table-container {float: left; width: 85%;}
+#forms {border-collapse: collapse;}
+#forms th, td {border: 1px solid black;}
+#forms tr:active > td {color:fuchsia;}
+
+#forms {margin-left: 20px; margin-right: 20px;}
