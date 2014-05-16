@@ -6,3 +6,5 @@
 #forms tr:active > td {color:fuchsia;}
 
 #forms {margin-left: 20px; margin-right: 20px;}
+
+.focus {text-align:center;}

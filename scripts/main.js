@@ -194,7 +194,7 @@ localforage.getItem('sundriven', function (forms) {
                             createReminderForm(forms[name]);
                         });
                     }}}, [
-                        ['td', [form.name]], ['td', [form.enabled ? 'x' : '']]
+                        ['td', [form.name]], ['td', {'class': 'focus'}, [form.enabled ? 'x' : '']]
                     ]
                 ]);
                 return rows;
@@ -204,7 +204,7 @@ localforage.getItem('sundriven', function (forms) {
                     ['th', [_("Enabled")]]
                 ]],
                 ['tr', [
-                    ['td', {colspan: 2, align: 'center', $on: {click: createDefaultReminderForm}}, [_("(Create new reminder)")]]
+                    ['td', {colspan: 2, 'class': 'focus', $on: {click: createDefaultReminderForm}}, [_("(Create new reminder)")]]
                 ]]
             ])
         ]
