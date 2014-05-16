@@ -1,8 +1,28 @@
 /*globals SunCalc, jml, localforage, createNotification, Notification */
 /*jslint vars:true */
+/*
+Todos:
+1. Confirm if user wishes to click away and lose changes
+1. Allow editing and renaming
+
+1. Set up listeners for previously set reminders (setTimeout which calls another setTimeout with recalced time?)
+    1. Have notification indicate alarm time and current time
+    1. Ensure alarms cancelled if deleted or updated if modified
+
+1. Reenable web app installation code and test
+
+Possible Todos:
+1. Display text messages instead of alerts/confirm for save/delete
+1. Optionally change close event (and message for it) to give optional prompt to snooze instead of just closing
+1. Allow specification of applicable date range or all
+1. Presets for Baha'i Fast, obligatory prayers, dawn prayers (though configurable afterward, e.g., in relative minutes after or before)
+1. Add content policy directive indicating no Ajax needed, etc. (see if Firefox will display this (for privacy reassurances to user))
+*/
+
 (function () { 'use strict';
 
 var locale;
+var formChanged = false;
 var body = document.body;
 var times = SunCalc.times;
 
@@ -169,6 +189,7 @@ function createReminderForm (settings) {
                     delete sundriven[$('#name').value];
                     localforage.setItem('sundriven', sundriven, function () {
                         buildReminderTable();
+                        createDefaultReminderForm();
                         alert(_("Reminder deleted!"));
                     });
                 });
@@ -232,24 +253,6 @@ function buildReminderTable () {
 }
 buildReminderTable();
 createDefaultReminderForm();
-
-/*
-Todos:
-1. Allow editing
-1. Confirm if user wishes to click away and lose changes
-1. Set up listeners for previously set reminders (setTimeout which calls another setTimeout with recalced time?)
-    1. Have notification indicate alarm time and current time
-    1. Ensure alarms cancelled if deleted or updated if modified
-
-1. Reenable web app installation code and test
-
-Possible Todos:
-1. Display text messages instead of alerts/confirm for save/delete
-1. Optionally change close event (and message for it) to give optional prompt to snooze instead of just closing
-1. Allow specification of applicable date range or all
-1. Presets for Baha'i Fast, obligatory prayers, dawn prayers (though configurable afterward, e.g., in relative minutes after or before)
-1. Add content policy directive indicating no Ajax needed, etc. (see if Firefox will display this (for privacy reassurances to user))
-*/
 
 var closed = false;
 function notify () {
