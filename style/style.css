@@ -3,7 +3,8 @@
 #table-container {float: left; width: 85%;}
 #forms {border-collapse: collapse;}
 #forms th, td {border: 1px solid black;}
-#forms tr:active > td {color:fuchsia;}
+#forms tr:hover > td {color:blue;}
+#forms tr:active > td {background-color:fuchsia;}
 
 #forms {margin-left: 20px; margin-right: 20px;}
 
