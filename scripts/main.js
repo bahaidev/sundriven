@@ -128,8 +128,7 @@ function createReminderForm (settings, allowRename) {
                     radios: ['relativePosition']
                 });
                 s(data);
-                //createReminderForm(data, true);
-                return;
+                // createReminderForm(data, true);
             }
         }
         formChanged = true;
