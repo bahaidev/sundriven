@@ -2,8 +2,6 @@
 /*jslint vars:true */
 /*
 Todos:
-1. Allow editing and renaming
-
 1. Set up listeners for previously set reminders (setTimeout which calls another setTimeout with recalced time?)
     1. Have notification indicate alarm time and current time
     1. Ensure alarms cancelled if deleted or updated if modified
@@ -193,6 +191,11 @@ function createReminderForm (settings, allowRename) {
                     sundriven[data.name]) {
                     alert(_("ERROR: Please supply a unique name"));
                     return;
+                }
+                var originalName = $('#name').defaultValue;
+                if ([$('#name').value, ''].indexOf(originalName) === -1) {
+                    // If this is a rename, we warned the user earlier about it, so go ahead and delete now
+                    delete sundriven[originalName];
                 }
                 sundriven[data.name] = data;
                 localforage.setItem('sundriven', sundriven, function () {
