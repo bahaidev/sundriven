@@ -1,57 +1,125 @@
-/*globals createNotification, Notification */
+/*globals SunCalc, jml, createNotification, Notification */
 /*jslint vars:true */
 (function () { 'use strict';
-document.title = "Sun Driven";
+
+var locale;
 var body = document.body;
+var times = SunCalc.times;
 
-// Copied from internals of suncalc.js : https://github.com/mourner/suncalc/issues/17
-var times = [
-    [-0.83, 'sunrise',       'sunset'      ],
-    [ -0.3, 'sunriseEnd',    'sunsetStart' ],
-    [   -6, 'dawn',          'dusk'        ],
-    [  -12, 'nauticalDawn',  'nauticalDusk'],
-    [  -18, 'nightEnd',      'night'       ],
-    [    6, 'goldenHourEnd', 'goldenHour'  ]
-];
-
+function $ (sel) {
+    return document.querySelector(sel);
+}
+function setLocale () {
+    var loc = window.location.href;
+    var frag = '#lang=';
+    var langInURLPos = loc.indexOf(frag);
+    var langInURL = (langInURLPos > -1) ? loc.slice(langInURLPos + frag.length) : false;
+    locale = langInURL || navigator.language || 'en-US';
+    document.documentElement.lang = locale;
+}
 function _ (s) {
-    return {
-        en: {}
-    }[s] || s;
+    var messages = {
+        "en-US": {}
+    };
+    return (messages[locale] || messages['en-US'])[s] || s;
 }
 
-jml('fieldset', [
-    ['legend', [_("Set Reminder")]],
-    ['select', [
-        ['option', [_("Daily")]],
-        ['option', [_("One-time")]]
-    ]],
-    ['br'],
-    ['label', [
-        _("Relative to") + ' ',
-        ['select', times.reduce(function (arr, time) {
-            arr.push(
-                ['option', {value: time[1]}, [_(time[1])]],
-                ['option', {value: time[2]}, [_(time[2])]]
-            );
+function createReminderForm (settings) {
+    settings = settings || {};
+    function radioGroup (groupName, radios, selected) {
+        return ['span', radios.reduce(function (arr, radio) {
+            var radioObj = {type:'radio', name: groupName, id: radio.id};
+            if (radio.id === selected) {
+                radioObj.checked = true; // For some reason, we can't set this successfully on a jml() DOM object below, so we do it here
+            }
+            var rad = ['label', [
+                ['input', radioObj],
+                radio.label
+            ]];
+            arr.push(rad);
             return arr;
-        }, [['option', {value: 'now'}, [_("now")]]])]
-    ]],
-    '\u00a0 ',
-    ['label', [
-        ['input', {type: 'number', step: 1, value: 60}],
-        _("Minutes")
-    ]],
-    '\u00a0 ',
-    ['label', [
-        _("after"),
-        ['input', {type:'radio', name:'before-after', checked: 'checked'}]
-    ]],
-    ['label', [
-        _("before"),
-        ['input', {type:'radio', name:'before-after'}]
-    ]]
-], body);
+        }, [])];
+    }
+    function select (id, options) {
+        var sel = jml('select', {id: id}, options, null);
+        sel.value = settings[id] || '';
+        return sel;
+    }
+    function checkbox (id) {
+        var inputObj = {type: 'checkbox', id: id};
+        if (settings[id]) {
+            inputObj.checked = true;
+        }
+        return ['input', inputObj];
+    }
+    var formID = 'set-reminder';
+    jml('form', {id: formID}, [['fieldset', [
+        ['legend', [_("Set Reminder")]],
+        ['label', [
+            _("Name") + ' ',
+            ['input', {id: 'name', value: settings.name || ''}]
+        ]],
+        ['label', [
+            checkbox('enabled'),
+            _("Enabled")
+        ]],
+        ['br'],
+        ['label', [
+            _("Frequency") + ' ',
+            select('frequency', [
+                    ['option', {value: 'daily'}, [_("Daily")]],
+                    ['option', {value: 'one-time'}, [_("One-time")]]
+            ])
+        ]],
+        ['br'],
+        ['label', [
+            _("Relative to") + ' ',
+            select('relativeEvent', times.reduce(function (arr, time) {
+                arr.push(
+                    ['option', {value: time[1]}, [_(time[1])]],
+                    ['option', {value: time[2]}, [_(time[2])]]
+                );
+                return arr;
+            }, [['option', {value: 'now'}, [_("now")]]]))
+        ]],
+        '\u00a0 ',
+        ['label', [
+            ['input', {id: 'minutes', type: 'number', step: 1, value: settings.minutes}],
+            ' ' + _("Minutes")
+        ]],
+        '\u00a0 ',
+        radioGroup('relativePosition', [
+            {label: _("after"), id: 'after'},
+            {label: _("before"), id: 'before'}
+        ], settings.relativePosition),
+        ['br'],
+        ['input', {type: 'submit', value: _("Save"), $on: {click: function () {
+            
+            ['name', 'enabled', 'frequency', 'relativeEvent', 'minutes'].forEach(function (setting) {
+                alert(setting + ':' + $('#' + setting).value);
+            });
+            ['relativePosition'].forEach(function (setting) {
+                alert(
+                    [].slice.call($('#' + formID)[setting]).filter(function (radio) {
+                        return radio.checked;
+                    })[0].id
+                );
+            });
+            
+        }}}]
+    ]]], body);
+}
+
+setLocale();
+document.title = _("Sun Driven");
+createReminderForm({
+    name: '',
+    enabled: true,
+    frequency: 'daily',
+    relativeEvent: 'now',
+    minutes: 60,
+    relativePosition: 'after'
+});
 
 /*
 Todos:
@@ -61,6 +129,7 @@ Todos:
 1. Set up listeners for previously set reminders (setTimeout which calls another setTimeout with recalced time?)
     1. Have notification indicate alarm time and current time
 1. Optionally change close event (and message for it) to give optional prompt to snooze instead of just closing
+1. Add content policy directive indicating no Ajax needed, etc. (see if Firefox will display this (for privacy reassurances to user))
 */
 
 var closed = false;
