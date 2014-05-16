@@ -10,6 +10,12 @@
         "suncalc": "1.x",
         "jamilih": "0.x"
     },
+    "devDependencies": {
+        "bower": "1.x"
+    },
+    "scripts": {
+        "prepublish": "bower install localforage"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/brettz9/sundriven.git"

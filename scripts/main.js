@@ -1,4 +1,4 @@
-/*globals SunCalc, jml, createNotification, Notification */
+/*globals SunCalc, jml, localforage, createNotification, Notification */
 /*jslint vars:true */
 (function () { 'use strict';
 
@@ -6,6 +6,9 @@ var locale;
 var body = document.body;
 var times = SunCalc.times;
 
+function s (obj) {
+    alert(JSON.stringify(obj));
+}
 function $ (sel) {
     return document.querySelector(sel);
 }
@@ -55,7 +58,7 @@ function createReminderForm (settings) {
     /**
     * @todo If no controls array is present, we could just iterate over all form controls
     */
-    function serializeForm (targetObj, controls) {
+    function serializeForm (formID, targetObj, controls) {
         // Selects, text/numeric inputs
         controls.inputs.forEach(function (setting) {
             targetObj[setting] = $('#' + setting).value;
@@ -68,7 +71,7 @@ function createReminderForm (settings) {
         controls.radios.forEach(function (setting) {
             targetObj[setting] = [].slice.call($('#' + formID)[setting]).filter(function (radio) {
                 return radio.checked;
-            })[0].id
+            })[0].id;
         });
         return targetObj;
     }
@@ -114,7 +117,7 @@ function createReminderForm (settings) {
         ], settings.relativePosition),
         ['br'],
         ['input', {type: 'submit', value: _("Save"), $on: {click: function () {
-            var data = serializeForm({}, {
+            var data = serializeForm(formID, {}, {
                 inputs: ['name', 'frequency', 'relativeEvent', 'minutes'],
                 checkboxes: ['enabled'],
                 radios: ['relativePosition']
@@ -123,25 +126,72 @@ function createReminderForm (settings) {
 //                alert(_("Please supply a name"));
                 return;
             }
-            if (localStorage[data.name]) {
-                alert(_("ERROR: Please supply a unique name"));
-                return;
-            }
-            localStorage[data.name] = data;
-            alert(_("Saved!"));
+            localforage.getItem('sundriven', function (sundriven) {
+                if (!sundriven) {
+                    alert(_("Problem retrieving storage; refreshing page to try to resolve..."));
+                    window.location.refresh();
+                    return;
+                }
+                if (sundriven[data.name]) {
+                    alert(_("ERROR: Please supply a unique name"));
+                    return;
+                }
+                sundriven[data.name] = data;
+                localforage.setItem('sundriven', sundriven, function () {
+                    alert(_("Saved!"));
+                });
+            });
         }}}]
     ]]], body);
 }
 
 setLocale();
 document.title = _("Sun Driven");
-createReminderForm({
-    name: '',
-    enabled: true,
-    frequency: 'daily',
-    relativeEvent: 'now',
-    minutes: 60,
-    relativePosition: 'after'
+
+localforage.getItem('sundriven', function (forms) {
+    if (forms === null) {
+        localforage.setItem('sundriven', {}, function (val) {
+            if (!val) {
+                alert(_("Error setting storage"));
+            }
+        });
+        return;
+    }
+
+    // Todo: rebuild table upon each addition or editing of a reminder form
+    
+    var table = jml('table', {id: 'forms'}, [
+        ['tbody',
+            Object.keys(forms).sort().reduce(function (rows, formKey) {
+                var form = forms[formKey];
+                rows.push(['tr', {dataset: {name: form.name}, $on: {
+                    click: function (e) {
+                        var name = this.dataset.name;
+                        localforage.getItem('sundriven', function (forms) {
+                            createReminderForm(forms[name]);
+                        });
+                    }}}, [
+                        ['td', [form.name]], ['td', [String(form.enabled)]]
+                    ]
+                ]);
+                return rows;
+            }, [
+                ['tr', [
+                    ['th', [_("Name")]],
+                    ['th', [_("Enabled")]]
+                ]]
+            ])
+        ]
+    ], body);
+    
+    createReminderForm({
+        name: '',
+        enabled: true,
+        frequency: 'daily',
+        relativeEvent: 'now',
+        minutes: 60,
+        relativePosition: 'after'
+    });
 });
 
 /*
@@ -172,7 +222,7 @@ function notify () {
     // And vibrate the device if it supports vibration API
     window.navigator.vibrate(500);
 }
-createNotification(notify);
+// createNotification(notify);
 
 // EXPORTS
 // window. = ;
