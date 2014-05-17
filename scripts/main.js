@@ -80,7 +80,7 @@ function storageSetterErrorWrapper (cb) {
     return function (val) {
         if (!val) {
             alert(_("ERROR: Problem setting storage; refreshing page to try to resolve..."));
-            window.location.refresh();
+            window.location.reload();
             return;
         }
         if (cb) {
@@ -91,9 +91,11 @@ function storageSetterErrorWrapper (cb) {
 
 function storageGetterErrorWrapper (cb) {
     return function (data) {
-        if (!data) {
-            alert(_("ERROR: Problem retrieving storage; refreshing page to try to resolve..."));
-            window.location.refresh();
+        if (data === null) {
+            localforage.setItem('sundriven', {}, storageSetterErrorWrapper());
+            // This would loop (and data will be null on first run)
+            // alert(_("ERROR: Problem retrieving storage; refreshing page to try to resolve..."));
+            // window.location.reload();
             return;
         }
         cb(data);
@@ -113,10 +115,6 @@ function createDefaultReminderForm () {
 
 function buildReminderTable () {
     localforage.getItem('sundriven', storageGetterErrorWrapper(function (forms) {
-        if (forms === null) {
-            localforage.setItem('sundriven', {}, storageSetterErrorWrapper());
-            return;
-        }
         removeElement('#forms');
         var table = jml('table', {id: 'forms'}, [
             ['tbody',
