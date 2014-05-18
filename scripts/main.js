@@ -92,13 +92,11 @@ function storageSetterErrorWrapper (cb) {
 function storageGetterErrorWrapper (cb) {
     return function (data) {
         if (data === null) {
-            localforage.setItem('sundriven', {}, storageSetterErrorWrapper());
+            localforage.setItem('sundriven', {}, storageSetterErrorWrapper(function () {cb(data);}));
             // This would loop (and data will be null on first run)
             // alert(_("ERROR: Problem retrieving storage; refreshing page to try to resolve..."));
             // window.location.reload();
-            return;
-        }
-        cb(data);
+        };
     };
 }
 
