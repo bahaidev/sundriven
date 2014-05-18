@@ -372,6 +372,7 @@ function createReminderForm (settings, allowRename) {
             }));
         }}}],
         ['button', {'class': 'delete', $on: {click: function (e) {
+            e.preventDefault();
             var name = $('#name').value;
             if (!name) { // Required field will be used automatically
                 // alert(_("Please supply a reminder name for deletion."));
