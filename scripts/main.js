@@ -92,7 +92,7 @@ function storageSetterErrorWrapper (cb) {
 function storageGetterErrorWrapper (cb) {
     return function (data) {
         if (data === null) {
-            localforage.setItem('sundriven', {}, storageSetterErrorWrapper(function () {cb(data);}));
+            localforage.setItem('sundriven', {}, storageSetterErrorWrapper(function (val) {cb(val);}));
             // This would loop (and data will be null on first run)
             // alert(_("ERROR: Problem retrieving storage; refreshing page to try to resolve..."));
             // window.location.reload();
