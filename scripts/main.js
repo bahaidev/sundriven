@@ -106,10 +106,10 @@ function storageGetterErrorWrapper (cb) {
 function createDefaultReminderForm () {
     createReminderForm({
         name: '',
-        enabled: true,
+        enabled: 'true',
         frequency: 'daily',
         relativeEvent: 'now',
-        minutes: 60,
+        minutes: '60',
         relativePosition: 'after'
     });
 }
@@ -191,6 +191,7 @@ function updateListeners (sundriven) {
             }
             listeners[name] = timeoutID;
         }
+
         if (data.enabled === 'true') {
             clearWatch(name);
             var relativeEvent = data.relativeEvent;
