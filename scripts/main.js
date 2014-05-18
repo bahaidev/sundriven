@@ -96,7 +96,10 @@ function storageGetterErrorWrapper (cb) {
             // This would loop (and data will be null on first run)
             // alert(_("ERROR: Problem retrieving storage; refreshing page to try to resolve..."));
             // window.location.reload();
-        };
+        }
+        else {
+            cb(data);
+        }
     };
 }
 
