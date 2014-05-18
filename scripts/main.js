@@ -106,7 +106,7 @@ function storageGetterErrorWrapper (cb) {
 function createDefaultReminderForm () {
     createReminderForm({
         name: '',
-        enabled: 'true',
+        enabled: true,
         frequency: 'daily',
         relativeEvent: 'now',
         minutes: '60',
@@ -192,7 +192,7 @@ function updateListeners (sundriven) {
             listeners[name] = timeoutID;
         }
 
-        if (data.enabled === 'true') {
+        if (data.enabled) {
             clearWatch(name);
             var relativeEvent = data.relativeEvent;
             switch (relativeEvent) {
