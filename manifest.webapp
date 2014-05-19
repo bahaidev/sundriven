@@ -1,6 +1,6 @@
 {
   "name": "sundriven",
-  "description": "Allows toaster-style notification reminders to be given relative to dawn, sunrise, or sunset times",
+  "description": "Allows toaster-style notification reminders to be given relative to the current time or to astronomical events such as dawn, sunrise, or sunset.",
   "type": "web",
   "launch_path": "/sundriven/index.html#lang=en",
   "default_locale": "en",
