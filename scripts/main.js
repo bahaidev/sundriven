@@ -154,7 +154,7 @@ function updateListeners (sundriven) {
                 navigator.geolocation.clearWatch(watchers[name]);
             }
         }
-        function getRelative (date) {alert(date);
+        function getRelative (date) {
             var timeoutID;
             var minutes = parseFloat(data.minutes);
             minutes = data.relativePosition === 'before' ? -minutes : minutes; // after|before
