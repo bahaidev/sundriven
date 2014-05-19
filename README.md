@@ -33,3 +33,12 @@ npm install .
 1. Optionally change close event (and message for it) to give optional prompt to snooze instead of just closing
 1. Allow specification of applicable date range or all
 1. Presets, e.g., for Baha'i Fast, obligatory prayers, dawn prayers (though configurable afterward, e.g., in relative minutes after or before)
+
+# Credits
+
+Thanks to suncalc and localforage for great libraries and to
+[dear_theophilus](http://openclipart.org/user-detail/dear_theophilus) of
+[openclipart](http://openclipart.org)
+for the
+[Rising Sun](http://openclipart.org/detail/122071/rising-sun-by-dear_theophilus)
+clip art.
