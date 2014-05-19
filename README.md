@@ -11,6 +11,9 @@ calculations and [localforage](https://github.com/mozilla/localForage)
 for local storage (IndexedDB or WebSQL where available; localStorage
 otherwise).
 
+I have experienced Geolocation errors periodically, but that may be
+due to my specific location or network settings.
+
 **[Demo](http://brett-zamir.me/sundriven/)**
 
 # Installation
