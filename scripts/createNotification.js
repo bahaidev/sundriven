@@ -35,7 +35,7 @@ function createNotification(notify) {
             var div = document.createElement('div');
             div.className = 'overlay';
             div.appendChild(document.createTextNode("Click to allow notifications")); // Satisfy Chrome's delusion that user gestures ensure the user retains the locus of control
-            div.addEventListener('click', function () {
+            div.addEventListener('mouseover', function () {
                 div.parentNode.removeChild(div);
                 request(notify);
             });
