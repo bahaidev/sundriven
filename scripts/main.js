@@ -74,6 +74,33 @@ function removeChild (childSel) {
 function nbsp(ct) {
     return new Array((ct || 1) + 1).join('\u00a0');
 }
+/**
+* @todo If no controls array is present, we could just iterate over all form controls
+*/
+function serializeForm (formID, targetObj, controls) {
+    // Selects, text/numeric inputs
+    if (controls.inputs) {
+        controls.inputs.forEach(function (setting) {
+            targetObj[setting] = $('#' + setting).value;
+        });
+    }
+    // Checkboxes
+    if (controls.checkboxes) {
+        controls.checkboxes.forEach(function (setting) {
+            targetObj[setting] = $('#' + setting).checked;
+        });
+    }
+    // Radio buttons
+    if (controls.radios) {
+        controls.radios.forEach(function (setting) {
+            targetObj[setting] = [].slice.call($('#' + formID)[setting]).filter(function (radio) {
+                return radio.checked;
+            })[0].id;
+        });
+    }
+    return targetObj;
+}
+
 function getGeoPositionWrapper (cb, errBack) {
     if (!navigator.geolocation) {
         alert(_("Your browser does not support or does not have Geolocation enabled"));
@@ -282,26 +309,6 @@ function createReminderForm (settings, allowRename) {
         }
         return ['input', inputObj];
     }
-    /**
-    * @todo If no controls array is present, we could just iterate over all form controls
-    */
-    function serializeForm (formID, targetObj, controls) {
-        // Selects, text/numeric inputs
-        controls.inputs.forEach(function (setting) {
-            targetObj[setting] = $('#' + setting).value;
-        });
-        // Checkboxes
-        controls.checkboxes.forEach(function (setting) {
-            targetObj[setting] = $('#' + setting).checked;
-        });
-        // Radio buttons
-        controls.radios.forEach(function (setting) {
-            targetObj[setting] = [].slice.call($('#' + formID)[setting]).filter(function (radio) {
-                return radio.checked;
-            })[0].id;
-        });
-        return targetObj;
-    }
     
     if (formChanged) {
         var continueWithNewForm = confirm("You have unsaved changes; are you sure you wish to continue and lose your unsaved changes?");
@@ -427,42 +434,53 @@ function createReminderForm (settings, allowRename) {
 
 jml('div', [
         ['button', {$on: {click: function () {
-            $('#settings').hidden = !$('#settings').hidden;
+            $('#settings-holder').hidden = !$('#settings-holder').hidden;
         }}}, [_("Settings")]],
-        ['div', {id: 'settings', hidden: true}, [
-            ['fieldset', [
-                ['select', [
-                    ['option', {title: _("Fall back to the coordinates below when offline or upon Geolocation errors")}, [_("Use Geolocation when available")]],
-                    ['option', {title: _("Avoids a trip to the server but may not be accurate if you are traveling out of the area with your device.")}, [_("Never use Geolocation; always use manual coordinates.")]],
-                    ['option', {title: _("Will report errors instead of falling back (not recommended)")}, [_("Always use Geolocation; do not fall back to manual coordinates")]]
-                ]],
-                ['fieldset', {title: _("Use these coordinates for astronomical event-based reminders when offline or upon errors")}, [
-                    ['legend', [_("Manual coordinates")]],
-                    ['label', [
-                        _("Latitude") + ' ',
-                        ['input', {id: 'latitude', size: 20}]
+        ['div', {id: 'settings-holder', hidden: true}, [
+            ['form', {id: 'settings', $on: {change: function () {
+                var data = serializeForm('settings', {}, {
+                    inputs: ['geoloc-usage', 'latitude', 'longitude']
+                });
+                localforage.setItem('sundriven-settings', data, storageSetterErrorWrapper());
+            }}}, [
+                ['fieldset', [
+                    ['select', {id: 'geoloc-usage'}, [
+                        ['option', {title: _("Fall back to the coordinates below when offline or upon Geolocation errors")}, [_("Use Geolocation when available")]],
+                        ['option', {title: _("Avoids a trip to the server but may not be accurate if you are traveling out of the area with your device.")}, [_("Never use Geolocation; always use manual coordinates.")]],
+                        ['option', {title: _("Will report errors instead of falling back (not recommended)")}, [_("Always use Geolocation; do not fall back to manual coordinates")]]
                     ]],
-                    nbsp(),
-                    ['label', [
-                        _("Longitude") + ' ',
-                        ['input', {id: 'longitude', size: 20}]
-                    ]],
-                    ['br'],
-                    ['button', {title: "Retrieve coordinates now using Geolocation for potential later use when offline or upon errors (depends on the selected pull-down option).", $on: {click: function () {
-                        $('#retrieving').hidden = false;
-                        getGeoPositionWrapper(function (pos) {
-                            $('#latitude').value = pos.coords.latitude;
-                            $('#longitude').value = pos.coords.longitude;
-                            $('#retrieving').hidden = true;
-                        }, function (err) {
-                            alert(_("geo_error", err.code, err.message));
-                            $('#retrieving').hidden = true;
-                        });
-                    }}}, [
-                        _("Retrieve coordinates for manual storage")
-                    ]],
-                    nbsp(),
-                    ['span', {id: 'retrieving', hidden: true}, [_("Retrieving...")]]
+                    ['fieldset', {title: _("Use these coordinates for astronomical event-based reminders when offline or upon errors")}, [
+                        ['legend', [_("Manual coordinates")]],
+                        ['label', [
+                            _("Latitude") + ' ',
+                            ['input', {id: 'latitude', size: 20}]
+                        ]],
+                        nbsp(),
+                        ['label', [
+                            _("Longitude") + ' ',
+                            ['input', {id: 'longitude', size: 20}]
+                        ]],
+                        ['br'],
+                        ['button', {title: "Retrieve coordinates now using Geolocation for potential later use when offline or upon errors (depends on the selected pull-down option).", $on: {click: function (e) {
+                            e.preventDefault();
+                            $('#retrieving').hidden = false;
+                            getGeoPositionWrapper(function (pos) {
+                                $('#latitude').value = pos.coords.latitude;
+                                $('#longitude').value = pos.coords.longitude;
+                                var evt = document.createEvent('HTMLEvents');
+                                evt.initEvent('change', false, true);
+                                $('#settings').dispatchEvent(evt);
+                                $('#retrieving').hidden = true;
+                            }, function (err) {
+                                alert(_("geo_error", err.code, err.message));
+                                $('#retrieving').hidden = true;
+                            });
+                        }}}, [
+                            _("Retrieve coordinates for manual storage")
+                        ]],
+                        nbsp(),
+                        ['span', {id: 'retrieving', hidden: true}, [_("Retrieving...")]]
+                    ]]
                 ]]
             ]]
         ]],
@@ -470,6 +488,11 @@ jml('div', [
     ],
     $('#settings-container')
 );
+localforage.getItem('sundriven-settings', storageGetterErrorWrapper(function (settings) {
+    Object.keys(settings).forEach(function (key) {
+        $('#' + key).value = settings[key];
+    });
+}));
 
 setLocale();
 document.title = _("Sun Driven");
