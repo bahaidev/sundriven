@@ -178,7 +178,9 @@ function updateListeners (sundriven) {
             var timeoutID;
             var minutes = parseFloat(data.minutes);
             minutes = data.relativePosition === 'before' ? -minutes : minutes; // after|before
-            var time = ((date && (date.getTime() - Date.now())) || 0) + minutes * 60 * 1000;
+            var startTime = Date.now();
+            date = date || new Date(startTime);
+            var time = (date.getTime() - startTime) + minutes * 60 * 1000;
             if (time < 0) {
                 time = 0;
             }
