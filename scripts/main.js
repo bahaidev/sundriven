@@ -27,14 +27,34 @@ function setLocale () {
 function _ (s) {
     var messages = {
         "en-US": {
+            // Suncalc items:
+            sunrise: "Sunrise",
+            sunset: "Sunset",
+            sunriseEnd: "Sunrise end",
+            sunsetStart: "Sunrise start",
+            dawn: "Dawn",
+            dusk: "Dusk",
+            nauticalDawn: "Nautical dawn",
+            nauticalDusk: "Nautical dusk",
+            nightEnd: "Night end",
+            night: "Night",
+            goldenHourEnd: "Golden hour end",
+            goldenHour: "Golden hour",
+            // i18n functions to allow reordering of dynamic arguments (without string substitutions)
             geo_error: function (code, msg) {
                 return "ERROR (" + code + "): " + msg;
             },
-            notification_message_onetime: function (name, alarmDateTime, nowDateTime) {
-                return "NOTICE: Your reminder, " + name + ", has expired; alarm time: " + alarmDateTime + "; current time: " + nowDateTime;
+            notification_message_onetime: function (name, date, alarmDateTime, nowDateTime) {
+                return "NOTICE: Your reminder, " + name + ", has expired; recent time launched: " + alarmDateTime + "; current time: " + nowDateTime + "; relative to: " + date;
             },
-            notification_message_daily: function (name, alarmDateTime, nowDateTime) {
-                return "NOTICE: Your reminder, " + name + ", has expired for today; alarm time: " + alarmDateTime + "; current time: " + nowDateTime;
+            notification_message_onetime_astronomical: function (name, date, alarmDateTime, nowDateTime, astronomicalEvent) {
+                return "NOTICE: Your reminder, " + name + ", has expired; recent time launched: " + alarmDateTime + "; current time: " + nowDateTime + "; relative to " + _(astronomicalEvent) + ": " + date;
+            },
+            notification_message_daily: function (name, date, alarmDateTime, nowDateTime) {
+                return "NOTICE: Your reminder, " + name + ", has expired for today; recent time launched: " + alarmDateTime + "; current time: " + nowDateTime + "; relative to: " + date;
+            },
+            notification_message_daily_astronomical: function (name, date, alarmDateTime, nowDateTime, astronomicalEvent) {
+                return "NOTICE: Your reminder, " + name + ", has expired for today; recent time launched: " + alarmDateTime + "; current time: " + nowDateTime + "; relative to " + _(astronomicalEvent) + ": " + date;
             }
         }
     };
@@ -154,7 +174,7 @@ function updateListeners (sundriven) {
                 navigator.geolocation.clearWatch(watchers[name]);
             }
         }
-        function getRelative (date) {
+        function getRelative (date, astronomicalEvent) {
             var timeoutID;
             var minutes = parseFloat(data.minutes);
             minutes = data.relativePosition === 'before' ? -minutes : minutes; // after|before
@@ -165,20 +185,20 @@ function updateListeners (sundriven) {
             clearTimeout(listeners[name]);
             switch(data.frequency) {
                 case 'daily':
-                    timeoutID = setTimeout((function (name, time) {
+                    timeoutID = setTimeout((function (name, time, date, astronomicalEvent) {
                         return function () {
                             createNotification(function () {
-                                notify(name, _("notification_message_daily", name, new Date(Date.now() - time), new Date()));
+                                notify(name, _(astronomicalEvent ? "notification_message_daily_astronomical" : "notification_message_daily", name, date, new Date(Date.now() - time), new Date(), astronomicalEvent));
                             });
-                            getRelative(new Date(Date.now() + 24 * 60 * 60 * 1000));
+                            getRelative(new Date(Date.now() + 24 * 60 * 60 * 1000), astronomicalEvent);
                         };
-                    }(name, time)), time);
+                    }(name, time, date, astronomicalEvent)), time);
                     break;
                 default: // one-time
-                    timeoutID = setTimeout((function (name, time) {
+                    timeoutID = setTimeout((function (name, time, date, astronomicalEvent) {
                         return function () {
                             createNotification(function () {
-                                notify(name, _("notification_message_onetime", name, new Date(Date.now() - time), new Date()));
+                                notify(name, _(astronomicalEvent ? "notification_message_onetime_astronomical" : "notification_message_onetime", name, date, new Date(Date.now() - time), new Date(), astronomicalEvent));
                             });
                             delete listeners[name];
                             clearWatch(name);
@@ -190,7 +210,7 @@ function updateListeners (sundriven) {
                                 buildReminderTable();
                             }));
                         };
-                    }(name, time)), time);
+                    }(name, time, date, astronomicalEvent)), time);
                     break;
             }
             listeners[name] = timeoutID;
@@ -213,7 +233,7 @@ function updateListeners (sundriven) {
                         (function (relativeEvent) {
                             return function geoCallback (pos) {
                                 var times = SunCalc.getTimes(new Date(), pos.coords.latitude, pos.coords.longitude);
-                                getRelative(times[relativeEvent]);
+                                getRelative(times[relativeEvent], relativeEvent);
                             };
                         }(relativeEvent)),
                         function geoErrBack (err) {
