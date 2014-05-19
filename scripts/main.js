@@ -210,10 +210,12 @@ function updateListeners (sundriven) {
                     }
                     // We could instead use getCurrentPosition, but that wouldn't update with the user's location
                     watchers[name] = navigator.geolocation.getCurrentPosition( // watchPosition(
-                        function geoCallback (pos) {
-                            var times = SunCalc.getTimes(new Date(), pos.coords.latitude, pos.coords.longitude);
-                            getRelative(times[relativeEvent]);
-                        },
+                        (function (relativeEvent) {
+                            return function geoCallback (pos) {
+                                var times = SunCalc.getTimes(new Date(), pos.coords.latitude, pos.coords.longitude);
+                                getRelative(times[relativeEvent]);
+                            };
+                        }(relativeEvent)),
                         function geoErrBack (err) {
                             alert(_("geo_error", err.code, err.message));
                         }
