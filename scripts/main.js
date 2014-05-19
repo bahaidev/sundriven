@@ -154,7 +154,7 @@ function updateListeners (sundriven) {
                 navigator.geolocation.clearWatch(watchers[name]);
             }
         }
-        function getRelative (date) {
+        function getRelative (date) {alert(date);
             var timeoutID;
             var minutes = parseFloat(data.minutes);
             minutes = data.relativePosition === 'before' ? -minutes : minutes; // after|before
@@ -169,7 +169,7 @@ function updateListeners (sundriven) {
                         createNotification(function () {
                             notify(name, alert(_("notification_message_daily", new Date(time), new Date())));
                         });
-                        getRelative(new Date(time + 24 * 60 * 60 * 1000));
+                        getRelative(new Date(Date.now() + 24 * 60 * 60 * 1000));
                     }, time);
                     break;
                 default: // one-time
@@ -204,8 +204,9 @@ function updateListeners (sundriven) {
                         alert(_("Your browser does not support or does not have Geolocation enabled"));
                         return;
                     }
-                    watchers[name] = navigator.geolocation.watchPosition(
-                        function geoCallback (pos) { // We could instead use getCurrentPosition, but that wouldn't update with the user's location
+                    // We could instead use getCurrentPosition, but that wouldn't update with the user's location
+                    watchers[name] = navigator.geolocation.getCurrentPosition( // watchPosition(
+                        function geoCallback (pos) {
                             var times = SunCalc.getTimes(new Date(), pos.coords.latitude, pos.coords.longitude);
                             getRelative(times[relativeEvent]);
                         },
