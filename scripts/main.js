@@ -74,6 +74,24 @@ function removeChild (childSel) {
 function nbsp(ct) {
     return new Array((ct || 1) + 1).join('\u00a0');
 }
+function getGeoPositionWrapper (cb, errBack) {
+    if (!navigator.geolocation) {
+        alert(_("Your browser does not support or does not have Geolocation enabled"));
+        return;
+    }
+    // We could instead use getCurrentPosition, but that wouldn't update with the user's location
+    return navigator.geolocation.getCurrentPosition( // watchPosition(
+        cb,
+        errBack || function geoErrBack (err) {
+            alert(_("geo_error", err.code, err.message));
+        }
+        /*, { // Geolocation options
+            enableHighAccuracy: true,
+            maximumAge: 30000,
+            timeout: 27000
+        };*/
+    );
+}
 function notify (name, body) {
     // show the notification
     var notification = new Notification('Reminder (Click inside me to stop)', {body: body, lang: locale}); // lang=string, body=string, tag=string, icon=url, dir (ltr|rtl|auto)
@@ -226,27 +244,10 @@ function updateListeners (sundriven) {
                     getRelative();
                     break;
                 default: // sunrise, etc.
-                    if (!navigator.geolocation) {
-                        alert(_("Your browser does not support or does not have Geolocation enabled"));
-                        return;
-                    }
-                    // We could instead use getCurrentPosition, but that wouldn't update with the user's location
-                    watchers[name] = navigator.geolocation.getCurrentPosition( // watchPosition(
-                        (function (relativeEvent) {
-                            return function geoCallback (pos) {
-                                var times = SunCalc.getTimes(new Date(), pos.coords.latitude, pos.coords.longitude);
-                                getRelative(times[relativeEvent], relativeEvent);
-                            };
-                        }(relativeEvent)),
-                        function geoErrBack (err) {
-                            alert(_("geo_error", err.code, err.message));
-                        }
-                        /*, { // Geolocation options
-                            enableHighAccuracy: true,
-                            maximumAge: 30000,
-                            timeout: 27000
-                        };*/
-                    );
+                    watchers[name] = getGeoPositionWrapper(function (pos) {
+                        var times = SunCalc.getTimes(new Date(), pos.coords.latitude, pos.coords.longitude);
+                        getRelative(times[relativeEvent], relativeEvent);
+                    });
                     break;
             }
         }
@@ -423,6 +424,52 @@ function createReminderForm (settings, allowRename) {
         }}}, [_("Delete")]]
     ]]], $('#table-container'));
 }
+
+jml('div', [
+        ['button', {$on: {click: function () {
+            $('#settings').hidden = !$('#settings').hidden;
+        }}}, [_("Settings")]],
+        ['div', {id: 'settings', hidden: true}, [
+            ['fieldset', [
+                ['select', [
+                    ['option', {title: _("Fall back to the coordinates below when offline or upon Geolocation errors")}, [_("Use Geolocation when available")]],
+                    ['option', {title: _("Avoids a trip to the server but may not be accurate if you are traveling out of the area with your device.")}, [_("Never use Geolocation; always use manual coordinates.")]],
+                    ['option', {title: _("Will report errors instead of falling back (not recommended)")}, [_("Always use Geolocation; do not fall back to manual coordinates")]]
+                ]],
+                ['fieldset', {title: _("Use these coordinates for astronomical event-based reminders when offline or upon errors")}, [
+                    ['legend', [_("Manual coordinates")]],
+                    ['label', [
+                        _("Latitude") + ' ',
+                        ['input', {id: 'latitude', size: 20}]
+                    ]],
+                    nbsp(),
+                    ['label', [
+                        _("Longitude") + ' ',
+                        ['input', {id: 'longitude', size: 20}]
+                    ]],
+                    ['br'],
+                    ['button', {title: "Retrieve coordinates now using Geolocation for potential later use when offline or upon errors (depends on the selected pull-down option).", $on: {click: function () {
+                        $('#retrieving').hidden = false;
+                        getGeoPositionWrapper(function (pos) {
+                            $('#latitude').value = pos.coords.latitude;
+                            $('#longitude').value = pos.coords.longitude;
+                            $('#retrieving').hidden = true;
+                        }, function (err) {
+                            alert(_("geo_error", err.code, err.message));
+                            $('#retrieving').hidden = true;
+                        });
+                    }}}, [
+                        _("Retrieve coordinates for manual storage")
+                    ]],
+                    nbsp(),
+                    ['span', {id: 'retrieving', hidden: true}, [_("Retrieving...")]]
+                ]]
+            ]]
+        ]],
+        ['br']
+    ],
+    $('#settings-container')
+);
 
 setLocale();
 document.title = _("Sun Driven");
