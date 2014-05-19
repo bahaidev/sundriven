@@ -263,6 +263,20 @@ function updateListeners (sundriven) {
             listeners[name] = timeoutID;
         }
 
+        function getTimesForCoords (relativeEvent) {
+            return function (pos) {
+                var times = SunCalc.getTimes(new Date(), pos.coords.latitude, pos.coords.longitude);
+                getRelative(times[relativeEvent], relativeEvent);
+            };
+        }
+        function getCoords () {
+            var latitude = $('#latitude').value;
+            var longitude = $('#longitude').value;
+            if (isNaN(parseFloat(latitude)) || isNaN(parseFloat(longitude))) {
+                return false;
+            }
+            return {coords: {latitude: latitude, longitude: longitude}};
+        }
         if (data.enabled) {
             clearWatch(name);
             var relativeEvent = data.relativeEvent;
@@ -271,10 +285,27 @@ function updateListeners (sundriven) {
                     getRelative();
                     break;
                 default: // sunrise, etc.
-                    watchers[name] = getGeoPositionWrapper(function (pos) {
-                        var times = SunCalc.getTimes(new Date(), pos.coords.latitude, pos.coords.longitude);
-                        getRelative(times[relativeEvent], relativeEvent);
-                    });
+                    if ($('#geoloc-usage').value === 'never') { // when-available|always
+                        var coords = getCoords();
+                        if (!coords) {
+                            alert(_("Per your settings, Geolocation is disallowed, and the manual coordinates are not formatted correctly, so the astronomical event cannot be determined at this time."));
+                            return;
+                        }
+                        getTimesForCoords(relativeEvent)(coords);
+                    }
+                    else {
+                        watchers[name] = getGeoPositionWrapper(
+                            getTimesForCoords(relativeEvent),
+                            (($('#geoloc-usage').value === 'when-available') ? function () {
+                                var coords = getCoords();
+                                if (!coords) {
+                                    alert(_("Geolocation is not currently available, and the manual coordinates are not formatted correctly in your settings, so the astronomical event cannot be determined at this time."));
+                                    return;
+                                }
+                                getTimesForCoords(relativeEvent)(getCoords());
+                            } : null)
+                        );
+                    }
                     break;
             }
         }
