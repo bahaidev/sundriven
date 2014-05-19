@@ -1,6 +1,6 @@
 {
   "name": "sundriven",
-  "description": "Very simple app to provide toaster-style notification reminders given relative to either the current time or to astronomical events such as dawn, sunrise, or sunset. Note that the astronomical event times are currently determined mathematically rather than by querying an online service.",
+  "description": "Very simple app to provide toaster-style notification reminders (daily or one-time) given relative to either the current time or to astronomical events such as dawn, sunrise, or sunset. Note that the astronomical event times are currently determined mathematically rather than by querying an online service.",
   "type": "web",
   "launch_path": "/sundriven/index.html#lang=en",
   "default_locale": "en",
