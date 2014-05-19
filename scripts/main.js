@@ -167,7 +167,7 @@ function updateListeners (sundriven) {
                 case 'daily':
                     timeoutID = setTimeout(function () {
                         createNotification(function () {
-                            notify(name, alert(_("notification_message_daily", new Date(time), new Date())));
+                            notify(name, alert(_("notification_message_daily", new Date(Date.now() - time), new Date())));
                         });
                         getRelative(new Date(Date.now() + 24 * 60 * 60 * 1000));
                     }, time);
