@@ -12,7 +12,13 @@ node_modules/jamilih/jml.js
 bower_components/localforage/dist/localforage.min.js
 # Others needed for localforage?
 
+# Not currently referenced within the app
+# images/icon-32.png
+# images/icon-60.png
+# images/icon-90.png
+# images/icon-120.png
 # images/icon-128.png
+# images/icon-256.png
 # index.html (you probably don't want this uncommented! Also see NETWORK below)
 
 NETWORK:
