@@ -41,4 +41,4 @@ Thanks to suncalc and localforage for great libraries and to
 [openclipart](http://openclipart.org)
 for the
 [Rising Sun](http://openclipart.org/detail/122071/rising-sun-by-dear_theophilus)
-clip art.
+[public domain](http://openclipart.org/share) clip art.

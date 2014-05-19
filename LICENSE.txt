@@ -1,3 +1,8 @@
+The image in images/icon-128.png is listed under the public domain per
+http://openclipart.org/share . The dependencies localforage,
+suncalc, and jamilih have their own MIT or MIT-compatible licenses.
+
+-------------------------------
 The MIT License (MIT)
 
 Copyright (c) 2014 Brett Zamir
