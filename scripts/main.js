@@ -175,7 +175,7 @@ function updateListeners (sundriven) {
                 default: // one-time
                     timeoutID = setTimeout(function () {
                         createNotification(function () {
-                            notify(name, alert(_("notification_message_onetime", new Date(time), new Date())));
+                            notify(name, alert(_("notification_message_onetime", new Date(Date.now() - time), new Date())));
                         });
                         delete listeners[name];
                         clearWatch(name);
