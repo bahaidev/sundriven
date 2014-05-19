@@ -30,11 +30,11 @@ function _ (s) {
             geo_error: function (code, msg) {
                 return "ERROR (" + code + "): " + msg;
             },
-            notification_message_onetime: function (alarmDateTime, nowDateTime) {
-                return "NOTICE: Your reminder has expired; alarm time: " + alarmDateTime + "; current time: " + nowDateTime;
+            notification_message_onetime: function (name, alarmDateTime, nowDateTime) {
+                return "NOTICE: Your reminder, " + name + ", has expired; alarm time: " + alarmDateTime + "; current time: " + nowDateTime;
             },
-            notification_message_daily: function (alarmDateTime, nowDateTime) {
-                return "NOTICE: Your reminder has expired for today; alarm time: " + alarmDateTime + "; current time: " + nowDateTime;
+            notification_message_daily: function (name, alarmDateTime, nowDateTime) {
+                return "NOTICE: Your reminder, " + name + ", has expired for today; alarm time: " + alarmDateTime + "; current time: " + nowDateTime;
             }
         }
     };
@@ -167,7 +167,7 @@ function updateListeners (sundriven) {
                 case 'daily':
                     timeoutID = setTimeout(function () {
                         createNotification(function () {
-                            notify(name, _("notification_message_daily", new Date(Date.now() - time), new Date()));
+                            notify(name, _("notification_message_daily", name, new Date(Date.now() - time), new Date()));
                         });
                         getRelative(new Date(Date.now() + 24 * 60 * 60 * 1000));
                     }, time);
@@ -175,7 +175,7 @@ function updateListeners (sundriven) {
                 default: // one-time
                     timeoutID = setTimeout(function () {
                         createNotification(function () {
-                            notify(name, _("notification_message_onetime", new Date(Date.now() - time), new Date()));
+                            notify(name, _("notification_message_onetime", name, new Date(Date.now() - time), new Date()));
                         });
                         delete listeners[name];
                         clearWatch(name);
