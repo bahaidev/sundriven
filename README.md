@@ -1,13 +1,15 @@
 # sundriven
 
-**This project is not yet functional!**
+Very simple [installable open web app](https://developer.mozilla.org/en-US/Apps)
+to provide toaster-style notification reminders given relative to either the
+current time or to astronomical events such as dawn, sunrise, or sunset.
+Note that the astronomical event times are currently determined
+mathematically rather than by querying an online service.
 
-An [installable open web app](https://developer.mozilla.org/en-US/Apps)
-allowing toaster-style notification reminders to be given relative to
-dawn, sunrise, or sunset times.
-
-Uses [suncalc](https://github.com/mourner/suncalc) for astronoical
-calculations.
+Uses [suncalc](https://github.com/mourner/suncalc) for astronomical
+calculations and [localforage](https://github.com/mozilla/localForage)
+for local storage (IndexedDB or WebSQL where available; localStorage
+otherwise).
 
 # Installation
 ```

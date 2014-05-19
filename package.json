@@ -20,7 +20,7 @@
         "type": "git",
         "url": "https://github.com/brettz9/sundriven.git"
     },
-    "description": "Allows toaster-style notification reminders to be given relative to the current time or to astronomical events such as dawn, sunrise, or sunset.",
+    "description": "Very simple app to provide toaster-style notification reminders given relative to either the current time or to astronomical events such as dawn, sunrise, or sunset. Note that the astronomical event times are currently determined mathematically rather than by querying an online service.",
     "keywords": [
         "sunrise", "sunset", "to-do"
     ]
