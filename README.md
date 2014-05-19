@@ -15,7 +15,6 @@ npm install .
 ```
 
 # Todos
-1. Test notifications
 1. Retry fresh installation (problems with npm on suncalc gone?)
 
 1. Add ES6 module polyfill, requirejs, or browserify to devDependencies and utilize instead of hard-coded script tags (also modularize and use localization function `_` (and separating out the locales as well), so it can be reused across modules); add bower.json and submit?
@@ -27,6 +26,7 @@ npm install .
 1. Allow fractional minutes (if able to keep input steps)
 1. Make geolocation options (and option to use getCurrentPosition in place of watchPosition) configurable
 1. Allow manual provision of latitude and longitude for people who do not wish to use Geolocation
+1. Option to store latitude/longitude from Geolocation in order to work next time offline
 1. Indicate original expected time on notices? (since geoloc may have updated)
 1. Config to auto-delete expired timeouts (one-time ones) instead of just disabling
 1. Display dialogs instead of alerts/confirm for save/delete
