@@ -445,9 +445,9 @@ jml('div', [
             }}}, [
                 ['fieldset', [
                     ['select', {id: 'geoloc-usage'}, [
-                        ['option', {title: _("Fall back to the coordinates below when offline or upon Geolocation errors")}, [_("Use Geolocation when available")]],
-                        ['option', {title: _("Avoids a trip to the server but may not be accurate if you are traveling out of the area with your device.")}, [_("Never use Geolocation; always use manual coordinates.")]],
-                        ['option', {title: _("Will report errors instead of falling back (not recommended)")}, [_("Always use Geolocation; do not fall back to manual coordinates")]]
+                        ['option', {value: 'when-available', title: _("Fall back to the coordinates below when offline or upon Geolocation errors")}, [_("Use Geolocation when available")]],
+                        ['option', {value: 'never', title: _("Avoids a trip to the server but may not be accurate if you are traveling out of the area with your device.")}, [_("Never use Geolocation; always use manual coordinates.")]],
+                        ['option', {value: 'always', title: _("Will report errors instead of falling back (not recommended)")}, [_("Always use Geolocation; do not fall back to manual coordinates")]]
                     ]],
                     ['fieldset', {title: _("Use these coordinates for astronomical event-based reminders when offline or upon errors")}, [
                         ['legend', [_("Manual coordinates")]],
