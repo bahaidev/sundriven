@@ -400,7 +400,7 @@ function createReminderForm (settings, allowRename) {
             ['input', {id: 'minutes', type: 'number', step: 1, value: settings.minutes}],
             ' ' + _("Minutes")
         ]],
-        nbsp(2),
+        ['br'],
         radioGroup('relativePosition', [
             {label: _("after"), id: 'after'},
             {label: _("before"), id: 'before'}
@@ -486,7 +486,7 @@ jml('div', [
                             _("Latitude") + ' ',
                             ['input', {id: 'latitude', size: 20}]
                         ]],
-                        nbsp(),
+                        ['br'],
                         ['label', [
                             _("Longitude") + ' ',
                             ['input', {id: 'longitude', size: 20}]
