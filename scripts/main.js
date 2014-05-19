@@ -165,28 +165,32 @@ function updateListeners (sundriven) {
             clearTimeout(listeners[name]);
             switch(data.frequency) {
                 case 'daily':
-                    timeoutID = setTimeout(function () {
-                        createNotification(function () {
-                            notify(name, _("notification_message_daily", name, new Date(Date.now() - time), new Date()));
-                        });
-                        getRelative(new Date(Date.now() + 24 * 60 * 60 * 1000));
-                    }, time);
+                    timeoutID = setTimeout((function (name, time) {
+                        return function () {
+                            createNotification(function () {
+                                notify(name, _("notification_message_daily", name, new Date(Date.now() - time), new Date()));
+                            });
+                            getRelative(new Date(Date.now() + 24 * 60 * 60 * 1000));
+                        };
+                    }(name, time)), time);
                     break;
                 default: // one-time
-                    timeoutID = setTimeout(function () {
-                        createNotification(function () {
-                            notify(name, _("notification_message_onetime", name, new Date(Date.now() - time), new Date()));
-                        });
-                        delete listeners[name];
-                        clearWatch(name);
-                        data.enabled = 'false';
-                        localforage.setItem('sundriven', sundriven, storageSetterErrorWrapper(function () {
-                            if ($('#name').value === name) {
-                                $('#enabled').checked = false;
-                            }
-                            buildReminderTable();
-                        }));
-                    }, time);
+                    timeoutID = setTimeout((function (name, time) {
+                        return function () {
+                            createNotification(function () {
+                                notify(name, _("notification_message_onetime", name, new Date(Date.now() - time), new Date()));
+                            });
+                            delete listeners[name];
+                            clearWatch(name);
+                            data.enabled = 'false';
+                            localforage.setItem('sundriven', sundriven, storageSetterErrorWrapper(function () {
+                                if ($('#name').value === name) {
+                                    $('#enabled').checked = false;
+                                }
+                                buildReminderTable();
+                            }));
+                        };
+                    }(name, time)), time);
                     break;
             }
             listeners[name] = timeoutID;
