@@ -1,6 +1,7 @@
-
+/*
 #forms-container {float: left; width: 15%;}
 #table-container {float: left; width: 85%;}
+*/
 #forms {border-collapse: collapse;}
 #forms th, td {border: 1px solid black;}
 #forms tr:hover > td {color:blue;}
