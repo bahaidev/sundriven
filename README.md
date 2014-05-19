@@ -28,7 +28,7 @@ npm install .
 
 # Possible Todos
 1. Allow fractional minutes (if able to keep input steps)
-1. Make geolocation options (and option to use getCurrentPosition in place of watchPosition) configurable
+1. Make geolocation options (and option to use watchPosition in place of getCurrentPosition--the latter being used currently due to intermittent Geolocation errors) configurable
 1. Allow manual provision of latitude and longitude for people who do not wish to use Geolocation
 1. Option to store latitude/longitude from Geolocation in order to work next time offline
 1. Indicate original expected time on notices? (since geoloc may have updated)
