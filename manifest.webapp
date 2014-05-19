@@ -7,7 +7,12 @@
   "locales": {},
   "messages": [],
   "icons": {
-    "128": "/sundriven/images/icon-128.png"
+    "32": "/sundriven/images/icon-32.png",
+    "60": "/sundriven/images/icon-60.png",
+    "90": "/sundriven/images/icon-90.png",
+    "120": "/sundriven/images/icon-120.png",
+    "128": "/sundriven/images/icon-128.png",
+    "256": "/sundriven/images/icon-256.png"
   },
   "developer": {
     "name": "Brett Zamir",
