@@ -237,7 +237,7 @@ function updateListeners (sundriven) {
                             createNotification(function () {
                                 notify(name, _(astronomicalEvent ? "notification_message_daily_astronomical" : "notification_message_daily", name, date, new Date(Date.now() - time), new Date(), astronomicalEvent));
                             });
-                            getRelative(new Date(Date.now() + 24 * 60 * 60 * 1000), astronomicalEvent);
+                            getRelative(new Date(date.getTime() + 24 * 60 * 60 * 1000), astronomicalEvent);
                         };
                     }(name, time, date, astronomicalEvent)), time);
                     break;
