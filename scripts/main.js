@@ -406,7 +406,7 @@ function createReminderForm (settings, allowRename) {
             {label: _("before"), id: 'before'}
         ], settings.relativePosition),
         ['br'],
-        ['input', {type: 'submit', value: _("Save"), $on: {click: function (e) {
+        ['button', {$on: {click: function (e) {
             e.preventDefault();
             var data = serializeForm(formID, {}, {
                 inputs: ['name', 'frequency', 'relativeEvent', 'minutes'],
@@ -438,7 +438,7 @@ function createReminderForm (settings, allowRename) {
                     alert(_("Saved!"));
                 }));
             }));
-        }}}],
+        }}}, [_("Save")]],
         ['button', {'class': 'delete', $on: {click: function (e) {
             e.preventDefault();
             var name = $('#name').value;
