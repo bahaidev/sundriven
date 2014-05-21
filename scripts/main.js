@@ -6,7 +6,6 @@
 var locale;
 var formChanged = false;
 var notificationsClosed = {};
-var body = document.body;
 var times = SunCalc.times;
 var listeners = {}, watchers = {};
 
@@ -71,8 +70,10 @@ function removeChild (childSel) {
         $(childSel).removeChild($(childSel).firstElementChild);
     }
 }
-function nbsp(ct) {
-    return new Array((ct || 1) + 1).join('\u00a0');
+function nbsp (ct) {
+    var arr = [];
+    arr.length = (ct || 1) + 1;
+    return arr.join('\u00a0');
 }
 /**
 * @todo If no controls array is present, we could just iterate over all form controls
@@ -122,10 +123,10 @@ function getGeoPositionWrapper (cb, errBack) {
 function notify (name, body) {
     // show the notification
     var notification = new Notification('Reminder (Click inside me to stop)', {body: body, lang: locale}); // lang=string, body=string, tag=string, icon=url, dir (ltr|rtl|auto)
-    notification.onclick = function(e) {
+    notification.onclick = function() {
         notificationsClosed[name] = true;
     };
-    notification.onclose = function(e) {
+    notification.onclose = function() {
         if (!notificationsClosed[name]) { // Only apparent way to keep it open
             notify(name, body);
         }
@@ -167,7 +168,7 @@ function storageGetterErrorWrapper (cb) {
         }
     };
 }
-
+var createReminderForm;
 function createDefaultReminderForm () {
     createReminderForm({
         name: '',
@@ -182,12 +183,12 @@ function createDefaultReminderForm () {
 function buildReminderTable () {
     localforage.getItem('sundriven', storageGetterErrorWrapper(function (forms) {
         removeElement('#forms');
-        var table = jml('table', {id: 'forms'}, [
+        jml('table', {id: 'forms'}, [
             ['tbody',
                 Object.keys(forms).sort().reduce(function (rows, formKey) {
                     var form = forms[formKey];
                     rows.push(['tr', {dataset: {name: form.name}, $on: {
-                        click: function (e) {
+                        click: function () {
                             var name = this.dataset.name;
                             localforage.getItem('sundriven', storageGetterErrorWrapper(function (forms) {
                                 createReminderForm(forms[name]);
@@ -212,23 +213,23 @@ function buildReminderTable () {
 }
 
 function updateListeners (sundriven) {
-    Object.keys(sundriven).forEach(function (name) {
+    function updateListenerByName (name) {
         var data = sundriven[name];
         function clearWatch (name) {
             if (watchers[name]) {
                 navigator.geolocation.clearWatch(watchers[name]);
             }
         }
-        function getRelative (date, astronomicalEvent) {
-            var timeoutID;
+        function checkTime (date) {
             var minutes = parseFloat(data.minutes);
             minutes = data.relativePosition === 'before' ? -minutes : minutes; // after|before
             var startTime = Date.now();
             date = date || new Date(startTime);
-            var time = (date.getTime() - startTime) + minutes * 60 * 1000;
-            if (time < 0) {
-                time = 0;
-            }
+            return (date.getTime() - startTime) + minutes * 60 * 1000;
+        }
+        function getRelative (date, astronomicalEvent) {
+            var timeoutID;
+            var time = checkTime(date);
             clearTimeout(listeners[name]);
             switch(data.frequency) {
                 case 'daily':
@@ -237,7 +238,7 @@ function updateListeners (sundriven) {
                             createNotification(function () {
                                 notify(name, _(astronomicalEvent ? "notification_message_daily_astronomical" : "notification_message_daily", name, date, new Date(Date.now() - time), new Date(), astronomicalEvent));
                             });
-                            getRelative(new Date(date.getTime() + 24 * 60 * 60 * 1000), astronomicalEvent);
+                            updateListenerByName(name);
                         };
                     }(name, time, date, astronomicalEvent)), time);
                     break;
@@ -263,9 +264,20 @@ function updateListeners (sundriven) {
             listeners[name] = timeoutID;
         }
 
+        function incrementDate (date) {
+            if (!date) {
+                date = new Date();
+            }
+            date.setDate(date.getDate() + 1);
+        }
         function getTimesForCoords (relativeEvent) {
             return function (pos) {
-                var times = SunCalc.getTimes(new Date(), pos.coords.latitude, pos.coords.longitude);
+                var date = new Date();
+                var times = SunCalc.getTimes(date, pos.coords.latitude, pos.coords.longitude);
+                if (checkTime(times[relativeEvent]) < 0) {
+                    incrementDate(date);
+                    times = SunCalc.getTimes(date, pos.coords.latitude, pos.coords.longitude);
+                }
                 getRelative(times[relativeEvent], relativeEvent);
             };
         }
@@ -282,7 +294,9 @@ function updateListeners (sundriven) {
             var relativeEvent = data.relativeEvent;
             switch (relativeEvent) {
                 case 'now':
-                    getRelative();
+                    if (checkTime()) {
+                        getRelative(incrementDate());
+                    }
                     break;
                 default: // sunrise, etc.
                     if ($('#geoloc-usage').value === 'never') { // when-available|always
@@ -309,11 +323,12 @@ function updateListeners (sundriven) {
                     break;
             }
         }
-    });
+    }
+    Object.keys(sundriven).forEach(updateListenerByName);
 }
 
 
-function createReminderForm (settings, allowRename) {
+createReminderForm = function (settings) {
     function radioGroup (groupName, radios, selected) {
         return ['span', radios.reduce(function (arr, radio) {
             var radioObj = {type:'radio', name: groupName, id: radio.id};
@@ -362,7 +377,7 @@ function createReminderForm (settings, allowRename) {
                     radios: ['relativePosition']
                 });
                 formChanged = false; // Temporarily indicate the changes are not changed
-                createReminderForm(data, true);
+                createReminderForm(data);
             }
         }
         formChanged = true;
@@ -461,7 +476,7 @@ function createReminderForm (settings, allowRename) {
             }
         }}}, [_("Delete")]]
     ]]], $('#table-container'));
-}
+};
 
 jml('div', [
         ['button', {$on: {click: function () {
