@@ -225,11 +225,13 @@ function updateListeners (sundriven) {
             minutes = data.relativePosition === 'before' ? -minutes : minutes; // after|before
             var startTime = Date.now();
             date = date || new Date(startTime);
-            return (date.getTime() - startTime) + minutes * 60 * 1000;
+            return {date: date, time: (date.getTime() - startTime) + minutes * 60 * 1000};
         }
         function getRelative (date, astronomicalEvent) {
             var timeoutID;
-            var time = checkTime(date);
+            var dt = checkTime(date);
+            var time = dt.time;
+            date = dt.date;
             clearTimeout(listeners[name]);
             switch(data.frequency) {
                 case 'daily':
@@ -269,14 +271,14 @@ function updateListeners (sundriven) {
                 date = new Date();
             }
             date.setDate(date.getDate() + 1);
+            return date;
         }
         function getTimesForCoords (relativeEvent) {
             return function (pos) {
                 var date = new Date();
                 var times = SunCalc.getTimes(date, pos.coords.latitude, pos.coords.longitude);
-                if (checkTime(times[relativeEvent]) < 0) {
-                    incrementDate(date);
-                    times = SunCalc.getTimes(date, pos.coords.latitude, pos.coords.longitude);
+                if (checkTime(times[relativeEvent]).time < 0) {
+                    times = SunCalc.getTimes(incrementDate(date), pos.coords.latitude, pos.coords.longitude);
                 }
                 getRelative(times[relativeEvent], relativeEvent);
             };
@@ -294,9 +296,7 @@ function updateListeners (sundriven) {
             var relativeEvent = data.relativeEvent;
             switch (relativeEvent) {
                 case 'now':
-                    if (checkTime()) {
-                        getRelative(incrementDate());
-                    }
+                    getRelative(checkTime().time < 0 ? incrementDate() : null);
                     break;
                 default: // sunrise, etc.
                     if ($('#geoloc-usage').value === 'never') { // when-available|always
