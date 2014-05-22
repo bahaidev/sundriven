@@ -23,14 +23,14 @@ npm install .
 
 
 # Higher priority todos
-1. Keep a memory on whether the reminders already executed for the day or not (unless the time is modified).
+1. Waiting on [FF Marketplace](https://marketplace.firefox.com/app/sundriven/) re: update info
 1. Retry fresh installation of suncalc via npm for [npm issue](https://github.com/npm/npm/issues/5291)
-1. Add ES6 module polyfill, requirejs, or browserify to devDependencies and utilize instead of hard-coded script tags (also modularize and use localization function `_` (and separating out the locales as well), so it can be reused across modules); add bower.json and submit?
-1. Waiting on [FF Marketplace](https://marketplace.firefox.com/app/sundriven/)
 1. Test offline manifest on server, ensuring no dependencies missing
     1. Add content policy directive indicating no Ajax needed, etc. (see if Firefox will, with an add-on if not by default, display this (for privacy reassurances to user))
+1. Debug and reinstall "install" button
 
 # Possible Todos
+1. Add ES6 module polyfill, requirejs, or browserify to devDependencies and utilize instead of hard-coded script tags (also modularize and use localization function `_` (and separating out the locales as well), so it can be reused across modules); add bower.json and submit?
 1. Allow fractional minutes (if able to keep input steps)
 1. Make geolocation options (and option to use watchPosition in place of getCurrentPosition--the latter being used currently due to intermittent Geolocation errors) configurable
 1. Option to store latitude/longitude from Geolocation in order to work next time offline
