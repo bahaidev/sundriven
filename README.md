@@ -39,7 +39,9 @@ npm install .
 1. Display dialogs instead of alerts/confirm for save/delete
 1. Optionally change close event (and message for it) to give optional prompt to snooze instead of just closing
 1. Allow specification of applicable date range or all
-1. Presets, e.g., for Baha'i Fast, obligatory prayers, dawn prayers (though configurable afterward, e.g., in relative minutes after or before)
+1. Presets, e.g., for Baha'i Fast, obligatory prayers (relative to morning,
+noon, or sunset), dawn prayers (though configurable afterward, e.g., in
+relative minutes after or before)
 
 # Credits
 

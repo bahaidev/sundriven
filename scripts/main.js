@@ -6,7 +6,7 @@
 var locale;
 var formChanged = false;
 var notificationsClosed = {};
-var times = SunCalc.times;
+var availableEvents = SunCalc.times;
 var listeners = {}, watchers = {};
 
 function s (obj) {
@@ -27,6 +27,8 @@ function _ (s) {
     var messages = {
         "en-US": {
             // Suncalc items:
+            solarNoon: "Noon (Solar noon)",
+            nadir: "Nadir",
             sunrise: "Sunrise",
             sunset: "Sunset",
             sunriseEnd: "Sunrise end",
@@ -404,13 +406,21 @@ createReminderForm = function (settings) {
         ['br'],
         ['label', [
             _("Relative to") + ' ',
-            select('relativeEvent', times.reduce(function (arr, time) {
-                arr.push(
-                    ['option', {value: time[1]}, [_(time[1])]],
-                    ['option', {value: time[2]}, [_(time[2])]]
-                );
-                return arr;
-            }, [['option', {value: 'now'}, [_("now")]]]))
+            select('relativeEvent', [['option', {value: 'now'}, [_("now")]]].concat(availableEvents.reduce(
+                function (arr, time) {
+                    arr.push(
+                        ['option', {value: time[1]}, [_(time[1])]],
+                        ['option', {value: time[2]}, [_(time[2])]]
+                    );
+                    return arr;
+                },
+                // Others not included within SunCalc.times
+                ['solarNoon', 'nadir'].map(function (eventType) {
+                    return ['option', {value: eventType}, [_(eventType)]];
+                })
+            ).sort(function (a, b) {
+                return a[2][0] > b[2][0];
+            })))
         ]],
         nbsp(2),
         ['label', [
