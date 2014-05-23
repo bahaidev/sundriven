@@ -24,7 +24,6 @@ npm install .
 
 # Higher priority todos
 1. Waiting on [FF Marketplace](https://marketplace.firefox.com/app/sundriven/) re: update info
-1. Retry fresh installation of suncalc via npm for [npm issue](https://github.com/npm/npm/issues/5291)
 1. Test offline manifest on server, ensuring no dependencies missing
     1. Add content policy directive indicating no Ajax needed, etc. (see if Firefox will, with an add-on if not by default, display this (for privacy reassurances to user))
 1. Debug and reinstall "install" button
