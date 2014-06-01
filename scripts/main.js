@@ -186,7 +186,13 @@ function buildReminderTable () {
     localforage.getItem('sundriven', storageGetterErrorWrapper(function (forms) {
         removeElement('#forms');
         jml('table', {id: 'forms'}, [
-            ['tbody',
+            ['tbody', {'class': 'ui-widget-header'}, [
+                ['tr', [
+                    ['th', [_("Name")]],
+                    ['th', [_("Enabled")]]
+                ]]
+            ]],
+            ['tbody', {'class': 'ui-widget-content'},
                 Object.keys(forms).sort().reduce(function (rows, formKey) {
                     var form = forms[formKey];
                     rows.push(['tr', {dataset: {name: form.name}, $on: {
@@ -201,10 +207,6 @@ function buildReminderTable () {
                     ]);
                     return rows;
                 }, [
-                    ['tr', [
-                        ['th', [_("Name")]],
-                        ['th', [_("Enabled")]]
-                    ]],
                     ['tr', [
                         ['td', {colspan: 2, 'class': 'focus', $on: {click: createDefaultReminderForm}}, [_("(Create new reminder)")]]
                     ]]
