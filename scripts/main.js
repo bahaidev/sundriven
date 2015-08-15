@@ -9,6 +9,15 @@ var notificationsClosed = {};
 var availableEvents = SunCalc.times;
 var listeners = {}, watchers = {};
 
+function getStorage (item, cb) {
+    var item = localStorage.getItem(item);
+    cb(JSON.parse(item));
+}
+function setStorage (item, value, cb) {
+    localStorage.setItem(item, JSON.stringify(value));
+    cb(value);
+}
+
 function s (obj) {
     alert(JSON.stringify(obj));
 }
@@ -160,7 +169,7 @@ function storageSetterErrorWrapper (cb) {
 function storageGetterErrorWrapper (cb) {
     return function (data) {
         if (data === null) {
-            localforage.setItem('sundriven', {}, storageSetterErrorWrapper(function (val) {cb(val);}));
+            setStorage('sundriven', {}, storageSetterErrorWrapper(function (val) {cb(val);}));
             // This would loop (and data will be null on first run)
             // alert(_("ERROR: Problem retrieving storage; refreshing page to try to resolve..."));
             // window.location.reload();
@@ -183,7 +192,7 @@ function createDefaultReminderForm () {
 }
 
 function buildReminderTable () {
-    localforage.getItem('sundriven', storageGetterErrorWrapper(function (forms) {
+    getStorage('sundriven', storageGetterErrorWrapper(function (forms) {
         removeElement('#forms');
         jml('table', {id: 'forms'}, [
             ['tbody', {'class': 'ui-widget-header'}, [
@@ -198,7 +207,7 @@ function buildReminderTable () {
                     rows.push(['tr', {dataset: {name: form.name}, $on: {
                         click: function () {
                             var name = this.dataset.name;
-                            localforage.getItem('sundriven', storageGetterErrorWrapper(function (forms) {
+                            getStorage('sundriven', storageGetterErrorWrapper(function (forms) {
                                 createReminderForm(forms[name]);
                             }));
                         }}}, [
@@ -259,7 +268,7 @@ function updateListeners (sundriven) {
                             delete listeners[name];
                             clearWatch(name);
                             data.enabled = 'false';
-                            localforage.setItem('sundriven', sundriven, storageSetterErrorWrapper(function () {
+                            setStorage('sundriven', sundriven, storageSetterErrorWrapper(function () {
                                 if ($('#name').value === name) {
                                     $('#enabled').checked = false;
                                 }
@@ -447,7 +456,7 @@ createReminderForm = function (settings) {
                 return;
             }
 
-            localforage.getItem('sundriven', storageGetterErrorWrapper(function (sundriven) {
+            getStorage('sundriven', storageGetterErrorWrapper(function (sundriven) {
                 if (!settings.name && // If this form was for creating new as opposed to editing old reminders
                     sundriven[data.name]) {
                     alert(_("ERROR: Please supply a unique name"));
@@ -460,7 +469,7 @@ createReminderForm = function (settings) {
                     delete sundriven[originalName];
                 }
                 sundriven[data.name] = data;
-                localforage.setItem('sundriven', sundriven, storageSetterErrorWrapper(function () {
+                setStorage('sundriven', sundriven, storageSetterErrorWrapper(function () {
                     formChanged = false;
                     buildReminderTable();
                     updateListeners(sundriven);
@@ -478,9 +487,9 @@ createReminderForm = function (settings) {
             var okDelete = confirm(_("Are you sure you wish to delete this reminder?"));
             if (okDelete) {
                 clearTimeout(listeners[name]);
-                localforage.getItem('sundriven', storageGetterErrorWrapper(function (sundriven) {
+                getStorage('sundriven', storageGetterErrorWrapper(function (sundriven) {
                     delete sundriven[name];
-                    localforage.setItem('sundriven', sundriven, storageSetterErrorWrapper(function () {
+                    setStorage('sundriven', sundriven, storageSetterErrorWrapper(function () {
                         formChanged = false;
                         buildReminderTable();
                         createDefaultReminderForm();
@@ -501,7 +510,7 @@ jml('div', [
                 var data = serializeForm('settings', {}, {
                     inputs: ['geoloc-usage', 'latitude', 'longitude']
                 });
-                localforage.setItem('sundriven-settings', data, storageSetterErrorWrapper());
+                setStorage('sundriven-settings', data, storageSetterErrorWrapper());
             }}}, [
                 ['fieldset', [
                     ['select', {id: 'geoloc-usage'}, [
@@ -548,7 +557,7 @@ jml('div', [
     ],
     $('#settings-container')
 );
-localforage.getItem('sundriven-settings', storageGetterErrorWrapper(function (settings) {
+getStorage('sundriven-settings', storageGetterErrorWrapper(function (settings) {
     Object.keys(settings).forEach(function (key) {
         $('#' + key).value = settings[key];
     });
@@ -568,7 +577,7 @@ window.addEventListener('beforeunload', function (e) {
 
 buildReminderTable();
 createDefaultReminderForm();
-localforage.getItem('sundriven', storageGetterErrorWrapper(function (sundriven) {
+getStorage('sundriven', storageGetterErrorWrapper(function (sundriven) {
     updateListeners(sundriven);
 }));
 

@@ -1,3 +1,6 @@
+# 0.5.0
+- Remove apparently problematic localforage
+
 # 0.3.0
 - Add solar noon and nadir events
 - Sort astronomical events

@@ -2,19 +2,13 @@
     "name": "sundriven",
     "title": "Sun Driven",
     "id": "sundriven@brett.zamir",
-    "version": "0.4.1",
+    "version": "0.5.0",
     "license": "MIT",
     "author": "Brett Zamir",
     "contributors": [],
     "dependencies": {
         "suncalc": "1.x",
         "jamilih": "0.x"
-    },
-    "devDependencies": {
-        "bower": "1.x"
-    },
-    "scripts": {
-        "prepublish": "bower install localforage"
     },
     "repository": {
         "type": "git",

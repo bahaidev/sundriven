@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# v0.4.1
+# v0.5.0
 
 CACHE:
 # Cache the following:
@@ -10,8 +10,6 @@ style/style.css
 style/ui-lightness/jquery-ui-1.10.4.custom.min.css
 node_modules/suncalc/suncalc.js
 node_modules/jamilih/jml.js
-bower_components/localforage/dist/localforage.min.js
-# Others needed for localforage?
 
 # Not currently referenced within the app
 # images/icon-32.png
