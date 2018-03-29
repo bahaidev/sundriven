@@ -1,16 +1,35 @@
-/*globals SunCalc, jml, localforage, createNotification, Notification */
-/*jslint vars:true */
+import MeeusSunMoon from 'node_modules/meeussunmoon/dist/meeussunmoon-es.js';
+import jml from 'node_modules/jamilih/dist/jml-es.js';
+import createNotification from './scripts/createNotification.js';
+import install from './scripts/install.js';
 
-(function () { 'use strict';
+console.log(install);
 
-var locale;
-var formChanged = false;
-var notificationsClosed = {};
-var availableEvents = SunCalc.times;
-var listeners = {}, watchers = {};
+setLocale();
+document.title = _('Sun Driven');
+
+jml(document.body, {class: 'ui-widget'}, [
+    /* ['button', {id: 'install'}, [
+        'Install app on device'
+    ]], */
+    ['br'],
+    ['div', {id: 'settings-container'}],
+    ['br'],
+    ['div', {id: 'table-container'}],
+    ['p', [
+        _('Click on the relevant row of the table to create/edit a reminder above:')
+    ]],
+    ['div', {id: 'forms-container'}]
+]);
+
+let locale;
+let formChanged = false;
+const notificationsClosed = {};
+const availableEvents = MeeusSunMoon.times;
+const listeners = {}, watchers = {};
 
 function getStorage (item, cb) {
-    var item = localStorage.getItem(item);
+    item = localStorage.getItem(item);
     cb(JSON.parse(item));
 }
 function setStorage (item, value, cb) {
@@ -18,71 +37,74 @@ function setStorage (item, value, cb) {
     cb(value);
 }
 
+/*
 function s (obj) {
     alert(JSON.stringify(obj));
 }
+*/
+
 function $ (sel) {
     return document.querySelector(sel);
 }
 function setLocale () {
-    var loc = window.location.href;
-    var frag = '#lang=';
-    var langInURLPos = loc.indexOf(frag);
-    var langInURL = (langInURLPos > -1) ? loc.slice(langInURLPos + frag.length) : false;
+    const loc = window.location.href;
+    const frag = '#lang=';
+    const langInURLPos = loc.indexOf(frag);
+    const langInURL = (langInURLPos > -1) ? loc.slice(langInURLPos + frag.length) : false;
     locale = langInURL || navigator.language || 'en-US';
     document.documentElement.lang = locale;
 }
-function _ (s) {
-    var messages = {
-        "en-US": {
-            // Suncalc items:
-            solarNoon: "Noon (Solar noon)",
-            nadir: "Nadir",
-            sunrise: "Sunrise",
-            sunset: "Sunset",
-            sunriseEnd: "Sunrise end",
-            sunsetStart: "Sunrise start",
-            dawn: "Dawn",
-            dusk: "Dusk",
-            nauticalDawn: "Nautical dawn",
-            nauticalDusk: "Nautical dusk",
-            nightEnd: "Night end",
-            night: "Night",
-            goldenHourEnd: "Golden hour end",
-            goldenHour: "Golden hour",
+function _ (s, ...args) {
+    const messages = {
+        'en-US': {
+            // MeeusSunMoon items:
+            solarNoon: 'Noon (Solar noon)',
+            nadir: 'Nadir',
+            sunrise: 'Sunrise',
+            sunset: 'Sunset',
+            sunriseEnd: 'Sunrise end',
+            sunsetStart: 'Sunrise start',
+            dawn: 'Dawn',
+            dusk: 'Dusk',
+            nauticalDawn: 'Nautical dawn',
+            nauticalDusk: 'Nautical dusk',
+            nightEnd: 'Night end',
+            night: 'Night',
+            goldenHourEnd: 'Golden hour end',
+            goldenHour: 'Golden hour',
             // i18n functions to allow reordering of dynamic arguments (without string substitutions)
-            geo_error: function (code, msg) {
-                return "ERROR (" + code + "): " + msg;
+            geo_error (code, msg) {
+                return 'ERROR (' + code + '): ' + msg;
             },
-            notification_message_onetime: function (name, date, alarmDateTime, nowDateTime) {
-                return "NOTICE: Your reminder, " + name + ", has expired; recent time launched: " + alarmDateTime + "; current time: " + nowDateTime + "; relative to: " + date;
+            notification_message_onetime (name, date, alarmDateTime, nowDateTime) {
+                return 'NOTICE: Your reminder, ' + name + ', has expired; recent time launched: ' + alarmDateTime + '; current time: ' + nowDateTime + '; relative to: ' + date;
             },
-            notification_message_onetime_astronomical: function (name, date, alarmDateTime, nowDateTime, astronomicalEvent) {
-                return "NOTICE: Your reminder, " + name + ", has expired; recent time launched: " + alarmDateTime + "; current time: " + nowDateTime + "; relative to " + _(astronomicalEvent) + ": " + date;
+            notification_message_onetime_astronomical (name, date, alarmDateTime, nowDateTime, astronomicalEvent) {
+                return 'NOTICE: Your reminder, ' + name + ', has expired; recent time launched: ' + alarmDateTime + '; current time: ' + nowDateTime + '; relative to ' + _(astronomicalEvent) + ': ' + date;
             },
-            notification_message_daily: function (name, date, alarmDateTime, nowDateTime) {
-                return "NOTICE: Your reminder, " + name + ", has expired for today; recent time launched: " + alarmDateTime + "; current time: " + nowDateTime + "; relative to: " + date;
+            notification_message_daily (name, date, alarmDateTime, nowDateTime) {
+                return 'NOTICE: Your reminder, ' + name + ', has expired for today; recent time launched: ' + alarmDateTime + '; current time: ' + nowDateTime + '; relative to: ' + date;
             },
-            notification_message_daily_astronomical: function (name, date, alarmDateTime, nowDateTime, astronomicalEvent) {
-                return "NOTICE: Your reminder, " + name + ", has expired for today; recent time launched: " + alarmDateTime + "; current time: " + nowDateTime + "; relative to " + _(astronomicalEvent) + ": " + date;
+            notification_message_daily_astronomical (name, date, alarmDateTime, nowDateTime, astronomicalEvent) {
+                return 'NOTICE: Your reminder, ' + name + ', has expired for today; recent time launched: ' + alarmDateTime + '; current time: ' + nowDateTime + '; relative to ' + _(astronomicalEvent) + ': ' + date;
             }
         }
     };
-    var msg = (messages[locale] || messages['en-US'])[s] || s;
-    return typeof msg === 'function' ? msg.apply(null, [].slice.call(arguments, 1)) : msg;
+    const msg = (messages[locale] || messages['en-US'])[s] || s;
+    return typeof msg === 'function' ? msg(...args) : msg;
 }
 function removeElement (elemSel) {
     if ($(elemSel)) {
-        $(elemSel).parentNode.removeChild($(elemSel));
+        $(elemSel).remove();
     }
 }
 function removeChild (childSel) {
     if ($(childSel).firstElementChild) {
-        $(childSel).removeChild($(childSel).firstElementChild);
+        $(childSel).firstElementChild.remove();
     }
 }
 function nbsp (ct) {
-    var arr = [];
+    const arr = [];
     arr.length = (ct || 1) + 1;
     return arr.join('\u00a0');
 }
@@ -92,20 +114,20 @@ function nbsp (ct) {
 function serializeForm (formID, targetObj, controls) {
     // Selects, text/numeric inputs
     if (controls.inputs) {
-        controls.inputs.forEach(function (setting) {
+        controls.inputs.forEach((setting) => {
             targetObj[setting] = $('#' + setting).value;
         });
     }
     // Checkboxes
     if (controls.checkboxes) {
-        controls.checkboxes.forEach(function (setting) {
+        controls.checkboxes.forEach((setting) => {
             targetObj[setting] = $('#' + setting).checked;
         });
     }
     // Radio buttons
     if (controls.radios) {
-        controls.radios.forEach(function (setting) {
-            targetObj[setting] = [].slice.call($('#' + formID)[setting]).filter(function (radio) {
+        controls.radios.forEach((setting) => {
+            targetObj[setting] = [...$('#' + formID)[setting]].filter((radio) => {
                 return radio.checked;
             })[0].id;
         });
@@ -115,33 +137,35 @@ function serializeForm (formID, targetObj, controls) {
 
 function getGeoPositionWrapper (cb, errBack) {
     if (!navigator.geolocation) {
-        alert(_("Your browser does not support or does not have Geolocation enabled"));
+        alert(_('Your browser does not support or does not have Geolocation enabled'));
         return;
     }
     // We could instead use getCurrentPosition, but that wouldn't update with the user's location
     return navigator.geolocation.getCurrentPosition( // watchPosition(
         cb,
         errBack || function geoErrBack (err) {
-            alert(_("geo_error", err.code, err.message));
+            alert(_('geo_error', err.code, err.message));
         }
-        /*, { // Geolocation options
+        /* , { // Geolocation options
             enableHighAccuracy: true,
             maximumAge: 30000,
             timeout: 27000
-        };*/
+        }; */
     );
 }
 function notify (name, body) {
     // show the notification
-    var notification = new Notification('Reminder (Click inside me to stop)', {body: body, lang: locale}); // lang=string, body=string, tag=string, icon=url, dir (ltr|rtl|auto)
-    notification.onclick = function() {
+    const notification = new Notification(
+        _('Reminder (Click inside me to stop)'),
+        {body, lang: locale}
+    ); // lang=string, body=string, tag=string, icon=url, dir (ltr|rtl|auto)
+    notification.onclick = function () {
         notificationsClosed[name] = true;
     };
-    notification.onclose = function() {
+    notification.onclose = function () {
         if (!notificationsClosed[name]) { // Only apparent way to keep it open
             notify(name, body);
-        }
-        else { // In case notice runs again
+        } else { // In case notice runs again
             delete notificationsClosed[name];
         }
     };
@@ -154,9 +178,11 @@ function notify (name, body) {
 }
 
 function storageSetterErrorWrapper (cb) {
-    return function (val) {
+    return (val) => {
         if (!val) {
-            alert(_("ERROR: Problem setting storage; refreshing page to try to resolve..."));
+            alert(
+                _('ERROR: Problem setting storage; refreshing page to try to resolve...')
+            );
             window.location.reload();
             return;
         }
@@ -167,19 +193,17 @@ function storageSetterErrorWrapper (cb) {
 }
 
 function storageGetterErrorWrapper (cb) {
-    return function (data) {
+    return (data) => {
         if (data === null) {
-            setStorage('sundriven', {}, storageSetterErrorWrapper(function (val) {cb(val);}));
+            setStorage('sundriven', {}, storageSetterErrorWrapper(cb));
             // This would loop (and data will be null on first run)
-            // alert(_("ERROR: Problem retrieving storage; refreshing page to try to resolve..."));
+            // alert(_('ERROR: Problem retrieving storage; refreshing page to try to resolve...'));
             // window.location.reload();
-        }
-        else {
+        } else {
             cb(data);
         }
     };
 }
-var createReminderForm;
 function createDefaultReminderForm () {
     createReminderForm({
         name: '',
@@ -192,32 +216,40 @@ function createDefaultReminderForm () {
 }
 
 function buildReminderTable () {
-    getStorage('sundriven', storageGetterErrorWrapper(function (forms) {
+    getStorage('sundriven', storageGetterErrorWrapper((forms) => {
         removeElement('#forms');
         jml('table', {id: 'forms'}, [
             ['tbody', {'class': 'ui-widget-header'}, [
                 ['tr', [
-                    ['th', [_("Name")]],
-                    ['th', [_("Enabled")]]
+                    ['th', [_('Name')]],
+                    ['th', [_('Enabled')]]
                 ]]
             ]],
             ['tbody', {'class': 'ui-widget-content'},
-                Object.keys(forms).sort().reduce(function (rows, formKey) {
-                    var form = forms[formKey];
-                    rows.push(['tr', {dataset: {name: form.name}, $on: {
-                        click: function () {
-                            var name = this.dataset.name;
-                            getStorage('sundriven', storageGetterErrorWrapper(function (forms) {
-                                createReminderForm(forms[name]);
-                            }));
-                        }}}, [
-                            ['td', [form.name]], ['td', {'class': 'focus'}, [form.enabled ? 'x' : '']]
-                        ]
-                    ]);
+                Object.keys(forms).sort().reduce((rows, formKey) => {
+                    const form = forms[formKey];
+                    rows.push(['tr', {
+                        dataset: {name: form.name},
+                        $on: {
+                            click () {
+                                const {name} = this.dataset;
+                                getStorage('sundriven', storageGetterErrorWrapper((forms) => {
+                                    createReminderForm(forms[name]);
+                                }));
+                            }
+                        }
+                    }, [
+                        ['td', [form.name]],
+                        ['td', {'class': 'focus'}, [
+                            form.enabled ? 'x' : ''
+                        ]]
+                    ]]);
                     return rows;
                 }, [
                     ['tr', [
-                        ['td', {colspan: 2, 'class': 'focus', $on: {click: createDefaultReminderForm}}, [_("(Create new reminder)")]]
+                        ['td', {colspan: 2, 'class': 'focus', $on: {
+                            click: createDefaultReminderForm
+                        }}, [_('(Create new reminder)')]]
                     ]]
                 ])
             ]
@@ -227,56 +259,73 @@ function buildReminderTable () {
 
 function updateListeners (sundriven) {
     function updateListenerByName (name) {
-        var data = sundriven[name];
+        const data = sundriven[name];
         function clearWatch (name) {
             if (watchers[name]) {
                 navigator.geolocation.clearWatch(watchers[name]);
             }
         }
         function checkTime (date) {
-            var minutes = parseFloat(data.minutes);
+            let minutes = parseFloat(data.minutes);
             minutes = data.relativePosition === 'before' ? -minutes : minutes; // after|before
-            var startTime = Date.now();
+            const startTime = Date.now();
             date = date || new Date(startTime);
-            return {date: date, time: (date.getTime() - startTime) + minutes * 60 * 1000};
+            return {date, time: (date.getTime() - startTime) + minutes * 60 * 1000};
         }
         function getRelative (date, astronomicalEvent) {
-            var timeoutID;
-            var dt = checkTime(date);
-            var time = dt.time;
-            date = dt.date;
+            const dt = checkTime(date);
+            const {time} = dt;
+            ({date} = dt);
             clearTimeout(listeners[name]);
-            switch(data.frequency) {
-                case 'daily':
-                    timeoutID = setTimeout((function (name, time, date, astronomicalEvent) {
-                        return function () {
-                            createNotification(function () {
-                                notify(name, _(astronomicalEvent ? "notification_message_daily_astronomical" : "notification_message_daily", name, date, new Date(Date.now() - time), new Date(), astronomicalEvent));
-                            });
-                            if (astronomicalEvent) {
-                                updateListenerByName(name);
-                            }
-                        };
-                    }(name, time, date, astronomicalEvent)), time);
-                    break;
-                default: // one-time
-                    timeoutID = setTimeout((function (name, time, date, astronomicalEvent) {
-                        return function () {
-                            createNotification(function () {
-                                notify(name, _(astronomicalEvent ? "notification_message_onetime_astronomical" : "notification_message_onetime", name, date, new Date(Date.now() - time), new Date(), astronomicalEvent));
-                            });
-                            delete listeners[name];
-                            clearWatch(name);
-                            data.enabled = 'false';
-                            setStorage('sundriven', sundriven, storageSetterErrorWrapper(function () {
-                                if ($('#name').value === name) {
-                                    $('#enabled').checked = false;
-                                }
-                                buildReminderTable();
-                            }));
-                        };
-                    }(name, time, date, astronomicalEvent)), time);
-                    break;
+            let timeoutID;
+            switch (data.frequency) {
+            case 'daily':
+                timeoutID = setTimeout(() => {
+                    createNotification(() => {
+                        notify(name, _(
+                            astronomicalEvent
+                                ? 'notification_message_daily_astronomical'
+                                : 'notification_message_daily',
+                            name,
+                            date,
+                            new Date(Date.now() - time),
+                            new Date(),
+                            astronomicalEvent
+                        ));
+                    });
+                    if (astronomicalEvent) {
+                        updateListenerByName(name);
+                    }
+                }, time);
+                break;
+            default: // one-time
+                timeoutID = setTimeout(() => {
+                    createNotification(() => {
+                        notify(
+                            name,
+                            _(
+                                astronomicalEvent
+                                    ? 'notification_message_onetime_astronomical'
+                                    : 'notification_message_onetime',
+                                name,
+                                date,
+                                new Date(Date.now() - time),
+                                new Date(),
+                                astronomicalEvent
+                            )
+                        );
+                    });
+                    delete listeners[name];
+                    clearWatch(name);
+                    data.enabled = 'false';
+                    setStorage('sundriven', sundriven, storageSetterErrorWrapper(() => {
+                        if ($('#name').value === name) {
+                            $('#enabled').checked = false;
+                        }
+                        buildReminderTable();
+                    }));
+                }, time);
+                break;
             }
             listeners[name] = timeoutID;
         }
@@ -289,68 +338,89 @@ function updateListeners (sundriven) {
             return date;
         }
         function getTimesForCoords (relativeEvent) {
-            return function (pos) {
-                var date = new Date();
-                var times = SunCalc.getTimes(date, pos.coords.latitude, pos.coords.longitude);
+            return function ({coords: {latitude, longitude}}) {
+                const date = new Date();
+                let times = MeeusSunMoon.getTimes(date, latitude, longitude);
                 if (checkTime(times[relativeEvent]).time < 0) {
-                    times = SunCalc.getTimes(incrementDate(date), pos.coords.latitude, pos.coords.longitude);
+                    times = MeeusSunMoon.getTimes(
+                        incrementDate(date),
+                        latitude,
+                        longitude
+                    );
                 }
                 getRelative(times[relativeEvent], relativeEvent);
             };
         }
         function getCoords () {
-            var latitude = $('#latitude').value;
-            var longitude = $('#longitude').value;
+            const latitude = $('#latitude').value;
+            const longitude = $('#longitude').value;
             if (isNaN(parseFloat(latitude)) || isNaN(parseFloat(longitude))) {
                 return false;
             }
-            return {coords: {latitude: latitude, longitude: longitude}};
+            return {coords: {latitude, longitude}};
         }
         if (data.enabled) {
             clearWatch(name);
-            var relativeEvent = data.relativeEvent;
+            const {relativeEvent} = data;
             switch (relativeEvent) {
-                case 'now':
-                    getRelative(checkTime().time < 0 ? incrementDate() : null);
-                    break;
-                default: // sunrise, etc.
-                    if ($('#geoloc-usage').value === 'never') { // when-available|always
-                        var coords = getCoords();
-                        if (!coords) {
-                            alert(_("Per your settings, Geolocation is disallowed, and the manual coordinates are not formatted correctly, so the astronomical event cannot be determined at this time."));
-                            return;
-                        }
-                        getTimesForCoords(relativeEvent)(coords);
-                    }
-                    else {
-                        watchers[name] = getGeoPositionWrapper(
-                            getTimesForCoords(relativeEvent),
-                            (($('#geoloc-usage').value === 'when-available') ? function () {
-                                var coords = getCoords();
-                                if (!coords) {
-                                    alert(_("Geolocation is not currently available, and the manual coordinates are not formatted correctly in your settings, so the astronomical event cannot be determined at this time."));
-                                    return;
-                                }
-                                getTimesForCoords(relativeEvent)(getCoords());
-                            } : null)
+            case 'now':
+                getRelative(checkTime().time < 0 ? incrementDate() : null);
+                break;
+            default: // sunrise, etc.
+                if ($('#geoloc-usage').value === 'never') { // when-available|always
+                    const coords = getCoords();
+                    if (!coords) {
+                        alert(
+                            _(
+                                'Per your settings, Geolocation is ' +
+                                'disallowed, and the manual coordinates are ' +
+                                'not formatted correctly, so the ' +
+                                'astronomical event cannot be determined ' +
+                                'at this time.'
+                            )
                         );
+                        return;
                     }
-                    break;
+                    getTimesForCoords(relativeEvent)(coords);
+                } else {
+                    watchers[name] = getGeoPositionWrapper(
+                        getTimesForCoords(relativeEvent),
+                        (($('#geoloc-usage').value === 'when-available') ? function () {
+                            const coords = getCoords();
+                            if (!coords) {
+                                alert(
+                                    _(
+                                        'Geolocation is not currently ' +
+                                        'available, and the manual ' +
+                                        'coordinates are not formatted ' +
+                                        'correctly in your settings, so the ' +
+                                        'astronomical event cannot be ' +
+                                        'determined at this time.'
+                                    )
+                                );
+                                return;
+                            }
+                            getTimesForCoords(relativeEvent)(getCoords());
+                        } : null)
+                    );
+                }
+                break;
             }
         }
     }
     Object.keys(sundriven).forEach(updateListenerByName);
 }
 
-
-createReminderForm = function (settings) {
+function createReminderForm (settings = {}) {
     function radioGroup (groupName, radios, selected) {
-        return ['span', radios.reduce(function (arr, radio) {
-            var radioObj = {type:'radio', name: groupName, id: radio.id};
+        return ['span', radios.reduce((arr, radio) => {
+            const radioObj = {type: 'radio', name: groupName, id: radio.id};
             if (radio.id === selected) {
-                radioObj.checked = true; // For some reason, we can't set this successfully on a jml() DOM object below, so we do it here
+                // For some reason, we can't set this successfully on a
+                //   jml() DOM object below, so we do it here
+                radioObj.checked = true;
             }
-            var rad = ['label', [
+            const rad = ['label', [
                 ['input', radioObj],
                 radio.label
             ]];
@@ -359,34 +429,45 @@ createReminderForm = function (settings) {
         }, [])];
     }
     function select (id, options) {
-        var sel = jml('select', {id: id}, options, null);
-        sel.value = settings[id] || '';
-        return sel;
+        return jml('select', {
+            id,
+            value: settings[id] || ''
+        }, options, null);
     }
     function checkbox (id) {
-        var inputObj = {type: 'checkbox', id: id};
+        const inputObj = {id, type: 'checkbox'};
         if (settings[id]) {
             inputObj.checked = true;
         }
         return ['input', inputObj];
     }
-    
+
     if (formChanged) {
-        var continueWithNewForm = confirm("You have unsaved changes; are you sure you wish to continue and lose your unsaved changes?");
+        const continueWithNewForm = confirm(
+            _(
+                'You have unsaved changes; are you sure you wish to ' +
+                'continue and lose your unsaved changes?'
+            )
+        );
         if (!continueWithNewForm) {
             return;
         }
         formChanged = false;
     }
-    settings = settings || {};
-    removeChild('#table-container');   
-    var formID = 'set-reminder';
-    jml('form', {id: formID, $on: {change: function (e) {
-        var target = e.target;
+    removeChild('#table-container');
+    const formID = 'set-reminder';
+    jml('form', {id: formID, $on: {change (e) {
+        const {target} = e;
         if (target.id === 'name' && target.defaultValue !== '') {
-            var renameReminder = confirm(_("Are you sure you wish to rename this reminder? If you wish instead to create a new one, click 'cancel' now and then click 'save' when you are ready."));
+            const renameReminder = confirm(
+                _(
+                    'Are you sure you wish to rename this reminder? If you ' +
+                    'wish instead to create a new one, click "cancel" now ' +
+                    'and then click "save" when you are ready.'
+                )
+            );
             if (!renameReminder) {
-                var data = serializeForm(formID, {}, {
+                const data = serializeForm(formID, {}, {
                     inputs: ['name', 'frequency', 'relativeEvent', 'minutes'],
                     checkboxes: ['enabled'],
                     radios: ['relativePosition']
@@ -397,178 +478,219 @@ createReminderForm = function (settings) {
         }
         formChanged = true;
     }}}, [['fieldset', [
-        ['legend', [_("Set Reminder")]],
+        ['legend', [_('Set Reminder')]],
         ['label', [
-            _("Name") + ' ',
-            ['input', {id: 'name', required: true, defaultValue: settings.name || '', value: settings.name || ''}]
+            _('Name') + ' ',
+            ['input', {
+                id: 'name',
+                required: true,
+                defaultValue: settings.name || '',
+                value: settings.name || ''
+            }]
         ]],
         ['label', [
             checkbox('enabled'),
-            _("Enabled")
+            _('Enabled')
         ]],
         ['br'],
         ['label', [
-            _("Frequency") + ' ',
+            _('Frequency') + ' ',
             select('frequency', [
-                    ['option', {value: 'daily'}, [_("Daily")]],
-                    ['option', {value: 'one-time'}, [_("One-time")]]
+                ['option', {value: 'daily'}, [_('Daily')]],
+                ['option', {value: 'one-time'}, [_('One-time')]]
             ])
         ]],
         ['br'],
         ['label', [
-            _("Relative to") + ' ',
-            select('relativeEvent', [['option', {value: 'now'}, [_("now")]]].concat(availableEvents.reduce(
-                function (arr, time) {
+            _('Relative to') + ' ',
+            select('relativeEvent', [
+                ['option', {value: 'now'}, [_('now')]]
+            ].concat(availableEvents.reduce(
+                (arr, time) => {
                     arr.push(
                         ['option', {value: time[1]}, [_(time[1])]],
                         ['option', {value: time[2]}, [_(time[2])]]
                     );
                     return arr;
                 },
-                // Others not included within SunCalc.times
-                ['solarNoon', 'nadir'].map(function (eventType) {
+                // Others not included within MeeusSunMoon.times
+                ['solarNoon', 'nadir'].map((eventType) => {
                     return ['option', {value: eventType}, [_(eventType)]];
                 })
-            ).sort(function (a, b) {
+            ).sort((a, b) => {
                 return a[2][0] > b[2][0];
             })))
         ]],
         nbsp(2),
         ['label', [
             ['input', {id: 'minutes', type: 'number', step: 1, value: settings.minutes}],
-            ' ' + _("Minutes")
+            ' ' + _('Minutes')
         ]],
         ['br'],
         radioGroup('relativePosition', [
-            {label: _("after"), id: 'after'},
-            {label: _("before"), id: 'before'}
+            {label: _('after'), id: 'after'},
+            {label: _('before'), id: 'before'}
         ], settings.relativePosition),
         ['br'],
-        ['button', {$on: {click: function (e) {
+        ['button', {$on: {click (e) {
             e.preventDefault();
-            var data = serializeForm(formID, {}, {
+            const data = serializeForm(formID, {}, {
                 inputs: ['name', 'frequency', 'relativeEvent', 'minutes'],
                 checkboxes: ['enabled'],
                 radios: ['relativePosition']
             });
             if (!data.name) { // Firefox will ask for the user to fill out the required field
-//                alert(_("ERROR: Please supply a name"));
+                // alert(_('ERROR: Please supply a name'));
                 return;
             }
 
-            getStorage('sundriven', storageGetterErrorWrapper(function (sundriven) {
-                if (!settings.name && // If this form was for creating new as opposed to editing old reminders
-                    sundriven[data.name]) {
-                    alert(_("ERROR: Please supply a unique name"));
+            getStorage('sundriven', storageGetterErrorWrapper((sundriven) => {
+                if (
+                    // If this form was for creating new as opposed to editing old reminders
+                    !settings.name &&
+                    sundriven[data.name]
+                ) {
+                    alert(_('ERROR: Please supply a unique name'));
                     return;
                 }
-                var originalName = $('#name').defaultValue;
-                if ([$('#name').value, ''].indexOf(originalName) === -1) {
+                const originalName = $('#name').defaultValue;
+                if (![$('#name').value, ''].includes(originalName)) {
                     // If this is a rename, we warned the user earlier about it, so go ahead and delete now
                     clearTimeout(listeners[originalName]);
                     delete sundriven[originalName];
                 }
                 sundriven[data.name] = data;
-                setStorage('sundriven', sundriven, storageSetterErrorWrapper(function () {
+                setStorage('sundriven', sundriven, storageSetterErrorWrapper(() => {
                     formChanged = false;
                     buildReminderTable();
                     updateListeners(sundriven);
-                    alert(_("Saved!"));
+                    alert(_('Saved!'));
                 }));
             }));
-        }}}, [_("Save")]],
-        ['button', {'class': 'delete', $on: {click: function (e) {
+        }}}, [_('Save')]],
+        ['button', {'class': 'delete', $on: {click (e) {
             e.preventDefault();
-            var name = $('#name').value;
+            const name = $('#name').value;
             if (!name) { // Required field will be used automatically
-                // alert(_("Please supply a reminder name for deletion."));
+                // alert(_('Please supply a reminder name for deletion.'));
                 return;
             }
-            var okDelete = confirm(_("Are you sure you wish to delete this reminder?"));
+            const okDelete = confirm(_('Are you sure you wish to delete this reminder?'));
             if (okDelete) {
                 clearTimeout(listeners[name]);
-                getStorage('sundriven', storageGetterErrorWrapper(function (sundriven) {
+                getStorage('sundriven', storageGetterErrorWrapper((sundriven) => {
                     delete sundriven[name];
-                    setStorage('sundriven', sundriven, storageSetterErrorWrapper(function () {
+                    setStorage('sundriven', sundriven, storageSetterErrorWrapper(() => {
                         formChanged = false;
                         buildReminderTable();
                         createDefaultReminderForm();
-                        alert(_("Reminder deleted!"));
+                        alert(_('Reminder deleted!'));
                     }));
                 }));
             }
-        }}}, [_("Delete")]]
+        }}}, [_('Delete')]]
     ]]], $('#table-container'));
 };
 
 jml('div', [
-        ['button', {$on: {click: function () {
-            $('#settings-holder').hidden = !$('#settings-holder').hidden;
-        }}}, [_("Settings")]],
-        ['div', {id: 'settings-holder', hidden: true}, [
-            ['form', {id: 'settings', $on: {change: function () {
-                var data = serializeForm('settings', {}, {
-                    inputs: ['geoloc-usage', 'latitude', 'longitude']
-                });
-                setStorage('sundriven-settings', data, storageSetterErrorWrapper());
-            }}}, [
-                ['fieldset', [
-                    ['select', {id: 'geoloc-usage'}, [
-                        ['option', {value: 'when-available', title: _("Fall back to the coordinates below when offline or upon Geolocation errors")}, [_("Use Geolocation when available")]],
-                        ['option', {value: 'never', title: _("Avoids a trip to the server but may not be accurate if you are traveling out of the area with your device.")}, [_("Never use Geolocation; always use manual coordinates.")]],
-                        ['option', {value: 'always', title: _("Will report errors instead of falling back (not recommended)")}, [_("Always use Geolocation; do not fall back to manual coordinates")]]
+    ['button', {$on: {click () {
+        $('#settings-holder').hidden = !$('#settings-holder').hidden;
+    }}}, [_('Settings')]],
+    ['div', {id: 'settings-holder', hidden: true}, [
+        ['form', {id: 'settings', $on: {change () {
+            const data = serializeForm('settings', {}, {
+                inputs: ['geoloc-usage', 'latitude', 'longitude']
+            });
+            setStorage('sundriven-settings', data, storageSetterErrorWrapper());
+        }}}, [
+            ['fieldset', [
+                ['select', {id: 'geoloc-usage'}, [
+                    ['option', {
+                        value: 'when-available',
+                        title: _(
+                            'Fall back to the coordinates below when ' +
+                            'offline or upon Geolocation errors'
+                        )
+                    }, [_('Use Geolocation when available')]],
+                    ['option', {
+                        value: 'never',
+                        title: _(
+                            'Avoids a trip to the server but may not be ' +
+                            'accurate if you are traveling out of the ' +
+                            'area with your device.'
+                        )
+                    }, [_('Never use Geolocation; always use manual coordinates.')]],
+                    ['option', {
+                        value: 'always',
+                        title: _(
+                            'Will report errors instead of falling back ' +
+                            '(not recommended)'
+                        )
+                    }, [_('Always use Geolocation; do not fall back to manual coordinates')]]
+                ]],
+                ['fieldset', {
+                    title: _(
+                        'Use these coordinates for astronomical ' +
+                        'event-based reminders when offline or upon errors'
+                    )
+                }, [
+                    ['legend', [_('Manual coordinates')]],
+                    ['label', [
+                        _('Latitude') + ' ',
+                        ['input', {id: 'latitude', size: 20}]
                     ]],
-                    ['fieldset', {title: _("Use these coordinates for astronomical event-based reminders when offline or upon errors")}, [
-                        ['legend', [_("Manual coordinates")]],
-                        ['label', [
-                            _("Latitude") + ' ',
-                            ['input', {id: 'latitude', size: 20}]
-                        ]],
-                        ['br'],
-                        ['label', [
-                            _("Longitude") + ' ',
-                            ['input', {id: 'longitude', size: 20}]
-                        ]],
-                        ['br'],
-                        ['button', {title: "Retrieve coordinates now using Geolocation for potential later use when offline or upon errors (depends on the selected pull-down option).", $on: {click: function (e) {
-                            e.preventDefault();
-                            $('#retrieving').hidden = false;
-                            getGeoPositionWrapper(function (pos) {
-                                $('#latitude').value = pos.coords.latitude;
-                                $('#longitude').value = pos.coords.longitude;
-                                var evt = document.createEvent('HTMLEvents');
-                                evt.initEvent('change', false, true);
-                                $('#settings').dispatchEvent(evt);
-                                $('#retrieving').hidden = true;
-                            }, function (err) {
-                                alert(_("geo_error", err.code, err.message));
-                                $('#retrieving').hidden = true;
-                            });
-                        }}}, [
-                            _("Retrieve coordinates for manual storage")
-                        ]],
-                        nbsp(),
-                        ['span', {id: 'retrieving', hidden: true}, [_("Retrieving...")]]
-                    ]]
+                    ['br'],
+                    ['label', [
+                        _('Longitude') + ' ',
+                        ['input', {id: 'longitude', size: 20}]
+                    ]],
+                    ['br'],
+                    ['button', {
+                        title: 'Retrieve coordinates now using Geolocation ' +
+                            'for potential later use when offline or upon ' +
+                            'errors (depends on the selected pull-down ' +
+                            'option).',
+                        $on: {
+                            click (e) {
+                                e.preventDefault();
+                                $('#retrieving').hidden = false;
+                                getGeoPositionWrapper(({coords: {latitude, longitude}}) => {
+                                    $('#latitude').value = latitude;
+                                    $('#longitude').value = longitude;
+                                    const evt = new Event('change', {
+                                        cancelable: true
+                                    });
+                                    $('#settings').dispatchEvent(evt);
+                                    $('#retrieving').hidden = true;
+                                }, (err) => {
+                                    alert(_('geo_error', err.code, err.message));
+                                    $('#retrieving').hidden = true;
+                                });
+                            }
+                        }
+                    }, [
+                        _('Retrieve coordinates for manual storage')
+                    ]],
+                    nbsp(),
+                    ['span', {id: 'retrieving', hidden: true}, [_('Retrieving...')]]
                 ]]
             ]]
-        ]],
-        ['br']
-    ],
-    $('#settings-container')
-);
-getStorage('sundriven-settings', storageGetterErrorWrapper(function (settings) {
-    Object.keys(settings).forEach(function (key) {
-        $('#' + key).value = settings[key];
+        ]]
+    ]],
+    ['br']
+], $('#settings-container'));
+
+getStorage('sundriven-settings', storageGetterErrorWrapper((settings) => {
+    Object.entries(settings).forEach(([key, value]) => {
+        $('#' + key).value = value;
     });
 }));
 
-setLocale();
-document.title = _("Sun Driven");
-
-window.addEventListener('beforeunload', function (e) {
+window.addEventListener('beforeunload', (e) => {
     if (formChanged) {
-        var msg = _("You have unsaved changes; are you sure you wish to leave the page?"); // Not utilized in Mozilla
+        const msg = _(
+            'You have unsaved changes; are you sure you wish to leave the page?'
+        ); // Not utilized in Mozilla
         e.returnValue = msg;
         e.preventDefault();
         return msg;
@@ -577,10 +699,4 @@ window.addEventListener('beforeunload', function (e) {
 
 buildReminderTable();
 createDefaultReminderForm();
-getStorage('sundriven', storageGetterErrorWrapper(function (sundriven) {
-    updateListeners(sundriven);
-}));
-
-// EXPORTS
-// window. = ;
-}());
+getStorage('sundriven', storageGetterErrorWrapper(updateListeners));

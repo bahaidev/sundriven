@@ -1,9 +1,12 @@
-/*globals Notification*/
-/*jslint vars:true*/
-(function () { 'use strict';
-
-function createNotification(notify) {
-    function request(notify) {
+function _ (key) {
+    // TODO: Move out to own locale file?
+    return {
+        'browser-not-support-notifications': 'This browser does not support notifications.',
+        'click-allow-notifications': 'Click to allow notifications'
+    }[key] || key;
+}
+function createNotification (notify) {
+    function request (notify) {
         Notification.requestPermission(function (permission) {
             // Whatever the user answers, we make sure Chrome stores the information
             if (!Notification.permission) {
@@ -18,35 +21,30 @@ function createNotification(notify) {
     }
     // Check if the browser supports notifications
     if (!window.Notification) {
-        alert("This browser does not support notifications.");
-    }
+        alert(_('browser-not-support-notifications'));
     // Check if the user is okay to get some notification
-    else if (Notification.permission === 'granted') {
+    } else if (Notification.permission === 'granted') {
         // If it's okay, create a notification
         notify();
-    }
     // Otherwise, we need to ask the user for permission
     // Note, Chrome does not implement the permission static property
     // So we have to check for NOT 'denied' instead of 'default'
-    else if (Notification.permission !== 'denied') {
-        var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
-        var isChrome = !!window.chrome && !isOpera;
+    } else if (Notification.permission !== 'denied') {
+        const isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+        const isChrome = !!window.chrome && !isOpera;
         if (isChrome) {
-            var div = document.createElement('div');
+            const div = document.createElement('div');
             div.className = 'overlay';
-            div.appendChild(document.createTextNode("Click to allow notifications")); // Satisfy Chrome's delusion that user gestures ensure the user retains the locus of control
-            div.addEventListener('mouseover', function () {
+            div.append(_('click-allow-notifications')); // Satisfy Chrome's delusion that user gestures ensure the user retains the locus of control
+            div.addEventListener('mouseover', () => {
                 div.parentNode.removeChild(div);
                 request(notify);
             });
             document.body.appendChild(div);
-        }
-        else {
+        } else {
             request(notify);
         }
     }
 }
 
-// EXPORTS
-window.createNotification = createNotification;
-}());
+export default createNotification;

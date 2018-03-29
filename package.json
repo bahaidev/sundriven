@@ -6,16 +6,32 @@
     "license": "MIT",
     "author": "Brett Zamir",
     "contributors": [],
-    "dependencies": {
-        "suncalc": "1.x",
-        "jamilih": "0.x"
+    "scripts": {
+        "eslint": "eslint ."
     },
+    "dependencies": {
+        "meeussunmoon": "https://github.com/brettz9/MeeusSunMoon#v2-brett",
+        "jamilih": "0.32.0"
+    },
+    "devDependencies": {
+        "eslint": "4.19.1",
+        "eslint-config-standard": "11.0.0",
+        "eslint-plugin-import": "2.9.0",
+        "eslint-plugin-node": "6.0.1",
+        "eslint-plugin-promise": "3.7.0",
+        "eslint-plugin-standard": "3.0.1"
+    },
+    "engines": {},
+    "bugs": "https://github.com/brettz9/sundriven/issues",
+    "homepage": "https://github.com/brettz9/sundriven",
     "repository": {
         "type": "git",
         "url": "https://github.com/brettz9/sundriven.git"
     },
     "description": "Very simple app to provide toaster-style notification reminders (daily or one-time) given relative to either the current time or to astronomical events such as dawn, sunrise, or sunset. Note that the astronomical event times are currently determined mathematically rather than by querying an online service.",
     "keywords": [
-        "sunrise", "sunset", "to-do"
+        "sunrise",
+        "sunset",
+        "to-do"
     ]
 }

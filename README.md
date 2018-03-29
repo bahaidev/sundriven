@@ -6,7 +6,7 @@ current time or to astronomical events such as dawn, sunrise, or sunset.
 Note that the astronomical event times are currently determined
 mathematically rather than by querying an online service.
 
-Uses [suncalc](https://github.com/mourner/suncalc) for astronomical
+Uses [MeeusSunMoon](https://github.com/janrg/MeeusSunMoon) for astronomical
 calculations and [localforage](https://github.com/mozilla/localForage)
 for local storage (IndexedDB or WebSQL where available; localStorage
 otherwise).
@@ -23,28 +23,42 @@ npm install .
 
 
 # Higher priority todos
-1. Waiting on [FF Marketplace](https://marketplace.firefox.com/app/sundriven/) re: update info
-1. Test offline manifest on server, ensuring no dependencies missing
-    1. Add content policy directive indicating no Ajax needed, etc. (see if Firefox will, with an add-on if not by default, display this (for privacy reassurances to user))
-1. Debug and reinstall "install" button
 
-# Possible Todos
-1. Add ES6 module polyfill, requirejs, or browserify to devDependencies and utilize instead of hard-coded script tags (also modularize and use localization function `_` (and separating out the locales as well), so it can be reused across modules); add bower.json and submit?
+1. Test offline manifest on server, ensuring no dependencies missing
+    1. Add content policy directive indicating no Ajax needed, etc. (see
+        if Firefox will, with an add-on if not by default, display this
+        (for privacy reassurances to user))
+1. Debug and reinstall "install" button
+1. Get ES6 modules working
+1. Change cache.manifest to worker; add `<link>` for Web Manifest discovery
+    <https://developer.mozilla.org/en-US/docs/Web/Manifest#Deploying_a_manifest_with_the_link_tag>
+1. Use `localforage`
+1. Modularize and use localization function `_` (and separating out
+    the locales as well including in createNotification file),
+    so it can be reused across modules); publish to npm
+
+# Possible to-dos
 1. Allow fractional minutes (if able to keep input steps)
-1. Make geolocation options (and option to use watchPosition in place of getCurrentPosition--the latter being used currently due to intermittent Geolocation errors) configurable
-1. Option to auto-store latest latitude/longitude from Geolocation in order to work next time offline
-1. Indicate original expected time on notices? (since geoloc may have updated)
-1. Config to auto-delete expired timeouts (one-time ones) instead of just disabling
+1. Make geolocation options (and option to use `watchPosition` in
+    place of `getCurrentPosition`--the latter being used currently due to
+    intermittent Geolocation errors) configurable
+1. Option to auto-store latest latitude/longitude from Geolocation in
+    order to work next time offline
+1. Indicate original expected time on notices? (since geoloc may have
+    updated)
+1. Config to auto-delete expired timeouts (one-time ones) instead of
+    just disabling
 1. Display dialogs instead of alerts/confirm for save/delete
-1. Optionally change close event (and message for it) to give optional prompt to snooze instead of just closing
+1. Optionally change close event (and message for it) to give optional
+    prompt to snooze instead of just closing
 1. Allow specification of applicable date range or all
 1. Presets, e.g., for Baha'i Fast, obligatory prayers (relative to morning,
-noon, or sunset), dawn prayers (though configurable afterward, e.g., in
-relative minutes after or before)
+    noon, or sunset), dawn prayers (though configurable afterward, e.g., in
+    relative minutes after or before)
 
 # Credits
 
-Thanks to suncalc and localforage for great libraries and to
+Thanks to MeeusSunMoon and localforage for great libraries and to
 [dear_theophilus](http://openclipart.org/user-detail/dear_theophilus) of
 [openclipart](http://openclipart.org)
 for the

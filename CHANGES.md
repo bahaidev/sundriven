@@ -1,3 +1,7 @@
+# 0.6.0
+- Enhancement: Replace suncalc with MeeusSunMoon
+- Refactoring: ES6 Modules, ES features
+
 # 0.5.0
 - Remove apparently problematic localforage
 
