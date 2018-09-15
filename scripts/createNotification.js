@@ -6,18 +6,17 @@ function _ (key) {
     }[key] || key;
 }
 function createNotification (notify) {
-    function request (notify) {
-        Notification.requestPermission(function (permission) {
-            // Whatever the user answers, we make sure Chrome stores the information
-            if (!Notification.permission) {
-                Notification.permission = permission;
-            }
-            // If the user is okay, let's create a notification
-            if (permission === 'granted') {
-                // show the notification
-                notify();
-            }
-        });
+    async function request () {
+        const permission = await Notification.requestPermission();
+        // Whatever the user answers, we make sure Chrome stores the information
+        if (!Notification.permission) {
+            Notification.permission = permission;
+        }
+        // If the user is okay, let's create a notification
+        if (permission === 'granted') {
+            // show the notification
+            notify();
+        }
     }
     // Check if the browser supports notifications
     if (!window.Notification) {
@@ -30,19 +29,19 @@ function createNotification (notify) {
     // Note, Chrome does not implement the permission static property
     // So we have to check for NOT 'denied' instead of 'default'
     } else if (Notification.permission !== 'denied') {
-        const isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+        const isOpera = !!window.opera || navigator.userAgent.includes(' OPR/');
         const isChrome = !!window.chrome && !isOpera;
         if (isChrome) {
             const div = document.createElement('div');
             div.className = 'overlay';
             div.append(_('click-allow-notifications')); // Satisfy Chrome's delusion that user gestures ensure the user retains the locus of control
             div.addEventListener('mouseover', () => {
-                div.parentNode.removeChild(div);
-                request(notify);
+                div.remove();
+                request();
             });
-            document.body.appendChild(div);
+            document.body.append(div);
         } else {
-            request(notify);
+            request();
         }
     }
 }

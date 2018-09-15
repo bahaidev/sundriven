@@ -21,17 +21,17 @@ due to my specific location or network settings.
 npm install .
 ```
 
-
 # Higher priority todos
 
-1. Test offline manifest on server, ensuring no dependencies missing
-    1. Add content policy directive indicating no Ajax needed, etc. (see
-        if Firefox will, with an add-on if not by default, display this
-        (for privacy reassurances to user))
+1. Ask for notifications permission immediately so it will work the first time used!
 1. Debug and reinstall "install" button
 1. Get ES6 modules working
 1. Change cache.manifest to worker; add `<link>` for Web Manifest discovery
     <https://developer.mozilla.org/en-US/docs/Web/Manifest#Deploying_a_manifest_with_the_link_tag>
+    1. Test offline manifest on server, ensuring no dependencies missing
+        1. Add content policy directive indicating no Ajax needed, etc. (see
+            if Firefox will, with an add-on if not by default, display this
+            (for privacy reassurances to user))
 1. Use `localforage`
 1. Modularize and use localization function `_` (and separating out
     the locales as well including in createNotification file),

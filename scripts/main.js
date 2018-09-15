@@ -1,14 +1,15 @@
-import MeeusSunMoon from 'node_modules/meeussunmoon/dist/meeussunmoon-es.js';
-import jml from 'node_modules/jamilih/dist/jml-es.js';
-import createNotification from './scripts/createNotification.js';
-import install from './scripts/install.js';
+import * as MeeusSunMoon from '../node_modules/meeussunmoon/dist/meeussunmoon-es.js';
+import {jml, $, nbsp, body} from '../node_modules/jamilih/dist/jml-es.js';
+import createNotification from './createNotification.js';
+// import install from './install.js';
 
-console.log(install);
+import localeEnUs from '../locales/en-US.js'; // Todo: Make dynamic import based on locale once Firefox supports
 
+let locale;
 setLocale();
 document.title = _('Sun Driven');
 
-jml(document.body, {class: 'ui-widget'}, [
+jml(body, {class: 'ui-widget'}, [
     /* ['button', {id: 'install'}, [
         'Install app on device'
     ]], */
@@ -22,10 +23,7 @@ jml(document.body, {class: 'ui-widget'}, [
     ['div', {id: 'forms-container'}]
 ]);
 
-let locale;
 let formChanged = false;
-const notificationsClosed = {};
-const availableEvents = MeeusSunMoon.times;
 const listeners = {}, watchers = {};
 
 function getStorage (item, cb) {
@@ -43,9 +41,6 @@ function s (obj) {
 }
 */
 
-function $ (sel) {
-    return document.querySelector(sel);
-}
 function setLocale () {
     const loc = window.location.href;
     const frag = '#lang=';
@@ -56,42 +51,12 @@ function setLocale () {
 }
 function _ (s, ...args) {
     const messages = {
-        'en-US': {
-            // MeeusSunMoon items:
-            solarNoon: 'Noon (Solar noon)',
-            nadir: 'Nadir',
-            sunrise: 'Sunrise',
-            sunset: 'Sunset',
-            sunriseEnd: 'Sunrise end',
-            sunsetStart: 'Sunrise start',
-            dawn: 'Dawn',
-            dusk: 'Dusk',
-            nauticalDawn: 'Nautical dawn',
-            nauticalDusk: 'Nautical dusk',
-            nightEnd: 'Night end',
-            night: 'Night',
-            goldenHourEnd: 'Golden hour end',
-            goldenHour: 'Golden hour',
-            // i18n functions to allow reordering of dynamic arguments (without string substitutions)
-            geo_error (code, msg) {
-                return 'ERROR (' + code + '): ' + msg;
-            },
-            notification_message_onetime (name, date, alarmDateTime, nowDateTime) {
-                return 'NOTICE: Your reminder, ' + name + ', has expired; recent time launched: ' + alarmDateTime + '; current time: ' + nowDateTime + '; relative to: ' + date;
-            },
-            notification_message_onetime_astronomical (name, date, alarmDateTime, nowDateTime, astronomicalEvent) {
-                return 'NOTICE: Your reminder, ' + name + ', has expired; recent time launched: ' + alarmDateTime + '; current time: ' + nowDateTime + '; relative to ' + _(astronomicalEvent) + ': ' + date;
-            },
-            notification_message_daily (name, date, alarmDateTime, nowDateTime) {
-                return 'NOTICE: Your reminder, ' + name + ', has expired for today; recent time launched: ' + alarmDateTime + '; current time: ' + nowDateTime + '; relative to: ' + date;
-            },
-            notification_message_daily_astronomical (name, date, alarmDateTime, nowDateTime, astronomicalEvent) {
-                return 'NOTICE: Your reminder, ' + name + ', has expired for today; recent time launched: ' + alarmDateTime + '; current time: ' + nowDateTime + '; relative to ' + _(astronomicalEvent) + ': ' + date;
-            }
-        }
+        'en-US': localeEnUs
     };
     const msg = (messages[locale] || messages['en-US'])[s] || s;
-    return typeof msg === 'function' ? msg(...args) : msg;
+    return msg.replace(/\{([^}]*)}/g, (_, n1) => {
+        return args.shift();
+    });
 }
 function removeElement (elemSel) {
     if ($(elemSel)) {
@@ -103,11 +68,7 @@ function removeChild (childSel) {
         $(childSel).firstElementChild.remove();
     }
 }
-function nbsp (ct) {
-    const arr = [];
-    arr.length = (ct || 1) + 1;
-    return arr.join('\u00a0');
-}
+
 /**
 * @todo If no controls array is present, we could just iterate over all form controls
 */
@@ -155,20 +116,17 @@ function getGeoPositionWrapper (cb, errBack) {
 }
 function notify (name, body) {
     // show the notification
-    const notification = new Notification(
+    // console.log('notifying');
+    const notification = new Notification( // eslint-disable-line no-new
         _('Reminder (Click inside me to stop)'),
-        {body, lang: locale}
-    ); // lang=string, body=string, tag=string, icon=url, dir (ltr|rtl|auto)
-    notification.onclick = function () {
-        notificationsClosed[name] = true;
-    };
-    notification.onclose = function () {
-        if (!notificationsClosed[name]) { // Only apparent way to keep it open
-            notify(name, body);
-        } else { // In case notice runs again
-            delete notificationsClosed[name];
+        {
+            body,
+            lang: locale,
+            requireInteraction: true // Keep open until click
+            // Todo: `dir`: Should auto-detect direction based on locale
         }
-    };
+    ); // tag=string, icon=url, dir (ltr|rtl|auto)
+    console.log('notification', notification);
     /*
     notification.onshow = function(e) {
     };
@@ -219,16 +177,21 @@ function buildReminderTable () {
     getStorage('sundriven', storageGetterErrorWrapper((forms) => {
         removeElement('#forms');
         jml('table', {id: 'forms'}, [
-            ['tbody', {'class': 'ui-widget-header'}, [
+            ['tbody', {class: 'ui-widget-header'}, [
                 ['tr', [
                     ['th', [_('Name')]],
                     ['th', [_('Enabled')]]
                 ]]
             ]],
-            ['tbody', {'class': 'ui-widget-content'},
-                Object.keys(forms).sort().reduce((rows, formKey) => {
+            ['tbody', {class: 'ui-widget-content'}, [
+                ['tr', [
+                    ['td', {colspan: 2, class: 'focus', $on: {
+                        click: createDefaultReminderForm
+                    }}, [_('(Create new reminder)')]]
+                ]],
+                ...Object.keys(forms).sort().map((formKey) => {
                     const form = forms[formKey];
-                    rows.push(['tr', {
+                    return ['tr', {
                         dataset: {name: form.name},
                         $on: {
                             click () {
@@ -240,26 +203,18 @@ function buildReminderTable () {
                         }
                     }, [
                         ['td', [form.name]],
-                        ['td', {'class': 'focus'}, [
+                        ['td', {class: 'focus'}, [
                             form.enabled ? 'x' : ''
                         ]]
-                    ]]);
-                    return rows;
-                }, [
-                    ['tr', [
-                        ['td', {colspan: 2, 'class': 'focus', $on: {
-                            click: createDefaultReminderForm
-                        }}, [_('(Create new reminder)')]]
-                    ]]
-                ])
-            ]
+                    ]];
+                })
+            ]]
         ], $('#forms-container'));
     }));
 }
 
 function updateListeners (sundriven) {
-    function updateListenerByName (name) {
-        const data = sundriven[name];
+    function updateListenerByName ([name, data]) {
         function clearWatch (name) {
             if (watchers[name]) {
                 navigator.geolocation.clearWatch(watchers[name]);
@@ -290,11 +245,11 @@ function updateListeners (sundriven) {
                             date,
                             new Date(Date.now() - time),
                             new Date(),
-                            astronomicalEvent
+                            astronomicalEvent ? _(astronomicalEvent) : null
                         ));
                     });
                     if (astronomicalEvent) {
-                        updateListenerByName(name);
+                        updateListenerByName([name, data]);
                     }
                 }, time);
                 break;
@@ -311,7 +266,7 @@ function updateListeners (sundriven) {
                                 date,
                                 new Date(Date.now() - time),
                                 new Date(),
-                                astronomicalEvent
+                                astronomicalEvent ? _(astronomicalEvent) : null
                             )
                         );
                     });
@@ -408,25 +363,24 @@ function updateListeners (sundriven) {
             }
         }
     }
-    Object.keys(sundriven).forEach(updateListenerByName);
+    Object.entries(sundriven).forEach(updateListenerByName);
 }
 
 function createReminderForm (settings = {}) {
     function radioGroup (groupName, radios, selected) {
-        return ['span', radios.reduce((arr, radio) => {
-            const radioObj = {type: 'radio', name: groupName, id: radio.id};
-            if (radio.id === selected) {
-                // For some reason, we can't set this successfully on a
-                //   jml() DOM object below, so we do it here
-                radioObj.checked = true;
-            }
-            const rad = ['label', [
-                ['input', radioObj],
-                radio.label
+        return ['span', radios.map(({id, label}) => {
+            return ['label', [
+                ['input', {
+                    type: 'radio',
+                    name: groupName,
+                    id,
+                    // For some reason, we can't set this successfully on a
+                    //   jml() DOM object below, so we do it here
+                    checked: id === selected
+                }],
+                label
             ]];
-            arr.push(rad);
-            return arr;
-        }, [])];
+        })];
     }
     function select (id, options) {
         return jml('select', {
@@ -435,11 +389,11 @@ function createReminderForm (settings = {}) {
         }, options, null);
     }
     function checkbox (id) {
-        const inputObj = {id, type: 'checkbox'};
-        if (settings[id]) {
-            inputObj.checked = true;
-        }
-        return ['input', inputObj];
+        return ['input', {
+            id,
+            type: 'checkbox',
+            checked: settings[id]
+        }];
     }
 
     if (formChanged) {
@@ -504,24 +458,27 @@ function createReminderForm (settings = {}) {
         ['label', [
             _('Relative to') + ' ',
             select('relativeEvent', [
-                ['option', {value: 'now'}, [_('now')]]
-            ].concat(availableEvents.reduce(
-                (arr, time) => {
-                    arr.push(
-                        ['option', {value: time[1]}, [_(time[1])]],
-                        ['option', {value: time[2]}, [_(time[2])]]
-                    );
-                    return arr;
-                },
+                ['option', {value: 'now'}, [_('now')]],
                 // Others not included within MeeusSunMoon.times
-                ['solarNoon', 'nadir'].map((eventType) => {
+                ...([
+                    'sunrise', 'sunset',
+                    'solarNoon'
+                    /*
+                    // Not present in MSM: https://github.com/janrg/MeeusSunMoon/issues/3
+                    'nadir', 'sunriseEnd', 'sunsetStart',
+                    'dawn',
+                    'dusk', 'nauticalDawn', 'nauticalDusk',
+                    'nightEnd', 'night',
+                    'goldenHourEnd', 'goldenHour'
+                    */
+                ].map((eventType) => {
                     return ['option', {value: eventType}, [_(eventType)]];
-                })
-            ).sort((a, b) => {
-                return a[2][0] > b[2][0];
-            })))
+                }).sort((a, b) => {
+                    return a[2][0] > b[2][0];
+                }))
+            ])
         ]],
-        nbsp(2),
+        nbsp.repeat(2),
         ['label', [
             ['input', {id: 'minutes', type: 'number', step: 1, value: settings.minutes}],
             ' ' + _('Minutes')
@@ -568,7 +525,7 @@ function createReminderForm (settings = {}) {
                 }));
             }));
         }}}, [_('Save')]],
-        ['button', {'class': 'delete', $on: {click (e) {
+        ['button', {class: 'delete', $on: {click (e) {
             e.preventDefault();
             const name = $('#name').value;
             if (!name) { // Required field will be used automatically
@@ -671,7 +628,7 @@ jml('div', [
                     }, [
                         _('Retrieve coordinates for manual storage')
                     ]],
-                    nbsp(),
+                    nbsp,
                     ['span', {id: 'retrieving', hidden: true}, [_('Retrieving...')]]
                 ]]
             ]]
@@ -700,3 +657,4 @@ window.addEventListener('beforeunload', (e) => {
 buildReminderTable();
 createDefaultReminderForm();
 getStorage('sundriven', storageGetterErrorWrapper(updateListeners));
+// install();
