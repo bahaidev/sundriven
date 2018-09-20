@@ -1,5 +1,7 @@
+/* globals moment */
 import * as MeeusSunMoon from '../node_modules/meeussunmoon/dist/meeussunmoon-es.js';
 import {jml, $, nbsp, body} from '../node_modules/jamilih/dist/jml-es.js';
+// import moment from '../node_modules/moment/src/moment.js';
 import createNotification from './createNotification.js';
 // import install from './install.js';
 
@@ -224,7 +226,8 @@ function updateListeners (sundriven) {
             let minutes = parseFloat(data.minutes);
             minutes = data.relativePosition === 'before' ? -minutes : minutes; // after|before
             const startTime = Date.now();
-            date = date || new Date(startTime);
+            console.log('date', date);
+            date = date && typeof date !== 'number' ? date : new Date(startTime);
             return {date, time: (date.getTime() - startTime) + minutes * 60 * 1000};
         }
         function getRelative (date, astronomicalEvent) {
@@ -294,16 +297,24 @@ function updateListeners (sundriven) {
         }
         function getTimesForCoords (relativeEvent) {
             return function ({coords: {latitude, longitude}}) {
-                const date = new Date();
-                let times = MeeusSunMoon.getTimes(date, latitude, longitude);
-                if (checkTime(times[relativeEvent]).time < 0) {
-                    times = MeeusSunMoon.getTimes(
-                        incrementDate(date),
+                const date = moment();
+                let time;
+                switch (relativeEvent) {
+                case 'sunrise': case 'sunset':
+                    time = MeeusSunMoon[relativeEvent](date, latitude, longitude);
+                    break;
+                case 'solarNoon':
+                    time = MeeusSunMoon[relativeEvent](date, longitude);
+                }
+                if (time < 0) {
+                    time = MeeusSunMoon[relativeEvent](
+                        moment(incrementDate()),
                         latitude,
                         longitude
                     );
                 }
-                getRelative(times[relativeEvent], relativeEvent);
+                time = time.toDate();
+                getRelative(time, relativeEvent);
             };
         }
         function getCoords () {
@@ -459,7 +470,7 @@ function createReminderForm (settings = {}) {
             _('Relative to') + ' ',
             select('relativeEvent', [
                 ['option', {value: 'now'}, [_('now')]],
-                // Others not included within MeeusSunMoon.times
+                // Others not included within MeeusSunMoon
                 ...([
                     'sunrise', 'sunset',
                     'solarNoon'
