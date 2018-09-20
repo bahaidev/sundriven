@@ -1,5 +1,5 @@
-import * as MeeusSunMoon from '../node_modules/meeussunmoon/dist/meeussunmoon-es.js';
-import {jml, $, nbsp, body} from '../node_modules/jamilih/dist/jml-es.js';
+import * as MeeusSunMoon from '../vendor/meeussunmoon/dist/meeussunmoon-es.js';
+import {jml, $, nbsp, body} from '../vendor/jamilih/dist/jml-es.js';
 import createNotification from './createNotification.js';
 // import install from './install.js';
 
