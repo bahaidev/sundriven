@@ -8,7 +8,6 @@
     "contributors": [],
     "scripts": {
         "eslint": "eslint .",
-        "copy": "cp ./node_modules/jamilih/dist/jml-es.js ./vendor/jamilih/dist/jml-es.js && cp ./node_modules/meeussunmoon/dist/meeussunmoon-es.js ./vendor/meeussunmoon/dist/meeussunmoon-es.js",
         "start": "static -p 8093"
     },
     "dependencies": {
