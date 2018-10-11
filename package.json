@@ -8,22 +8,24 @@
     "contributors": [],
     "scripts": {
         "eslint": "eslint .",
+        "open": "opn http://localhost:8093 && npm start",
         "start": "static -p 8093"
     },
     "dependencies": {
-        "jamilih": "0.41.0",
-        "meeussunmoon": "https://github.com/brettz9/MeeusSunMoon#v2-brett",
+        "jamilih": "0.42.0",
+        "meeussunmoon": "2.1.0",
         "moment": "^2.22.2",
         "moment-timezone": "^0.5.21"
     },
     "devDependencies": {
-        "eslint": "5.6.0",
+        "eslint": "5.6.1",
         "eslint-config-standard": "12.0.0",
         "eslint-plugin-import": "2.14.0",
         "eslint-plugin-node": "7.0.1",
         "eslint-plugin-promise": "4.0.1",
         "eslint-plugin-standard": "4.0.0",
-        "node-static": "^0.7.10"
+        "node-static": "^0.7.11",
+        "opn-cli": "^3.1.0"
     },
     "engines": {},
     "bugs": "https://github.com/brettz9/sundriven/issues",

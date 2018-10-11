@@ -300,6 +300,9 @@ function updateListeners (sundriven) {
                 const date = moment();
                 let time;
                 switch (relativeEvent) {
+                case 'civilDawn': case 'civilDusk':
+                case 'nauticalDawn': case 'nauticalDusk':
+                case 'astronomicalDawn': case 'astronomicalDusk':
                 case 'sunrise': case 'sunset':
                     time = MeeusSunMoon[relativeEvent](date, latitude, longitude);
                     break;
@@ -473,13 +476,13 @@ function createReminderForm (settings = {}) {
                 // Others not included within MeeusSunMoon
                 ...([
                     'sunrise', 'sunset',
-                    'solarNoon'
+                    'solarNoon',
+                    'civilDawn', 'civilDusk',
+                    'nauticalDawn', 'nauticalDusk',
+                    'astronomicalDawn', 'astronomicalDusk'
                     /*
                     // Not present in MSM: https://github.com/janrg/MeeusSunMoon/issues/3
                     'nadir', 'sunriseEnd', 'sunsetStart',
-                    'dawn',
-                    'dusk', 'nauticalDawn', 'nauticalDusk',
-                    'nightEnd', 'night',
                     'goldenHourEnd', 'goldenHour'
                     */
                 ].map((eventType) => {
