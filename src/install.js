@@ -5,13 +5,13 @@ const apps = navigator.mozApps;
 /**
  *
  */
-export default function () {
+function install () {
   const button = document.getElementById('install');
 
   /**
    * @param ev
    */
-  function install (ev) {
+  function _install (ev) {
     ev.preventDefault();
     // install the app
     const installLocFind = apps.install(manifestURL);
@@ -37,7 +37,7 @@ export default function () {
         if (installCheck.result) {
           button.style.display = 'none';
         } else {
-          button.addEventListener('click', install);
+          button.addEventListener('click', _install);
         }
       };
     } catch (e) {
@@ -47,3 +47,5 @@ export default function () {
     button.style.display = 'none';
   }
 }
+
+export default install;

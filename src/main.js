@@ -1,4 +1,5 @@
-/* globals moment */
+/* globals moment -- Was only available as a global */
+// Todo: On updating MeeusSunMoon/moment, use ESM only
 import * as MeeusSunMoon from '../node_modules/meeussunmoon/dist/meeussunmoon-es.js';
 import {jml, $, nbsp, body} from '../node_modules/jamilih/dist/jml-es.js';
 // import moment from '../node_modules/moment/src/moment.js';
@@ -72,7 +73,7 @@ function _ (s, ...args) {
     'en-US': localeEnUs
   };
   const msg = (messages[locale] || messages['en-US'])[s] || s;
-  return msg.replace(/{([^}]*)}/g, (_, n1) => {
+  return msg.replace(/\{(?:[^}]*)\}/ug, () => {
     return args.shift();
   });
 }
@@ -126,11 +127,12 @@ function serializeForm (formID, targetObj, controls) {
 /**
  * @param cb
  * @param errBack
+ * @throws {Error}
  */
 function getGeoPositionWrapper (cb, errBack) {
   if (!navigator.geolocation) {
     alert(_('Your browser does not support or does not have Geolocation enabled'));
-    return;
+    throw new Error('Discontinue');
   }
   // We could instead use getCurrentPosition, but that wouldn't update with the user's location
   return navigator.geolocation.getCurrentPosition( // watchPosition(
@@ -147,27 +149,31 @@ function getGeoPositionWrapper (cb, errBack) {
 }
 /**
  * @param name
- * @param body
+ * @param _body
  */
-function notify (name, body) {
+function notify (name, _body) {
   // show the notification
   // console.log('notifying');
-  const notification = new Notification( // eslint-disable-line no-new
+  const notification = new Notification(
     _('Reminder (Click inside me to stop)'),
     {
-      body,
+      _body,
       lang: locale,
       requireInteraction: true // Keep open until click
       // Todo: `dir`: Should auto-detect direction based on locale
     }
   ); // tag=string, icon=url, dir (ltr|rtl|auto)
+
+  // eslint-disable-next-line no-console -- Debugging
   console.log('notification', notification);
   /*
     notification.onshow = function(e) {
     };
     */
   // And vibrate the device if it supports vibration API
-  window.navigator.vibrate(500);
+  if (navigator.vibrate) {
+    navigator.vibrate(500);
+  }
 }
 
 /**
@@ -243,8 +249,8 @@ function buildReminderTable () {
             $on: {
               click () {
                 const {name} = this.dataset;
-                getStorage('sundriven', storageGetterErrorWrapper((forms) => {
-                  createReminderForm(forms[name]);
+                getStorage('sundriven', storageGetterErrorWrapper((_forms) => {
+                  createReminderForm(_forms[name]);
                 }));
               }
             }
@@ -266,8 +272,8 @@ function buildReminderTable () {
 function updateListeners (sundriven) {
   /**
    * @param root0
-   * @param root0.0
-   * @param root0.1
+   * @param root0."0"
+   * @param root0."1"
    */
   function updateListenerByName ([name, data]) {
     /**
@@ -285,6 +291,7 @@ function updateListeners (sundriven) {
       let minutes = Number.parseFloat(data.minutes);
       minutes = data.relativePosition === 'before' ? -minutes : minutes; // after|before
       const startTime = Date.now();
+      // eslint-disable-next-line no-console -- Debugging
       console.log('date', date);
       date = date && typeof date !== 'number' ? date : new Date(startTime);
       return {date, time: (date.getTime() - startTime) + minutes * 60 * 1000};
@@ -377,6 +384,9 @@ function updateListeners (sundriven) {
           break;
         case 'solarNoon':
           time = MeeusSunMoon[relativeEvent](date, longitude);
+          break;
+        default:
+          break;
         }
         if (time < 0) {
           time = MeeusSunMoon[relativeEvent](
@@ -395,7 +405,10 @@ function updateListeners (sundriven) {
     function getCoords () {
       const latitude = $('#latitude').value;
       const longitude = $('#longitude').value;
-      if (isNaN(Number.parseFloat(latitude)) || isNaN(Number.parseFloat(longitude))) {
+      if (
+        Number.isNaN(Number.parseFloat(latitude)) ||
+        Number.isNaN(Number.parseFloat(longitude))
+      ) {
         return false;
       }
       return {coords: {latitude, longitude}};
@@ -755,6 +768,7 @@ window.addEventListener('beforeunload', (e) => {
     e.preventDefault();
     return msg;
   }
+  return undefined;
 });
 
 buildReminderTable();

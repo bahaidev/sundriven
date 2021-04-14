@@ -1,4 +1,4 @@
-export default {
+const localeEnUs = {
   // MeeusSunMoon items:
   solarNoon: 'Noon (Solar noon)',
   sunrise: 'Sunrise',
@@ -23,3 +23,5 @@ export default {
   notification_message_daily: 'NOTICE: Your reminder, {name}, has expired for today; recent time launched: {alarmDateTime}; current time: {nowDateTime}; relative to: {date}',
   notification_message_daily_astronomical: 'NOTICE: Your reminder, {name}, has expired for today; recent time launched: {alarmDateTime}; current time: {nowDateTime}; relative to {astronomicalEvent}: {date}'
 };
+
+export default localeEnUs;

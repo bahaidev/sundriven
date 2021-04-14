@@ -5,9 +5,9 @@ CACHE MANIFEST
 
 CACHE:
 # Cache the following:
-scripts/createNotification.js
-scripts/install.js
-scripts/main.js
+src/createNotification.js
+src/install.js
+src/main.js
 style/style.css
 style/ui-lightness/jquery-ui-1.10.4.custom.min.css
 node_modules/suncalc/suncalc.js
