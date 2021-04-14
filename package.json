@@ -1,43 +1,57 @@
 {
-    "name": "sundriven",
-    "title": "Sun Driven",
-    "id": "sundriven@brett.zamir",
-    "version": "0.5.0",
-    "license": "MIT",
-    "author": "Brett Zamir",
-    "contributors": [],
-    "scripts": {
-        "eslint": "eslint .",
-        "open": "opn http://localhost:8093 && npm start",
-        "start": "static -p 8093"
-    },
-    "dependencies": {
-        "jamilih": "0.45.0",
-        "meeussunmoon": "2.1.1",
-        "moment": "^2.24.0",
-        "moment-timezone": "^0.5.26"
-    },
-    "devDependencies": {
-        "eslint": "6.4.0",
-        "eslint-config-standard": "14.1.0",
-        "eslint-plugin-import": "2.18.2",
-        "eslint-plugin-node": "10.0.0",
-        "eslint-plugin-promise": "4.2.1",
-        "eslint-plugin-standard": "4.0.1",
-        "node-static": "^0.7.11",
-        "opn-cli": "^5.0.0"
-    },
-    "engines": {},
-    "bugs": "https://github.com/brettz9/sundriven/issues",
-    "homepage": "https://github.com/brettz9/sundriven",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/brettz9/sundriven.git"
-    },
-    "description": "Very simple app to provide toaster-style notification reminders (daily or one-time) given relative to either the current time or to astronomical events such as dawn, sunrise, or sunset. Note that the astronomical event times are currently determined mathematically rather than by querying an online service.",
-    "keywords": [
-        "sunrise",
-        "sunset",
-        "to-do"
-    ]
+  "name": "sundriven",
+  "title": "Sun Driven",
+  "id": "sundriven@brett.zamir",
+  "version": "0.5.0",
+  "license": "MIT",
+  "author": "Brett Zamir",
+  "contributors": [],
+  "scripts": {
+    "lint": "eslint --ext=js,md,html .",
+    "open": "open-cli http://localhost:8093 && npm start",
+    "start": "static -p 8093"
+  },
+  "dependencies": {
+    "jamilih": "0.45.0",
+    "meeussunmoon": "2.1.1",
+    "moment": "^2.24.0",
+    "moment-timezone": "^0.5.26"
+  },
+  "devDependencies": {
+    "@brettz9/eslint-plugin": "^1.0.3",
+    "@brettz9/node-static": "^0.1.1",
+    "eslint": "^7.24.0",
+    "eslint-config-ash-nazg": "29.10.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-array-func": "^3.1.7",
+    "eslint-plugin-compat": "^3.9.0",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-html": "^6.1.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsdoc": "^32.3.0",
+    "eslint-plugin-markdown": "^2.0.1",
+    "eslint-plugin-no-unsanitized": "^3.1.4",
+    "eslint-plugin-no-use-extend-native": "^0.5.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "eslint-plugin-radar": "^0.2.1",
+    "eslint-plugin-standard": "4.0.1",
+    "eslint-plugin-unicorn": "^29.0.0",
+    "open-cli": "^6.0.1"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "bugs": "https://github.com/brettz9/sundriven/issues",
+  "homepage": "https://github.com/brettz9/sundriven",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brettz9/sundriven.git"
+  },
+  "description": "Very simple app to provide toaster-style notification reminders (daily or one-time) given relative to either the current time or to astronomical events such as dawn, sunrise, or sunset. Note that the astronomical event times are currently determined mathematically rather than by querying an online service.",
+  "keywords": [
+    "sunrise",
+    "sunset",
+    "to-do"
+  ]
 }
