@@ -1,9 +1,13 @@
 # CHANGES for sundriven
 
-## ?
+## 0.6.1
 
 ### User-impacting
 
+- Fix: Per <https://blog.mozilla.org/futurereleases/2019/11/04/restricting-notification-permission-prompts-in-firefox/>,
+  Firefox disallowing notification request unless in user action, so add
+  button to request (hidden if already permitted)
+- Maintenance: Add `.editorconfig`
 - Docs (README): Update to working demo
 
 ### Dev-impacting

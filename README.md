@@ -22,9 +22,6 @@ npm install .
 
 # Higher priority todos
 
-1. Fix Firefox per <https://blog.mozilla.org/futurereleases/2019/11/04/restricting-notification-permission-prompts-in-firefox/>.
-1. Ask for notifications permission immediately so it will work the first time
-    used!
 1. Debug and reinstall "install" button
 1. Get ES6 modules working
 1. Change cache.manifest to service worker; add `<link>` for Web Manifest

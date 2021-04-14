@@ -8,6 +8,7 @@ module.exports = {
   },
   settings: {
     polyfills: [
+      'navigator.permissions',
       'Notification',
       'Notification.requestPermission',
       'Number.parseFloat',

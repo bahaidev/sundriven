@@ -663,10 +663,52 @@ function createReminderForm (settings = {}) {
   ]]], $('#table-container'));
 }
 
+(async () => {
+/**
+ *
+ * @param {"granted"|"prompt"|"denied"} state
+ * @returns {void}
+ */
+function toggleButton (state) {
+  switch (state) {
+  case 'granted':
+    $('#grantPermission').hidden = true;
+    break;
+  case 'denied':
+    $('#grantPermission').hidden = false;
+    break;
+  case 'prompt':
+  default:
+    $('#grantPermission').hidden = false;
+    break;
+  }
+}
+const result = await navigator.permissions.query({name: 'geolocation'});
+result.addEventListener('change', () => {
+  toggleButton(result.state);
+});
+
 jml('div', [
   ['button', {$on: {click () {
     $('#settings-holder').hidden = !$('#settings-holder').hidden;
   }}}, [_('Settings')]],
+  ' ',
+  ['button', {
+    id: 'grantPermission',
+    hidden: result.state === 'granted',
+    $on: {
+      async click () {
+        const status = await Notification.requestPermission();
+        if (status === 'denied') {
+          alert(_('You will not be able to use the app until permitting this!'));
+        } else if (status === 'granted') {
+          alert(_('Permission granted; you may now set timers.'));
+        }
+      }
+    }
+  }, [
+    'Grant notification permissions (required)'
+  ]],
   ['div', {id: 'settings-holder', hidden: true}, [
     ['form', {id: 'settings', $on: {change () {
       const data = serializeForm('settings', {}, {
@@ -773,3 +815,4 @@ buildReminderTable();
 createDefaultReminderForm();
 getStorage('sundriven', storageGetterErrorWrapper(updateListeners));
 // install();
+})();
