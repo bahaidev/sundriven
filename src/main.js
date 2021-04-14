@@ -1,6 +1,6 @@
 import * as MeeusSunMoon from '../vendor/meeussunmoon.esm.js';
-import {DateTime} from '../node_modules/luxon/src/luxon.js';
-import {jml, $, nbsp, body} from '../node_modules/jamilih/dist/jml-es.js';
+import {DateTime} from '../vendor/luxon.js';
+import {jml, $, nbsp, body} from '../vendor/jml-es.js';
 import createNotification from './createNotification.js';
 // import install from './install.js';
 
@@ -155,7 +155,7 @@ function notify (name, _body) {
   const notification = new Notification(
     _('Reminder (Click inside me to stop)'),
     {
-      _body,
+      body: _body,
       lang: locale,
       requireInteraction: true // Keep open until click
       // Todo: `dir`: Should auto-detect direction based on locale

@@ -56,5 +56,21 @@ function getRollupObject ({minifying = false, format = 'umd', lite = false} = {}
 }
 
 export default [
-  getRollupObject({minifying: false, format: 'esm'})
+  getRollupObject({minifying: false, format: 'esm'}),
+  {
+    input: './node_modules/luxon/src/luxon.js',
+    output: {
+      format: 'esm',
+      sourcemap: false,
+      file: 'vendor/luxon.js'
+    },
+    plugins: [
+      nodeResolve()
+      /*
+      babel({
+        babelHelpers: 'bundled'
+      })
+      */
+    ]
+  }
 ];

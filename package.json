@@ -8,6 +8,7 @@
   "contributors": [],
   "scripts": {
     "rollup": "rollup -c",
+    "copy": "cp ./node_modules/jamilih/dist/jml-es.js vendor/jml-es.js",
     "lint": "eslint --ext=js,md,html .",
     "open": "open-cli http://localhost:8093 && npm start",
     "start": "static -p 8093"

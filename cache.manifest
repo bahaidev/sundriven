@@ -5,13 +5,15 @@ CACHE MANIFEST
 
 CACHE:
 # Cache the following:
+locales/en-US.js
 src/createNotification.js
 src/install.js
 src/main.js
 style/style.css
 style/ui-lightness/jquery-ui-1.10.4.custom.min.css
-node_modules/suncalc/suncalc.js
-node_modules/jamilih/jml.js
+vendor/jml-es.js
+vendor/luxon.js
+vendor/meeussunmoon.esm.js
 
 # Not currently referenced within the app
 # images/icon-32.png
