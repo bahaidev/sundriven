@@ -13,7 +13,7 @@ calculations.
 I have experienced Geolocation errors periodically, but that may be
 due to my specific location or network settings.
 
-**[Demo](http://brett-zamir.me/sundriven/)**
+**[Demo](https://brettz9.github.io/sundriven/)**
 
 # Installation
 ```
@@ -22,6 +22,7 @@ npm install .
 
 # Higher priority todos
 
+1. Fix Firefox per <https://blog.mozilla.org/futurereleases/2019/11/04/restricting-notification-permission-prompts-in-firefox/>.
 1. Ask for notifications permission immediately so it will work the first time
     used!
 1. Debug and reinstall "install" button

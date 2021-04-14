@@ -1,5 +1,13 @@
 # CHANGES for sundriven
 
+## ?
+
+### User-impacting
+
+- Docs (README): Update to working demo
+
+### Dev-impacting
+
 ## 0.6.0
 
 ### User-impacting
