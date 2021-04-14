@@ -1,8 +1,6 @@
-/* globals moment -- Was only available as a global */
-// Todo: On updating MeeusSunMoon/moment, use ESM only
-import * as MeeusSunMoon from '../node_modules/meeussunmoon/dist/meeussunmoon-es.js';
+import * as MeeusSunMoon from '../vendor/meeussunmoon.esm.js';
+import {DateTime} from '../node_modules/luxon/src/luxon.js';
 import {jml, $, nbsp, body} from '../node_modules/jamilih/dist/jml-es.js';
-// import moment from '../node_modules/moment/src/moment.js';
 import createNotification from './createNotification.js';
 // import install from './install.js';
 
@@ -373,7 +371,7 @@ function updateListeners (sundriven) {
      */
     function getTimesForCoords (relativeEvent) {
       return function ({coords: {latitude, longitude}}) {
-        const date = moment();
+        const date = DateTime.now();
         let time;
         switch (relativeEvent) {
         case 'civilDawn': case 'civilDusk':
@@ -390,7 +388,7 @@ function updateListeners (sundriven) {
         }
         if (time < 0) {
           time = MeeusSunMoon[relativeEvent](
-            moment(incrementDate()),
+            DateTime.fromJSDate(incrementDate()),
             latitude,
             longitude
           );
@@ -583,10 +581,10 @@ function createReminderForm (settings = {}) {
           'nauticalDawn', 'nauticalDusk',
           'astronomicalDawn', 'astronomicalDusk'
           /*
-                    // Not present in MSM: https://github.com/janrg/MeeusSunMoon/issues/3
-                    'nadir', 'sunriseEnd', 'sunsetStart',
-                    'goldenHourEnd', 'goldenHour'
-                    */
+          // Not present in MSM: https://github.com/janrg/MeeusSunMoon/issues/3
+          'nadir', 'sunriseEnd', 'sunsetStart',
+          'goldenHourEnd', 'goldenHour'
+          */
         ].map((eventType) => {
           return ['option', {value: eventType}, [_(eventType)]];
         }).sort((a, b) => {

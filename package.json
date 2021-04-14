@@ -7,19 +7,20 @@
   "author": "Brett Zamir",
   "contributors": [],
   "scripts": {
+    "rollup": "rollup -c",
     "lint": "eslint --ext=js,md,html .",
     "open": "open-cli http://localhost:8093 && npm start",
     "start": "static -p 8093"
   },
   "dependencies": {
-    "jamilih": "0.45.0",
-    "meeussunmoon": "2.1.1",
-    "moment": "^2.24.0",
-    "moment-timezone": "^0.5.26"
+    "jamilih": "0.54.0",
+    "luxon": "^1.26.0",
+    "meeussunmoon": "3.0.3"
   },
   "devDependencies": {
     "@brettz9/eslint-plugin": "^1.0.3",
     "@brettz9/node-static": "^0.1.1",
+    "@rollup/plugin-node-resolve": "^11.2.1",
     "eslint": "^7.24.0",
     "eslint-config-ash-nazg": "29.10.0",
     "eslint-config-standard": "^16.0.2",
@@ -35,9 +36,10 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-radar": "^0.2.1",
-    "eslint-plugin-standard": "4.0.1",
+    "eslint-plugin-standard": "4.1.0",
     "eslint-plugin-unicorn": "^29.0.0",
-    "open-cli": "^6.0.1"
+    "open-cli": "^6.0.1",
+    "rollup": "^2.45.2"
   },
   "engines": {
     "node": ">=12.0.0"
