@@ -1,15 +1,14 @@
 # sundriven
 
-Very simple [installable open web app](https://developer.mozilla.org/en-US/Apps)
+Very simple
+[installable open web app](https://developer.mozilla.org/en-US/Apps)
 to provide toaster-style notification reminders given relative to either the
 current time or to astronomical events such as dawn, sunrise, or sunset.
 Note that the astronomical event times are currently determined
 mathematically rather than by querying an online service.
 
 Uses [MeeusSunMoon](https://github.com/janrg/MeeusSunMoon) for astronomical
-calculations and [localforage](https://github.com/mozilla/localForage)
-for local storage (IndexedDB or WebSQL where available; localStorage
-otherwise).
+calculations.
 
 I have experienced Geolocation errors periodically, but that may be
 due to my specific location or network settings.
@@ -23,16 +22,16 @@ npm install .
 
 # Higher priority todos
 
-1. Ask for notifications permission immediately so it will work the first time used!
+1. Ask for notifications permission immediately so it will work the first time
+    used!
 1. Debug and reinstall "install" button
 1. Get ES6 modules working
-1. Change cache.manifest to worker; add `<link>` for Web Manifest discovery
-    <https://developer.mozilla.org/en-US/docs/Web/Manifest#Deploying_a_manifest_with_the_link_tag>
+1. Change cache.manifest to service worker; add `<link>` for Web Manifest
+    discovery <https://developer.mozilla.org/en-US/docs/Web/Manifest#Deploying_a_manifest_with_the_link_tag>
     1. Test offline manifest on server, ensuring no dependencies missing
         1. Add content policy directive indicating no Ajax needed, etc. (see
             if Firefox will, with an add-on if not by default, display this
             (for privacy reassurances to user))
-1. Use `localforage`
 1. Modularize and use localization function `_` (and separating out
     the locales as well including in createNotification file),
     so it can be reused across modules); publish to npm
@@ -58,7 +57,7 @@ npm install .
 
 # Credits
 
-Thanks to MeeusSunMoon and localforage for great libraries and to
+Thanks to MeeusSunMoon for a great library and to
 [dear_theophilus](http://openclipart.org/user-detail/dear_theophilus) of
 [openclipart](http://openclipart.org)
 for the
