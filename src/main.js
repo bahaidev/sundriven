@@ -1,10 +1,10 @@
 import * as MeeusSunMoon from '../vendor/meeussunmoon.esm.js';
 import {DateTime} from '../vendor/luxon.js';
 import {jml, $, nbsp, body} from '../vendor/jml-es.js';
-import createNotification from './createNotification.js';
 // import install from './install.js';
 
-import localeEnUs from '../locales/en-US.js'; // Todo: Make dynamic import based on locale once Firefox supports
+// Todo: Make dynamic import based on locale
+import localeEnUs from '../locales/en-US.js';
 
 let locale;
 setLocale();
@@ -19,7 +19,9 @@ jml(body, {class: 'ui-widget'}, [
   ['br'],
   ['div', {id: 'table-container'}],
   ['p', [
-    _('Click on the relevant row of the table to create/edit a reminder above:')
+    _(
+      'Click on the relevant row of the table to create/edit a reminder above:'
+    )
   ]],
   ['div', {id: 'forms-container'}]
 ]);
@@ -307,18 +309,16 @@ function updateListeners (sundriven) {
       switch (data.frequency) {
       case 'daily':
         timeoutID = setTimeout(() => {
-          createNotification(() => {
-            notify(name, _(
-              astronomicalEvent
-                ? 'notification_message_daily_astronomical'
-                : 'notification_message_daily',
-              name,
-              date,
-              new Date(Date.now() - time),
-              new Date(),
-              astronomicalEvent ? _(astronomicalEvent) : null
-            ));
-          });
+          notify(name, _(
+            astronomicalEvent
+              ? 'notification_message_daily_astronomical'
+              : 'notification_message_daily',
+            name,
+            date,
+            new Date(Date.now() - time),
+            new Date(),
+            astronomicalEvent ? _(astronomicalEvent) : null
+          ));
           if (astronomicalEvent) {
             updateListenerByName([name, data]);
           }
@@ -326,21 +326,19 @@ function updateListeners (sundriven) {
         break;
       default: // one-time
         timeoutID = setTimeout(() => {
-          createNotification(() => {
-            notify(
+          notify(
+            name,
+            _(
+              astronomicalEvent
+                ? 'notification_message_onetime_astronomical'
+                : 'notification_message_onetime',
               name,
-              _(
-                astronomicalEvent
-                  ? 'notification_message_onetime_astronomical'
-                  : 'notification_message_onetime',
-                name,
-                date,
-                new Date(Date.now() - time),
-                new Date(),
-                astronomicalEvent ? _(astronomicalEvent) : null
-              )
-            );
-          });
+              date,
+              new Date(Date.now() - time),
+              new Date(),
+              astronomicalEvent ? _(astronomicalEvent) : null
+            )
+          );
           delete listeners[name];
           clearWatch(name);
           data.enabled = 'false';
@@ -393,7 +391,7 @@ function updateListeners (sundriven) {
             longitude
           );
         }
-        time = time.toDate();
+        time = time.valueOf();
         getRelative(time, relativeEvent);
       };
     }
@@ -425,10 +423,10 @@ function updateListeners (sundriven) {
             alert(
               _(
                 'Per your settings, Geolocation is ' +
-                                'disallowed, and the manual coordinates are ' +
-                                'not formatted correctly, so the ' +
-                                'astronomical event cannot be determined ' +
-                                'at this time.'
+                'disallowed, and the manual coordinates are ' +
+                'not formatted correctly, so the ' +
+                'astronomical event cannot be determined ' +
+                'at this time.'
               )
             );
             return;
@@ -444,11 +442,11 @@ function updateListeners (sundriven) {
                   alert(
                     _(
                       'Geolocation is not currently ' +
-                                        'available, and the manual ' +
-                                        'coordinates are not formatted ' +
-                                        'correctly in your settings, so the ' +
-                                        'astronomical event cannot be ' +
-                                        'determined at this time.'
+                      'available, and the manual ' +
+                      'coordinates are not formatted ' +
+                      'correctly in your settings, so the ' +
+                      'astronomical event cannot be ' +
+                      'determined at this time.'
                     )
                   );
                   return;
@@ -530,8 +528,8 @@ function createReminderForm (settings = {}) {
       const renameReminder = confirm(
         _(
           'Are you sure you wish to rename this reminder? If you ' +
-                    'wish instead to create a new one, click "cancel" now ' +
-                    'and then click "save" when you are ready.'
+          'wish instead to create a new one, click "cancel" now ' +
+          'and then click "save" when you are ready.'
         )
       );
       if (!renameReminder) {
@@ -707,7 +705,7 @@ jml('div', [
       }
     }
   }, [
-    'Grant notification permissions (required)'
+    _('click_allow_notifications')
   ]],
   ['div', {id: 'settings-holder', hidden: true}, [
     ['form', {id: 'settings', $on: {change () {
@@ -729,22 +727,22 @@ jml('div', [
             value: 'never',
             title: _(
               'Avoids a trip to the server but may not be ' +
-                            'accurate if you are traveling out of the ' +
-                            'area with your device.'
+              'accurate if you are traveling out of the ' +
+              'area with your device.'
             )
           }, [_('Never use Geolocation; always use manual coordinates.')]],
           ['option', {
             value: 'always',
             title: _(
               'Will report errors instead of falling back ' +
-                            '(not recommended)'
+              '(not recommended)'
             )
           }, [_('Always use Geolocation; do not fall back to manual coordinates')]]
         ]],
         ['fieldset', {
           title: _(
             'Use these coordinates for astronomical ' +
-                        'event-based reminders when offline or upon errors'
+            'event-based reminders when offline or upon errors'
           )
         }, [
           ['legend', [_('Manual coordinates')]],
@@ -760,9 +758,9 @@ jml('div', [
           ['br'],
           ['button', {
             title: 'Retrieve coordinates now using Geolocation ' +
-                            'for potential later use when offline or upon ' +
-                            'errors (depends on the selected pull-down ' +
-                            'option).',
+                    'for potential later use when offline or upon ' +
+                    'errors (depends on the selected pull-down ' +
+                    'option).',
             $on: {
               click (e) {
                 e.preventDefault();

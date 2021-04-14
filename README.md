@@ -22,6 +22,7 @@ npm install .
 
 # Higher priority todos
 
+1. Fix with times like sunset; recurring
 1. Debug and reinstall "install" button
 1. Get ES6 modules working
 1. Change cache.manifest to service worker; add `<link>` for Web Manifest
