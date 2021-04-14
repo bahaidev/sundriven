@@ -11,7 +11,8 @@ module.exports = {
       'Notification',
       'Notification.requestPermission',
       'Number.parseFloat',
-      'Object.entries'
+      'Object.entries',
+      'Promise'
     ]
   },
   rules: {
@@ -20,6 +21,7 @@ module.exports = {
     'import/namespace': ['error', {allowComputed: true}],
     'max-len': 0,
     'jsdoc/require-returns': 0,
-    'jsdoc/require-param-type': 0
+    'jsdoc/require-param-type': 0,
+    'promise/prefer-await-to-callbacks': 0
   }
 };
