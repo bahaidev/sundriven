@@ -14,7 +14,6 @@ import {storageGetterErrorWrapper} from './models/helpers/storageWrapper.js';
 import toggleButton from './models/helpers/toggleButton.js';
 // import install from './install.js';
 
-(async () => {
 /**
  * Keyed to timeout ID.
  * @typedef {Object<string,Integer>} Listeners
@@ -28,14 +27,12 @@ const
   // For a circular dependency
   builder = {};
 
+(async () => {
+// SETUP
 const {_, locale} = await setLocale();
 
-const Templates = setTemplates(_);
-
-Templates.document();
-Templates.body();
-
 const updateListeners = getUpdateListeners({_, locale, builder, listeners});
+const Templates = setTemplates(_);
 const {
   createReminderForm, createDefaultReminderForm
 } = reminderForm({_, Templates, updateListeners, listeners, builder});
@@ -44,6 +41,11 @@ const buildReminderTable = reminderTable({
 });
 // For circular dependencies
 builder.buildReminderTable = buildReminderTable;
+
+// BEGIN TEMPLATE BUILDING
+
+Templates.document();
+Templates.body();
 
 const result = await navigator.permissions.query({name: 'geolocation'});
 result.addEventListener('change', () => {
