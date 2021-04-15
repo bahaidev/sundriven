@@ -25,12 +25,14 @@ function install () {
     });
   }
 
-  // if browser has support for installable apps, run the install code; if not, hide the install button
+  // If browser has support for installable apps, run the install code;
+  //  if not, hide the install button
   if (apps) {
     // define the manifest URL
     manifestURL = location.href + 'manifest.webapp';
 
-    // if app is already installed, hide button. If not, add event listener to call install() on click
+    // If app is already installed, hide button. If not, add event listener
+    //  to call install() on click
     try {
       const installCheck = apps.checkInstalled(manifestURL);
       installCheck.onsuccess = function () {

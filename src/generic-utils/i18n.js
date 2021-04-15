@@ -27,7 +27,9 @@ async function setLocale () {
   const loc = location.href;
   const frag = '#lang=';
   const langInURLPos = loc.indexOf(frag);
-  const langInURL = (langInURLPos > -1) ? loc.slice(langInURLPos + frag.length) : false;
+  const langInURL = (langInURLPos > -1)
+    ? loc.slice(langInURLPos + frag.length)
+    : false;
 
   let locale = langInURL || navigator.language || 'en-US';
   document.documentElement.lang = locale;

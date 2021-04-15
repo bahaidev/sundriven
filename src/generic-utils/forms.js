@@ -5,7 +5,8 @@ import {$} from '../../vendor/jml-es.js';
  * @param targetObj
  * @param controls
  * @todo Use `FormData`?
- * @todo If no controls array is present, we could just iterate over all form controls
+ * @todo If no controls array is present, we could just iterate over
+ * all form controls
  */
 function serializeForm (formID, targetObj, controls) {
   // Selects, text/numeric inputs

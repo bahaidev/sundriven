@@ -35,10 +35,13 @@ function s (obj) {
  */
 function getGeoPositionWrapper (cb, errBack) {
   if (!navigator.geolocation) {
-    alert(_('Your browser does not support or does not have Geolocation enabled'));
+    alert(
+      _('Your browser does not support or does not have Geolocation enabled')
+    );
     throw new Error('Discontinue');
   }
-  // We could instead use getCurrentPosition, but that wouldn't update with the user's location
+  // We could instead use `getCurrentPosition`, but that wouldn't update with
+  //   the user's location
   return navigator.geolocation.getCurrentPosition( // watchPosition(
     cb,
     errBack || function geoErrBack (err) {
@@ -86,9 +89,9 @@ function notify (name, _body) {
 function storageSetterErrorWrapper (cb) {
   return (val) => {
     if (!val) {
-      alert(
-        _('ERROR: Problem setting storage; refreshing page to try to resolve...')
-      );
+      alert(_(
+        'ERROR: Problem setting storage; refreshing page to try to resolve...'
+      ));
       window.location.reload();
       return;
     }
@@ -106,7 +109,10 @@ function storageGetterErrorWrapper (cb) {
     if (data === null) {
       setStorage('sundriven', {}, storageSetterErrorWrapper(cb));
       // This would loop (and data will be null on first run)
-      // alert(_('ERROR: Problem retrieving storage; refreshing page to try to resolve...'));
+      // alert(_(
+      //  'ERROR: Problem retrieving storage; refreshing ' +
+      //  'page to try to resolve...')
+      // );
       // window.location.reload();
     } else {
       cb(data);
@@ -190,7 +196,9 @@ function updateListeners (sundriven) {
      */
     function checkTime (date) {
       let minutes = Number.parseFloat(data.minutes);
-      minutes = data.relativePosition === 'before' ? -minutes : minutes; // after|before
+      minutes = data.relativePosition === 'before'
+        ? -minutes
+        : minutes; // after|before
       const startTime = Date.now();
       // eslint-disable-next-line no-console -- Debugging
       console.log('date', date);
@@ -388,7 +396,8 @@ function createReminderForm (settings = {}) {
             checkboxes: ['enabled'],
             radios: ['relativePosition']
           });
-          formChanged = false; // Temporarily indicate the changes are not changed
+          // Temporarily indicate the changes are not changed
+          formChanged = false;
           createReminderForm(data);
         }
       }
@@ -401,14 +410,16 @@ function createReminderForm (settings = {}) {
         checkboxes: ['enabled'],
         radios: ['relativePosition']
       });
-      if (!data.name) { // Firefox will ask for the user to fill out the required field
+      // Firefox will ask for the user to fill out the required field
+      if (!data.name) {
         // alert(_('ERROR: Please supply a name'));
         return;
       }
 
       getStorage('sundriven', storageGetterErrorWrapper((sundriven) => {
         if (
-        // If this form was for creating new as opposed to editing old reminders
+          // If this form was for creating new as opposed to editing old
+          //   reminders
           !settings.name &&
                     sundriven[data.name]
         ) {
@@ -417,7 +428,8 @@ function createReminderForm (settings = {}) {
         }
         const originalName = $('#name').defaultValue;
         if (![$('#name').value, ''].includes(originalName)) {
-          // If this is a rename, we warned the user earlier about it, so go ahead and delete now
+          // If this is a rename, we warned the user earlier about it,
+          //   so go ahead and delete now
           clearTimeout(listeners[originalName]);
           delete sundriven[originalName];
         }
@@ -437,7 +449,9 @@ function createReminderForm (settings = {}) {
         // alert(_('Please supply a reminder name for deletion.'));
         return;
       }
-      const okDelete = confirm(_('Are you sure you wish to delete this reminder?'));
+      const okDelete = confirm(_(
+        'Are you sure you wish to delete this reminder?'
+      ));
       if (okDelete) {
         clearTimeout(listeners[name]);
         getStorage('sundriven', storageGetterErrorWrapper((sundriven) => {

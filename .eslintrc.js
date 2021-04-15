@@ -9,6 +9,12 @@ module.exports = {
     node: false,
     browser: true
   },
+  overrides: [{
+    files: 'locales/**',
+    rules: {
+      'max-len': 0
+    }
+  }],
   settings: {
     polyfills: [
       'navigator.permissions',
@@ -23,7 +29,6 @@ module.exports = {
     // Disable for now
     'no-alert': 0,
     'import/namespace': ['error', {allowComputed: true}],
-    'max-len': 0,
     'jsdoc/require-returns': 0,
     'jsdoc/require-param-type': 0,
     'promise/prefer-await-to-callbacks': 0

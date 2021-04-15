@@ -19,7 +19,9 @@ import nodeResolve from '@rollup/plugin-node-resolve';
  * @param {boolean} [config.lite=false]
  * @returns {external:RollupConfig}
  */
-function getRollupObject ({minifying = false, format = 'umd', lite = false} = {}) {
+function getRollupObject ({
+  minifying = false, format = 'umd', lite = false
+} = {}) {
   const nonMinified = {
     input: './node_modules/meeussunmoon/dist/meeussunmoon.mjs',
     output: {
