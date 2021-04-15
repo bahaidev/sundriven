@@ -1,4 +1,4 @@
-import {$} from '../vendor/jml-es.js';
+import {$} from '../../vendor/jml-es.js';
 
 /**
  * @param elemSel
