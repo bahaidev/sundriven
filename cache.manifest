@@ -5,10 +5,16 @@ CACHE MANIFEST
 
 CACHE:
 # Cache the following:
+
 locales/en-US.js
-src/createNotification.js
+
+src/dom.js
+src/i18n.js
 src/install.js
 src/main.js
+src/storage.js
+src/templates.js
+
 style/style.css
 style/ui-lightness/jquery-ui-1.10.4.custom.min.css
 vendor/jml-es.js

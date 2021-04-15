@@ -1,51 +1,21 @@
 import * as MeeusSunMoon from '../vendor/meeussunmoon.esm.js';
 import {DateTime} from '../vendor/luxon.js';
-import {jml, $, nbsp, body} from '../vendor/jml-es.js';
+import {jml, $, nbsp} from '../vendor/jml-es.js';
+import {removeElement, removeChild} from './dom.js';
+
+import {_, setLocale} from './i18n.js';
+import {getStorage, setStorage} from './storage.js';
+import Templates from './templates.js';
 // import install from './install.js';
 
-// Todo: Make dynamic import based on locale
-import localeEnUs from '../locales/en-US.js';
+(async () => {
+const locale = await setLocale();
 
-let locale;
-setLocale();
-document.title = _('Sun Driven');
-
-jml(body, {class: 'ui-widget'}, [
-  /* ['button', {id: 'install'}, [
-        'Install app on device'
-    ]], */
-  ['br'],
-  ['div', {id: 'settings-container'}],
-  ['br'],
-  ['div', {id: 'table-container'}],
-  ['p', [
-    _(
-      'Click on the relevant row of the table to create/edit a reminder above:'
-    )
-  ]],
-  ['div', {id: 'forms-container'}]
-]);
+Templates.document();
+Templates.body();
 
 let formChanged = false;
 const listeners = {}, watchers = {};
-
-/**
- * @param item
- * @param cb
- */
-function getStorage (item, cb) {
-  item = localStorage.getItem(item);
-  cb(JSON.parse(item));
-}
-/**
- * @param item
- * @param value
- * @param cb
- */
-function setStorage (item, value, cb) {
-  localStorage.setItem(item, JSON.stringify(value));
-  cb(value);
-}
 
 /*
 function s (obj) {
@@ -54,52 +24,12 @@ function s (obj) {
 */
 
 /**
- *
+ * @param formID
+ * @param targetObj
+ * @param controls
+ * @todo Use `FormData`?
+ * @todo If no controls array is present, we could just iterate over all form controls
  */
-function setLocale () {
-  const loc = window.location.href;
-  const frag = '#lang=';
-  const langInURLPos = loc.indexOf(frag);
-  const langInURL = (langInURLPos > -1) ? loc.slice(langInURLPos + frag.length) : false;
-  locale = langInURL || navigator.language || 'en-US';
-  document.documentElement.lang = locale;
-}
-/**
- * @param s
- * @param {...any} args
- */
-function _ (s, ...args) {
-  const messages = {
-    'en-US': localeEnUs
-  };
-  const msg = (messages[locale] || messages['en-US'])[s] || s;
-  return msg.replace(/\{(?:[^}]*)\}/ug, () => {
-    return args.shift();
-  });
-}
-/**
- * @param elemSel
- */
-function removeElement (elemSel) {
-  if ($(elemSel)) {
-    $(elemSel).remove();
-  }
-}
-/**
- * @param childSel
- */
-function removeChild (childSel) {
-  if ($(childSel).firstElementChild) {
-    $(childSel).firstElementChild.remove();
-  }
-}
-
-/**
-* @param formID
-* @param targetObj
-* @param controls
-* @todo If no controls array is present, we could just iterate over all form controls
-*/
 function serializeForm (formID, targetObj, controls) {
   // Selects, text/numeric inputs
   if (controls.inputs) {
@@ -116,9 +46,9 @@ function serializeForm (formID, targetObj, controls) {
   // Radio buttons
   if (controls.radios) {
     controls.radios.forEach((setting) => {
-      targetObj[setting] = [...$('#' + formID)[setting]].filter((radio) => {
+      targetObj[setting] = [...$('#' + formID)[setting]].find((radio) => {
         return radio.checked;
-      })[0].id;
+      }).id;
     });
   }
   return targetObj;
@@ -467,7 +397,9 @@ function updateListeners (sundriven) {
       }
     }
   }
-  Object.entries(sundriven).forEach(updateListenerByName);
+  Object.entries(sundriven).forEach((nameData) => {
+    updateListenerByName(nameData);
+  });
 }
 
 /**
@@ -668,7 +600,6 @@ function createReminderForm (settings = {}) {
   ]]], $('#table-container'));
 }
 
-(async () => {
 /**
  *
  * @param {"granted"|"prompt"|"denied"} state
