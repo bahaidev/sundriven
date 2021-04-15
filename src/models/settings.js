@@ -5,21 +5,22 @@ import {setStorage} from '../generic-utils/storage.js';
 
 import {storageSetterErrorWrapper} from './helpers/storageWrapper.js';
 
+import getGeoPositionWrapper from './helpers/getGeoPositionWrapper.js';
+
 /**
  * @param {PlainObject} cfg
  * @param {TemplatesObject} cfg.Templates
  * @param {PermissionStatus} cfg.result
- * @param {GeoPositionWrapperGetter} cfg.getGeoPositionWrapper
  * @param {Internationalizer} cfg._
  * @returns {void}
  */
-function settings ({Templates, result, getGeoPositionWrapper, _}) {
+function settings ({Templates, result, _}) {
   Templates.settings({
     grantPermissionHidden: result.state === 'granted',
     retrieveCoordinates (e) {
       e.preventDefault();
       $('#retrieving').hidden = false;
-      getGeoPositionWrapper(({coords: {latitude, longitude}}) => {
+      getGeoPositionWrapper(_, ({coords: {latitude, longitude}}) => {
         $('#latitude').value = latitude;
         $('#longitude').value = longitude;
         const evt = new Event('change', {
