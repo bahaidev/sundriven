@@ -134,7 +134,7 @@ function getUpdateListeners ({
       */
 
       /**
-       * @param {Integer} date
+       * @param {Integer|Date} date
        * @param {AstronomicalEvent} astronomicalEvent
        * @returns {void}
        */
@@ -208,31 +208,33 @@ function getUpdateListeners ({
        */
       function getTimesForCoords (relativeEvent) {
         return function ({coords: {latitude, longitude}}) {
-          const date = DateTime.now();
-          let time;
+          const luxonDate = DateTime.now();
+          let luxonTime;
           switch (relativeEvent) {
           case 'civilDawn': case 'civilDusk':
           case 'nauticalDawn': case 'nauticalDusk':
           case 'astronomicalDawn': case 'astronomicalDusk':
           case 'sunrise': case 'sunset':
-            time = MeeusSunMoon[relativeEvent](date, latitude, longitude);
+            luxonTime = MeeusSunMoon[relativeEvent](
+              luxonDate, latitude, longitude
+            );
             break;
           case 'solarNoon':
-            time = MeeusSunMoon[relativeEvent](date, longitude);
+            luxonTime = MeeusSunMoon[relativeEvent](luxonDate, longitude);
             break;
           default:
             break;
           }
-          if (time < 0) {
-            time = MeeusSunMoon[relativeEvent](
+          if (luxonTime < 0) {
+            luxonTime = MeeusSunMoon[relativeEvent](
               DateTime.fromJSDate(incrementDate()),
               latitude,
               longitude
             );
           }
-          time = time.valueOf();
-          console.log('111', time, new Date(time));
-          getRelative(time, relativeEvent);
+          const timestamp = luxonTime.valueOf();
+          console.log('111', timestamp, new Date(timestamp));
+          getRelative(timestamp, relativeEvent);
         };
       }
 
