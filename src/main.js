@@ -46,12 +46,6 @@ const buildReminderTable = reminderTable({
 });
 builder.buildReminderTable = buildReminderTable;
 
-/*
-function s (obj) {
-    alert(JSON.stringify(obj));
-}
-*/
-
 /**
  * @callback GeoPositionWrapperGetter
  * @param {GeolocationPosition} cb
