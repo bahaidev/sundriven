@@ -6,6 +6,7 @@ import {removeElement, removeChild} from './generic-utils/dom.js';
 import {serializeForm} from './generic-utils/forms.js';
 import {setLocale} from './generic-utils/i18n.js';
 import {getStorage, setStorage} from './generic-utils/storage.js';
+import {incrementDate} from './generic-utils/date.js';
 
 import setTemplates from './setTemplates.js';
 // import install from './install.js';
@@ -130,42 +131,23 @@ function createDefaultReminderForm () {
  *
  */
 function buildReminderTable () {
+  /**
+   * @returns {void}
+   */
+  function createReminder () {
+    const {name} = this.dataset;
+    getStorage('sundriven', storageGetterErrorWrapper((_forms) => {
+      createReminderForm(_forms[name]);
+    }));
+  }
   getStorage('sundriven', storageGetterErrorWrapper((forms) => {
     removeElement('#forms');
-    jml('table', {id: 'forms'}, [
-      ['tbody', {class: 'ui-widget-header'}, [
-        ['tr', [
-          ['th', [_('Name')]],
-          ['th', [_('Enabled')]]
-        ]]
-      ]],
-      ['tbody', {class: 'ui-widget-content'}, [
-        ['tr', [
-          ['td', {colspan: 2, class: 'focus', $on: {
-            click: createDefaultReminderForm
-          }}, [_('(Create new reminder)')]]
-        ]],
-        ...Object.keys(forms).sort().map((formKey) => {
-          const form = forms[formKey];
-          return ['tr', {
-            dataset: {name: form.name},
-            $on: {
-              click () {
-                const {name} = this.dataset;
-                getStorage('sundriven', storageGetterErrorWrapper((_forms) => {
-                  createReminderForm(_forms[name]);
-                }));
-              }
-            }
-          }, [
-            ['td', [form.name]],
-            ['td', {class: 'focus'}, [
-              form.enabled ? 'x' : ''
-            ]]
-          ]];
-        })
-      ]]
-    ], $('#forms-container'));
+    const sortedForms = Object.keys(forms).sort().map((formKey) => {
+      return forms[formKey];
+    });
+    Templates.reminderTable({
+      createDefaultReminderForm, createReminder, sortedForms
+    });
   }));
 }
 
@@ -176,17 +158,6 @@ function clearWatch (name) {
   if (watchers[name]) {
     navigator.geolocation.clearWatch(watchers[name]);
   }
-}
-
-/**
- * @param date
- */
-function incrementDate (date) {
-  if (!date) {
-    date = new Date();
-  }
-  date.setDate(date.getDate() + 1);
-  return date;
 }
 
 /**
