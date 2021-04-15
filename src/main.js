@@ -267,6 +267,41 @@ function buildReminderTable () {
 }
 
 /**
+ * @param name
+ */
+function clearWatch (name) {
+  if (watchers[name]) {
+    navigator.geolocation.clearWatch(watchers[name]);
+  }
+}
+
+/**
+ * @param date
+ */
+function incrementDate (date) {
+  if (!date) {
+    date = new Date();
+  }
+  date.setDate(date.getDate() + 1);
+  return date;
+}
+
+/**
+ *
+ */
+function getCoords () {
+  const latitude = $('#latitude').value;
+  const longitude = $('#longitude').value;
+  if (
+    Number.isNaN(Number.parseFloat(latitude)) ||
+    Number.isNaN(Number.parseFloat(longitude))
+  ) {
+    return false;
+  }
+  return {coords: {latitude, longitude}};
+}
+
+/**
  * @param sundriven
  */
 function updateListeners (sundriven) {
@@ -276,14 +311,6 @@ function updateListeners (sundriven) {
    * @param root0."1"
    */
   function updateListenerByName ([name, data]) {
-    /**
-     * @param name
-     */
-    function clearWatch (name) {
-      if (watchers[name]) {
-        navigator.geolocation.clearWatch(watchers[name]);
-      }
-    }
     /**
      * @param date
      */
@@ -319,7 +346,9 @@ function updateListeners (sundriven) {
             new Date(),
             astronomicalEvent ? _(astronomicalEvent) : null
           ));
+
           if (astronomicalEvent) {
+            console.log('aaaa');
             updateListenerByName([name, data]);
           }
         }, time);
@@ -353,17 +382,6 @@ function updateListeners (sundriven) {
       }
       listeners[name] = timeoutID;
     }
-
-    /**
-     * @param date
-     */
-    function incrementDate (date) {
-      if (!date) {
-        date = new Date();
-      }
-      date.setDate(date.getDate() + 1);
-      return date;
-    }
     /**
      * @param relativeEvent
      */
@@ -392,23 +410,11 @@ function updateListeners (sundriven) {
           );
         }
         time = time.valueOf();
+        console.log('111', time, new Date(time));
         getRelative(time, relativeEvent);
       };
     }
-    /**
-     *
-     */
-    function getCoords () {
-      const latitude = $('#latitude').value;
-      const longitude = $('#longitude').value;
-      if (
-        Number.isNaN(Number.parseFloat(latitude)) ||
-        Number.isNaN(Number.parseFloat(longitude))
-      ) {
-        return false;
-      }
-      return {coords: {latitude, longitude}};
-    }
+
     if (data.enabled) {
       clearWatch(name);
       const {relativeEvent} = data;
@@ -433,6 +439,7 @@ function updateListeners (sundriven) {
           }
           getTimesForCoords(relativeEvent)(coords);
         } else {
+          console.log('4444');
           watchers[name] = getGeoPositionWrapper(
             getTimesForCoords(relativeEvent),
             (($('#geoloc-usage').value === 'when-available')
