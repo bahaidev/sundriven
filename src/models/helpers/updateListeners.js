@@ -234,8 +234,12 @@ function getUpdateListeners ({
           if (luxonTime < 0) {
             luxonTime = MeeusSunMoon[relativeEvent](
               DateTime.fromJSDate(incrementDate()),
-              latitude,
-              longitude
+              ...(relativeEvent === 'solarNoon'
+                ? [longitude]
+                : [
+                  latitude,
+                  longitude
+                ])
             );
           }
           const timestamp = luxonTime.valueOf();
