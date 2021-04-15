@@ -236,57 +236,58 @@ function getUpdateListeners ({
         };
       }
 
-      if (data.enabled) {
-        clearWatch(name);
-        const {relativeEvent} = data;
-        switch (relativeEvent) {
-        case 'now':
-          getRelative(checkTime().time < 0 ? incrementDate() : null);
-          break;
-        default: // sunrise, etc.
-          if ($('#geoloc-usage').value === 'never') { // when-available|always
-            const coords = getCoords();
-            if (!coords) {
-              alert(
-                _(
-                  'Per your settings, Geolocation is ' +
-                  'disallowed, and the manual coordinates are ' +
-                  'not formatted correctly, so the ' +
-                  'astronomical event cannot be determined ' +
-                  'at this time.'
-                )
-              );
-              return;
-            }
-            getTimesForCoords(relativeEvent)(coords);
-          } else {
-            console.log('4444');
-            watchers[name] = getGeoPositionWrapper(
-              _,
-              getTimesForCoords(relativeEvent),
-              (($('#geoloc-usage').value === 'when-available')
-                ? function () {
-                  const coords = getCoords();
-                  if (!coords) {
-                    alert(
-                      _(
-                        'Geolocation is not currently ' +
-                        'available, and the manual ' +
-                        'coordinates are not formatted ' +
-                        'correctly in your settings, so the ' +
-                        'astronomical event cannot be ' +
-                        'determined at this time.'
-                      )
-                    );
-                    return;
-                  }
-                  getTimesForCoords(relativeEvent)(getCoords());
-                }
-                : null)
+      if (!data.enabled) {
+        return;
+      }
+      clearWatch(name);
+      const {relativeEvent} = data;
+      switch (relativeEvent) {
+      case 'now':
+        getRelative(checkTime().time < 0 ? incrementDate() : null);
+        break;
+      default: // sunrise, etc.
+        if ($('#geoloc-usage').value === 'never') { // when-available|always
+          const coords = getCoords();
+          if (!coords) {
+            alert(
+              _(
+                'Per your settings, Geolocation is ' +
+                'disallowed, and the manual coordinates are ' +
+                'not formatted correctly, so the ' +
+                'astronomical event cannot be determined ' +
+                'at this time.'
+              )
             );
+            return;
           }
-          break;
+          getTimesForCoords(relativeEvent)(coords);
+        } else {
+          console.log('4444');
+          watchers[name] = getGeoPositionWrapper(
+            _,
+            getTimesForCoords(relativeEvent),
+            (($('#geoloc-usage').value === 'when-available')
+              ? function () {
+                const coords = getCoords();
+                if (!coords) {
+                  alert(
+                    _(
+                      'Geolocation is not currently ' +
+                      'available, and the manual ' +
+                      'coordinates are not formatted ' +
+                      'correctly in your settings, so the ' +
+                      'astronomical event cannot be ' +
+                      'determined at this time.'
+                    )
+                  );
+                  return;
+                }
+                getTimesForCoords(relativeEvent)(getCoords());
+              }
+              : null)
+          );
         }
+        break;
       }
     }
     Object.entries(sundriven).forEach((nameData) => {
