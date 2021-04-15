@@ -1,10 +1,12 @@
 import * as MeeusSunMoon from '../vendor/meeussunmoon.esm.js';
 import {DateTime} from '../vendor/luxon.js';
 import {jml, $, nbsp} from '../vendor/jml-es.js';
-import {removeElement, removeChild} from './dom.js';
 
-import {_, setLocale} from './i18n.js';
-import {getStorage, setStorage} from './storage.js';
+import {removeElement, removeChild} from './generic-utils/dom.js';
+import {serializeForm} from './generic-utils/forms.js';
+import {_, setLocale} from './generic-utils/i18n.js';
+import {getStorage, setStorage} from './generic-utils/storage.js';
+
 import Templates from './templates.js';
 // import install from './install.js';
 
@@ -22,37 +24,6 @@ function s (obj) {
     alert(JSON.stringify(obj));
 }
 */
-
-/**
- * @param formID
- * @param targetObj
- * @param controls
- * @todo Use `FormData`?
- * @todo If no controls array is present, we could just iterate over all form controls
- */
-function serializeForm (formID, targetObj, controls) {
-  // Selects, text/numeric inputs
-  if (controls.inputs) {
-    controls.inputs.forEach((setting) => {
-      targetObj[setting] = $('#' + setting).value;
-    });
-  }
-  // Checkboxes
-  if (controls.checkboxes) {
-    controls.checkboxes.forEach((setting) => {
-      targetObj[setting] = $('#' + setting).checked;
-    });
-  }
-  // Radio buttons
-  if (controls.radios) {
-    controls.radios.forEach((setting) => {
-      targetObj[setting] = [...$('#' + formID)[setting]].find((radio) => {
-        return radio.checked;
-      }).id;
-    });
-  }
-  return targetObj;
-}
 
 /**
  * @param cb
