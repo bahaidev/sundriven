@@ -37,7 +37,7 @@ async function setLocale () {
     locale = 'en-US';
   }
   // eslint-disable-next-line no-unsanitized/method -- Is sanitized
-  localeObj = (await import(`../locales/${locale}.js`)).default;
+  localeObj = (await import(`../../locales/${locale}.js`)).default;
   return {_, locale};
 }
 
