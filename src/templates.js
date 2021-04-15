@@ -1,4 +1,6 @@
-import {jml, $, nbsp, body} from '../vendor/jml-es.js';
+import {jml, body} from '../vendor/jml-es.js';
+
+import {_} from './generic-utils/i18n.js';
 
 const Templates = {
   document () {
