@@ -1,9 +1,18 @@
 import {jml, $, nbsp, body} from '../vendor/jml-es.js';
 
 /**
- * @param groupName
- * @param radios
- * @param selected
+* @external JamilihArray
+*/
+
+/**
+* @external JamilihAttributes
+*/
+
+/**
+ * @param {string} groupName
+ * @param {{id: string, label: string}} radios
+ * @param {string} selected
+ * @returns {external:JamilihArray}
  */
 function radioGroup (groupName, radios, selected) {
   return ['span', radios.map(({id, label}) => {
@@ -166,8 +175,9 @@ const Templates = (_) => ({
     formID, settings, sortOptions, formChanged, saveReminder, deleteReminder
   }) {
     /**
-     * @param id
-     * @param options
+     * @param {string} id
+     * @param {JamilihAttributes} options
+     * @returns {Element}
      */
     function select (id, options) {
       return jml('select', {
@@ -176,7 +186,8 @@ const Templates = (_) => ({
       }, options, null);
     }
     /**
-     * @param id
+     * @param {string} id
+     * @returns {external:JamilihArray}
      */
     function checkbox (id) {
       return ['input', {

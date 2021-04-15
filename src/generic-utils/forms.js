@@ -1,9 +1,14 @@
 import {$} from '../../vendor/jml-es.js';
 
 /**
- * @param formID
- * @param targetObj
- * @param controls
+* @typedef {Object<string,string|boolean>} TargetObject
+*/
+
+/**
+ * @param {string} formID
+ * @param {TargetObject} targetObj
+ * @param {{inputs: string[], checkboxes: string[], radios: string[]}} controls
+ * @returns {TargetObject}
  * @todo Use `FormData`?
  * @todo If no controls array is present, we could just iterate over
  * all form controls

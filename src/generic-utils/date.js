@@ -1,5 +1,6 @@
 /**
  * @param {Date} date
+ * @returns {Date}
  */
 function incrementDate (date) {
   if (!date) {

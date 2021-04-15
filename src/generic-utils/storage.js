@@ -1,15 +1,29 @@
 /**
- * @param item
- * @param cb
+* @callback StorageGetCallback
+* @param {any} value
+* @returns {void}
+*/
+
+/**
+* @callback StorageSetCallback
+* @param {any} value
+* @returns {void}
+*/
+
+/**
+ * @param {string} item
+ * @param {StorageGetCallback} cb
+ * @returns {void}
  */
 function getStorage (item, cb) {
-  item = localStorage.getItem(item);
-  cb(JSON.parse(item));
+  const itemVal = localStorage.getItem(item);
+  cb(JSON.parse(itemVal));
 }
 /**
- * @param item
- * @param value
- * @param cb
+ * @param {string} item
+ * @param {any} value
+ * @param {StorageSetCallback} cb
+ * @returns {void}
  */
 function setStorage (item, value, cb) {
   localStorage.setItem(item, JSON.stringify(value));

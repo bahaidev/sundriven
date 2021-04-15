@@ -3,13 +3,14 @@ let manifestURL;
 const apps = navigator.mozApps;
 
 /**
- *
+ * @returns {void}
  */
 function install () {
   const button = document.querySelector('#install');
 
   /**
-   * @param ev
+   * @param {Event} ev
+   * @returns {void}
    */
   function _install (ev) {
     ev.preventDefault();

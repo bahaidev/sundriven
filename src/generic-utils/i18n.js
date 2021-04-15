@@ -6,10 +6,12 @@ const locales = [
 let localeObj;
 
 /**
- * @param s
+ * @param {string} s
  * @param {...any} args
+ * @returns {string}
  */
 function _ (s, ...args) {
+  // Todo: Provide proper i18n keys so we can drop the fallback behavior
   const msg = localeObj[s] || s;
   return msg.replace(/\{(?:[^}]*)\}/ug, () => {
     return args.shift();
@@ -25,6 +27,7 @@ function _ (s, ...args) {
  */
 async function setLocale () {
   const loc = location.href;
+  // Todo: Use `URLSearchParams`; could use history state
   const frag = '#lang=';
   const langInURLPos = loc.indexOf(frag);
   const langInURL = (langInURLPos > -1)

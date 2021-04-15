@@ -29,8 +29,6 @@ module.exports = {
     // Disable for now
     'no-alert': 0,
     'import/namespace': ['error', {allowComputed: true}],
-    'jsdoc/require-returns': 0,
-    'jsdoc/require-param-type': 0,
     'promise/prefer-await-to-callbacks': 0
   }
 };

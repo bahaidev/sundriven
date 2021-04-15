@@ -1,7 +1,8 @@
 import {$} from '../../vendor/jml-es.js';
 
 /**
- * @param elemSel
+ * @param {string} elemSel
+ * @returns {void}
  */
 function removeElement (elemSel) {
   if ($(elemSel)) {
@@ -9,7 +10,8 @@ function removeElement (elemSel) {
   }
 }
 /**
- * @param childSel
+ * @param {string} childSel
+ * @returns {void}
  */
 function removeChild (childSel) {
   if ($(childSel).firstElementChild) {

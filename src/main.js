@@ -29,9 +29,10 @@ function s (obj) {
 */
 
 /**
- * @param cb
- * @param errBack
+ * @param {GeolocationPosition} cb
+ * @param {GeolocationPositionError} errBack
  * @throws {Error}
+ * @returns {void} (Could change in the future if switch to `watchPosition`)
  */
 function getGeoPositionWrapper (cb, errBack) {
   if (!navigator.geolocation) {
@@ -55,8 +56,9 @@ function getGeoPositionWrapper (cb, errBack) {
   );
 }
 /**
- * @param name
- * @param _body
+ * @param {string} name Not presently in use
+ * @param {string} _body
+ * @returns {void}
  */
 function notify (name, _body) {
   // show the notification
@@ -84,7 +86,8 @@ function notify (name, _body) {
 }
 
 /**
- * @param cb
+ * @param {StorageSetCallback} cb
+ * @returns {StorageSetCallback}
  */
 function storageSetterErrorWrapper (cb) {
   return (val) => {
@@ -102,7 +105,8 @@ function storageSetterErrorWrapper (cb) {
 }
 
 /**
- * @param cb
+ * @param {StorageGetCallback} cb
+ * @returns {StorageGetCallback}
  */
 function storageGetterErrorWrapper (cb) {
   return (data) => {
@@ -120,7 +124,7 @@ function storageGetterErrorWrapper (cb) {
   };
 }
 /**
- *
+ * @returns {void}
  */
 function createDefaultReminderForm () {
   createReminderForm({
@@ -134,7 +138,7 @@ function createDefaultReminderForm () {
 }
 
 /**
- *
+ * @returns {void}
  */
 function buildReminderTable () {
   /**
@@ -158,7 +162,8 @@ function buildReminderTable () {
 }
 
 /**
- * @param name
+ * @param {string} name
+ * @returns {void}
  */
 function clearWatch (name) {
   if (watchers[name]) {
@@ -167,7 +172,7 @@ function clearWatch (name) {
 }
 
 /**
- *
+ * @returns {{coords: {latitude: string, longitude: string}}}
  */
 function getCoords () {
   const latitude = $('#latitude').value;
@@ -182,17 +187,34 @@ function getCoords () {
 }
 
 /**
- * @param sundriven
+* @typedef {string} ListenerName
+*/
+
+/**
+* @typedef {PlainObject} ListenerData
+* @property {string} minutes
+* @property {"after"|"before"} relativePosition
+* @property {"now"|AstronomicalEvent} relativeEvent
+* @property {boolean} enabled
+* @property {string} name
+* @property {"daily"|"one-time"} frequency
+*/
+
+/**
+ * @param {Object<ListenerName,ListenerData>} sundriven
+ * @returns {void}
  */
 function updateListeners (sundriven) {
   /**
-   * @param root0
-   * @param root0."0"
-   * @param root0."1"
+   * @param {GenericArray} root0
+   * @param {ListenerName} root0."0" The listener name
+   * @param {ListenerData} root0."1" The listener data
+   * @returns {void}
    */
   function updateListenerByName ([name, data]) {
     /**
-     * @param date
+     * @param {Integer} [date]
+     * @returns {{date: Date, time: Integer}}
      */
     function checkTime (date) {
       let minutes = Number.parseFloat(data.minutes);
@@ -205,9 +227,18 @@ function updateListeners (sundriven) {
       date = date && typeof date !== 'number' ? date : new Date(startTime);
       return {date, time: (date.getTime() - startTime) + minutes * 60 * 1000};
     }
+
     /**
-     * @param date
-     * @param astronomicalEvent
+    * @typedef {
+    * "civilDawn"|"civilDusk"|"nauticalDawn"|"nauticalDusk"|
+    * "astronomicalDawn"|"astronomicalDusk"|"sunrise"|"sunset"|
+    * "solarNoon"} AstronomicalEvent
+    */
+
+    /**
+     * @param {Integer} date
+     * @param {AstronomicalEvent} astronomicalEvent
+     * @returns {void}
      */
     function getRelative (date, astronomicalEvent) {
       const dt = checkTime(date);
@@ -265,7 +296,15 @@ function updateListeners (sundriven) {
       listeners[name] = timeoutID;
     }
     /**
-     * @param relativeEvent
+    * @callback getTimesForCoordsCallback
+    * @param {PlainObject} root
+    * @param {string} root.latitude
+    * @param {string} root.longitude
+    * @returns {void}
+    */
+    /**
+     * @param {AstronomicalEvent} relativeEvent
+     * @returns {getTimesForCoordsCallback}
      */
     function getTimesForCoords (relativeEvent) {
       return function ({coords: {latitude, longitude}}) {
@@ -355,7 +394,8 @@ function updateListeners (sundriven) {
 }
 
 /**
- * @param settings
+ * @param {Object<string,string|boolean>} settings
+ * @returns {void}
  */
 function createReminderForm (settings = {}) {
   if (formChanged) {
