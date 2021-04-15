@@ -2,13 +2,13 @@ import * as MeeusSunMoon from '../vendor/meeussunmoon.esm.js';
 import {DateTime} from '../vendor/luxon.js';
 import {$} from '../vendor/jml-es.js';
 
-import {serializeForm} from './generic-utils/forms.js';
 import {setLocale} from './generic-utils/i18n.js';
 import {getStorage, setStorage} from './generic-utils/storage.js';
 import {incrementDate} from './generic-utils/date.js';
 
 import reminderTable from './models/reminderTable.js';
 import reminderForm from './models/reminderForm.js';
+import settings from './models/settings.js';
 
 import setTemplates from './views/setTemplates.js';
 import {
@@ -21,6 +21,9 @@ const {_, locale} = await setLocale();
 
 const Templates = setTemplates(_);
 
+Templates.document();
+Templates.body();
+
 /**
  * Keyed to timeout ID.
  * @typedef {Object<string,Integer>} Listeners
@@ -32,6 +35,7 @@ const
    */
   listeners = {},
   watchers = {},
+  // For a circular dependency
   builder = {};
 
 const {
@@ -42,9 +46,6 @@ const buildReminderTable = reminderTable({
 });
 builder.buildReminderTable = buildReminderTable;
 
-Templates.document();
-Templates.body();
-
 /*
 function s (obj) {
     alert(JSON.stringify(obj));
@@ -52,10 +53,15 @@ function s (obj) {
 */
 
 /**
+ * @callback GeoPositionWrapperGetter
  * @param {GeolocationPosition} cb
  * @param {GeolocationPositionError} errBack
  * @throws {Error}
  * @returns {void} (Could change in the future if switch to `watchPosition`)
+ */
+
+/**
+ * @type {GeoPositionWrapperGetter}
  */
 function getGeoPositionWrapper (cb, errBack) {
   if (!navigator.geolocation) {
@@ -372,42 +378,10 @@ result.addEventListener('change', () => {
   toggleButton(result.state);
 });
 
-Templates.settings({
-  grantPermissionHidden: result.state === 'granted',
-  retrieveCoordinates (e) {
-    e.preventDefault();
-    $('#retrieving').hidden = false;
-    getGeoPositionWrapper(({coords: {latitude, longitude}}) => {
-      $('#latitude').value = latitude;
-      $('#longitude').value = longitude;
-      const evt = new Event('change', {
-        cancelable: true
-      });
-      $('#settings').dispatchEvent(evt);
-      $('#retrieving').hidden = true;
-    }, (err) => {
-      alert(_('geo_error', err.code, err.message));
-      $('#retrieving').hidden = true;
-    });
-  },
-  setSettings () {
-    const data = serializeForm('settings', {}, {
-      inputs: ['geoloc-usage', 'latitude', 'longitude']
-    });
-    setStorage('sundriven-settings', data, storageSetterErrorWrapper(_));
-  },
-  async allowNotifications () {
-    const status = await Notification.requestPermission();
-    if (status === 'denied') {
-      alert(_('You will not be able to use the app until permitting this!'));
-    } else if (status === 'granted') {
-      alert(_('Permission granted; you may now set timers.'));
-    }
-  }
-});
+settings({_, Templates, result, getGeoPositionWrapper});
 
-getStorage('sundriven-settings', storageGetterErrorWrapper(_, (settings) => {
-  Object.entries(settings).forEach(([key, value]) => {
+getStorage('sundriven-settings', storageGetterErrorWrapper(_, (_settings) => {
+  Object.entries(_settings).forEach(([key, value]) => {
     $('#' + key).value = value;
   });
 }));
