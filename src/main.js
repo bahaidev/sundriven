@@ -95,7 +95,7 @@ function storageSetterErrorWrapper (cb) {
       alert(_(
         'ERROR: Problem setting storage; refreshing page to try to resolve...'
       ));
-      window.location.reload();
+      location.reload();
       return;
     }
     if (cb) {
@@ -117,7 +117,7 @@ function storageGetterErrorWrapper (cb) {
       //  'ERROR: Problem retrieving storage; refreshing ' +
       //  'page to try to resolve...')
       // );
-      // window.location.reload();
+      // location.reload();
     } else {
       cb(data);
     }
