@@ -6,7 +6,7 @@ const apps = navigator.mozApps;
  *
  */
 function install () {
-  const button = document.getElementById('install');
+  const button = document.querySelector('#install');
 
   /**
    * @param ev
