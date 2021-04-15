@@ -36,7 +36,8 @@ const Templates = (_) => ({
       ['div', {id: 'table-container'}],
       ['p', [
         _(
-          'Click on the relevant row of the table to create/edit a reminder above:'
+          'Click on the relevant row of the table to ' +
+          'create/edit a reminder above:'
         )
       ]],
       ['div', {id: 'forms-container'}]
@@ -119,7 +120,10 @@ const Templates = (_) => ({
                   'Will report errors instead of falling back ' +
                   '(not recommended)'
                 )
-              }, [_('Always use Geolocation; do not fall back to manual coordinates')]]
+              }, [_(
+                'Always use Geolocation; do not fall back ' +
+                'to manual coordinates'
+              )]]
             ]],
             ['fieldset', {
               title: _(
@@ -220,7 +224,8 @@ const Templates = (_) => ({
             'nauticalDawn', 'nauticalDusk',
             'astronomicalDawn', 'astronomicalDusk'
             /*
-            // Not present in MSM: https://github.com/janrg/MeeusSunMoon/issues/3
+            // Not present in MeeusSunMoon:
+            // https://github.com/janrg/MeeusSunMoon/issues/3
             'nadir', 'sunriseEnd', 'sunsetStart',
             'goldenHourEnd', 'goldenHour'
             */
@@ -231,7 +236,9 @@ const Templates = (_) => ({
       ]],
       nbsp.repeat(2),
       ['label', [
-        ['input', {id: 'minutes', type: 'number', step: 1, value: settings.minutes}],
+        ['input', {
+          id: 'minutes', type: 'number', step: 1, value: settings.minutes
+        }],
         ' ' + _('Minutes')
       ]],
       ['br'],
