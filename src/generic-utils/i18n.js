@@ -36,7 +36,7 @@ async function setLocale () {
   }
   // eslint-disable-next-line no-unsanitized/method -- Is sanitized
   localeObj = (await import(`../locales/${locale}.js`)).default;
-  return locale;
+  return {_, locale};
 }
 
-export {_, setLocale};
+export {setLocale};

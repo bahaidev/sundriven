@@ -4,14 +4,16 @@ import {jml, $, nbsp} from '../vendor/jml-es.js';
 
 import {removeElement, removeChild} from './generic-utils/dom.js';
 import {serializeForm} from './generic-utils/forms.js';
-import {_, setLocale} from './generic-utils/i18n.js';
+import {setLocale} from './generic-utils/i18n.js';
 import {getStorage, setStorage} from './generic-utils/storage.js';
 
-import Templates from './templates.js';
+import setTemplates from './setTemplates.js';
 // import install from './install.js';
 
 (async () => {
-const locale = await setLocale();
+const {_, locale} = await setLocale();
+
+const Templates = setTemplates(_);
 
 Templates.document();
 Templates.body();

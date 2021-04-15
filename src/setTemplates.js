@@ -1,8 +1,6 @@
 import {jml, body} from '../vendor/jml-es.js';
 
-import {_} from './generic-utils/i18n.js';
-
-const Templates = {
+const Templates = (_) => ({
   document () {
     document.title = _('Sun Driven');
   },
@@ -23,6 +21,6 @@ const Templates = {
       ['div', {id: 'forms-container'}]
     ]);
   }
-};
+});
 
 export default Templates;
