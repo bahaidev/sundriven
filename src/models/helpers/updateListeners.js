@@ -36,6 +36,35 @@ function getCoords () {
 }
 
 /**
+ * Uses minutes and `relativePosition` (before/after) specified for a reminder
+ * to add an offset to a supplied date (or the current time if none is
+ * supplied) and subtracting the current time to find the time left to
+ * expiry; also returns `date` which, if originally missing, will reflect
+ * a new `Date` just begun.
+ * @param {ListenerData} data
+ * @param {Integer} [date]
+ * @returns {{date: Date, time: Integer}}
+ */
+function getMillisecondsTillExpiry (data, date) {
+  let minutes = Number.parseFloat(data.minutes);
+  minutes = data.relativePosition === 'before'
+    ? -minutes
+    : minutes; // after|before
+  const startTime = Date.now();
+  // eslint-disable-next-line no-console -- Debugging
+  console.log('date', date);
+  date = date && typeof date !== 'number' ? date : new Date(startTime);
+  return {date, time: (date.getTime() - startTime) + minutes * 60 * 1000};
+}
+
+/**
+ * @typedef {
+ * "civilDawn"|"civilDusk"|"nauticalDawn"|"nauticalDusk"|
+ * "astronomicalDawn"|"astronomicalDusk"|"sunrise"|"sunset"|
+ * "solarNoon"} AstronomicalEvent
+ */
+
+/**
 * @typedef {string} ListenerName
 */
 
@@ -111,37 +140,14 @@ function getUpdateListeners ({
      */
     function updateListenerByName ([name, data]) {
       /**
-       * @param {Integer} [date]
-       * @returns {{date: Date, time: Integer}}
-       */
-      function checkTime (date) {
-        let minutes = Number.parseFloat(data.minutes);
-        minutes = data.relativePosition === 'before'
-          ? -minutes
-          : minutes; // after|before
-        const startTime = Date.now();
-        // eslint-disable-next-line no-console -- Debugging
-        console.log('date', date);
-        date = date && typeof date !== 'number' ? date : new Date(startTime);
-        return {date, time: (date.getTime() - startTime) + minutes * 60 * 1000};
-      }
-
-      /**
-      * @typedef {
-      * "civilDawn"|"civilDusk"|"nauticalDawn"|"nauticalDusk"|
-      * "astronomicalDawn"|"astronomicalDusk"|"sunrise"|"sunset"|
-      * "solarNoon"} AstronomicalEvent
-      */
-
-      /**
        * @param {Integer|Date} date
        * @param {AstronomicalEvent} astronomicalEvent
        * @returns {void}
        */
       function getRelative (date, astronomicalEvent) {
-        const dt = checkTime(date);
+        const dt = getMillisecondsTillExpiry(data, date);
         const {time} = dt;
-        ({date} = dt);
+        ({date} = dt); // Also may give us new date if none supplied.
         clearTimeout(listeners[name]);
         let timeoutID;
         switch (data.frequency) {
@@ -245,7 +251,7 @@ function getUpdateListeners ({
       const {relativeEvent} = data;
       switch (relativeEvent) {
       case 'now':
-        getRelative(checkTime().time < 0 ? incrementDate() : null);
+        getRelative(getMillisecondsTillExpiry(data).time < 0 ? incrementDate() : null);
         break;
       default: // sunrise, etc.
         if ($('#geoloc-usage').value === 'never') { // when-available|always
