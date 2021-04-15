@@ -568,110 +568,39 @@ result.addEventListener('change', () => {
   toggleButton(result.state);
 });
 
-jml('div', [
-  ['button', {$on: {click () {
-    $('#settings-holder').hidden = !$('#settings-holder').hidden;
-  }}}, [_('Settings')]],
-  ' ',
-  ['button', {
-    id: 'grantPermission',
-    hidden: result.state === 'granted',
-    $on: {
-      async click () {
-        const status = await Notification.requestPermission();
-        if (status === 'denied') {
-          alert(_('You will not be able to use the app until permitting this!'));
-        } else if (status === 'granted') {
-          alert(_('Permission granted; you may now set timers.'));
-        }
-      }
-    }
-  }, [
-    _('click_allow_notifications')
-  ]],
-  ['div', {id: 'settings-holder', hidden: true}, [
-    ['form', {id: 'settings', $on: {change () {
-      const data = serializeForm('settings', {}, {
-        inputs: ['geoloc-usage', 'latitude', 'longitude']
+Templates.settings({
+  grantPermissionHidden: result.state === 'granted',
+  retrieveCoordinates (e) {
+    e.preventDefault();
+    $('#retrieving').hidden = false;
+    getGeoPositionWrapper(({coords: {latitude, longitude}}) => {
+      $('#latitude').value = latitude;
+      $('#longitude').value = longitude;
+      const evt = new Event('change', {
+        cancelable: true
       });
-      setStorage('sundriven-settings', data, storageSetterErrorWrapper());
-    }}}, [
-      ['fieldset', [
-        ['select', {id: 'geoloc-usage'}, [
-          ['option', {
-            value: 'when-available',
-            title: _(
-              'Fall back to the coordinates below when ' +
-                            'offline or upon Geolocation errors'
-            )
-          }, [_('Use Geolocation when available')]],
-          ['option', {
-            value: 'never',
-            title: _(
-              'Avoids a trip to the server but may not be ' +
-              'accurate if you are traveling out of the ' +
-              'area with your device.'
-            )
-          }, [_('Never use Geolocation; always use manual coordinates.')]],
-          ['option', {
-            value: 'always',
-            title: _(
-              'Will report errors instead of falling back ' +
-              '(not recommended)'
-            )
-          }, [_('Always use Geolocation; do not fall back to manual coordinates')]]
-        ]],
-        ['fieldset', {
-          title: _(
-            'Use these coordinates for astronomical ' +
-            'event-based reminders when offline or upon errors'
-          )
-        }, [
-          ['legend', [_('Manual coordinates')]],
-          ['label', [
-            _('Latitude') + ' ',
-            ['input', {id: 'latitude', size: 20}]
-          ]],
-          ['br'],
-          ['label', [
-            _('Longitude') + ' ',
-            ['input', {id: 'longitude', size: 20}]
-          ]],
-          ['br'],
-          ['button', {
-            title: 'Retrieve coordinates now using Geolocation ' +
-                    'for potential later use when offline or upon ' +
-                    'errors (depends on the selected pull-down ' +
-                    'option).',
-            $on: {
-              click (e) {
-                e.preventDefault();
-                $('#retrieving').hidden = false;
-                getGeoPositionWrapper(({coords: {latitude, longitude}}) => {
-                  $('#latitude').value = latitude;
-                  $('#longitude').value = longitude;
-                  const evt = new Event('change', {
-                    cancelable: true
-                  });
-                  $('#settings').dispatchEvent(evt);
-                  $('#retrieving').hidden = true;
-                }, (err) => {
-                  alert(_('geo_error', err.code, err.message));
-                  $('#retrieving').hidden = true;
-                });
-              }
-            }
-          }, [
-            _('Retrieve coordinates for manual storage')
-          ]],
-          nbsp,
-          ['span', {id: 'retrieving', hidden: true}, [_('Retrieving...')]]
-        ]]
-      ]]
-    ]]
-  ]],
-  ['br']
-], $('#settings-container'));
+      $('#settings').dispatchEvent(evt);
+      $('#retrieving').hidden = true;
+    }, (err) => {
+      alert(_('geo_error', err.code, err.message));
+      $('#retrieving').hidden = true;
+    });
+  },
+  setSettings () {
+    const data = serializeForm('settings', {}, {
+      inputs: ['geoloc-usage', 'latitude', 'longitude']
+    });
+    setStorage('sundriven-settings', data, storageSetterErrorWrapper());
+  },
+  async allowNotifications () {
+    const status = await Notification.requestPermission();
+    if (status === 'denied') {
+      alert(_('You will not be able to use the app until permitting this!'));
+    } else if (status === 'granted') {
+      alert(_('Permission granted; you may now set timers.'));
+    }
+  }
+});
 
 getStorage('sundriven-settings', storageGetterErrorWrapper((settings) => {
   Object.entries(settings).forEach(([key, value]) => {
