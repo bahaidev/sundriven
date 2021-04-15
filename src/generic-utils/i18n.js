@@ -6,9 +6,14 @@ const locales = [
 let localeObj;
 
 /**
+ * @callback Internationalizer
  * @param {string} s
  * @param {...any} args
  * @returns {string}
+ */
+
+/**
+ * @type {Internationalizer}
  */
 function _ (s, ...args) {
   // Todo: Provide proper i18n keys so we can drop the fallback behavior
@@ -23,7 +28,13 @@ function _ (s, ...args) {
 */
 
 /**
- * @returns {Locale}
+* @typedef {PlainObject} LocaleInfo
+* @property {Internationalizer} _
+* @property {Locale} locale
+*/
+
+/**
+ * @returns {LocaleInfo}
  */
 async function setLocale () {
   const loc = location.href;

@@ -1,4 +1,4 @@
-import {jml, $, nbsp, body} from '../vendor/jml-es.js';
+import {jml, $, nbsp, body} from '../../vendor/jml-es.js';
 
 /**
 * @external JamilihArray
@@ -30,7 +30,22 @@ function radioGroup (groupName, radios, selected) {
   })];
 }
 
-const Templates = (_) => ({
+/**
+ * @callback TemplateFunction
+ * @param {...any} any
+ * @returns {void}
+ */
+
+/**
+* @typedef {Object<string,TemplateFunction>} TemplatesObject
+*/
+
+/**
+ * @function
+ * @param {Internationalizer} _
+ * @returns {TemplatesObject}
+ */
+const setTemplates = (_) => ({
   document () {
     document.title = _('Sun Driven');
   },
@@ -274,4 +289,4 @@ const Templates = (_) => ({
   }
 });
 
-export default Templates;
+export default setTemplates;

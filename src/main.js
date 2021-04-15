@@ -2,13 +2,18 @@ import * as MeeusSunMoon from '../vendor/meeussunmoon.esm.js';
 import {DateTime} from '../vendor/luxon.js';
 import {$} from '../vendor/jml-es.js';
 
-import {removeElement, removeChild} from './generic-utils/dom.js';
 import {serializeForm} from './generic-utils/forms.js';
 import {setLocale} from './generic-utils/i18n.js';
 import {getStorage, setStorage} from './generic-utils/storage.js';
 import {incrementDate} from './generic-utils/date.js';
 
-import setTemplates from './setTemplates.js';
+import reminderTable from './models/reminderTable.js';
+import reminderForm from './models/reminderForm.js';
+
+import setTemplates from './views/setTemplates.js';
+import {
+  storageGetterErrorWrapper, storageSetterErrorWrapper
+} from './models/helpers/storageWrapper.js';
 // import install from './install.js';
 
 (async () => {
@@ -16,11 +21,29 @@ const {_, locale} = await setLocale();
 
 const Templates = setTemplates(_);
 
+/**
+ * Keyed to timeout ID.
+ * @typedef {Object<string,Integer>} Listeners
+*/
+
+const
+  /**
+   * @type {Listeners}
+   */
+  listeners = {},
+  watchers = {},
+  builder = {};
+
+const {
+  createReminderForm, createDefaultReminderForm
+} = reminderForm({_, Templates, updateListeners, listeners, builder});
+const buildReminderTable = reminderTable({
+  _, Templates, createReminderForm, createDefaultReminderForm
+});
+builder.buildReminderTable = buildReminderTable;
+
 Templates.document();
 Templates.body();
-
-let formChanged = false;
-const listeners = {}, watchers = {};
 
 /*
 function s (obj) {
@@ -86,82 +109,6 @@ function notify (name, _body) {
 }
 
 /**
- * @param {StorageSetCallback} cb
- * @returns {StorageSetCallback}
- */
-function storageSetterErrorWrapper (cb) {
-  return (val) => {
-    if (!val) {
-      alert(_(
-        'ERROR: Problem setting storage; refreshing page to try to resolve...'
-      ));
-      location.reload();
-      return;
-    }
-    if (cb) {
-      cb(val);
-    }
-  };
-}
-
-/**
- * @param {StorageGetCallback} cb
- * @returns {StorageGetCallback}
- */
-function storageGetterErrorWrapper (cb) {
-  return (data) => {
-    if (data === null) {
-      setStorage('sundriven', {}, storageSetterErrorWrapper(cb));
-      // This would loop (and data will be null on first run)
-      // alert(_(
-      //  'ERROR: Problem retrieving storage; refreshing ' +
-      //  'page to try to resolve...')
-      // );
-      // location.reload();
-    } else {
-      cb(data);
-    }
-  };
-}
-/**
- * @returns {void}
- */
-function createDefaultReminderForm () {
-  createReminderForm({
-    name: '',
-    enabled: true,
-    frequency: 'daily',
-    relativeEvent: 'now',
-    minutes: '60',
-    relativePosition: 'after'
-  });
-}
-
-/**
- * @returns {void}
- */
-function buildReminderTable () {
-  /**
-   * @returns {void}
-   */
-  function createReminder () {
-    const {name} = this.dataset;
-    getStorage('sundriven', storageGetterErrorWrapper((_forms) => {
-      createReminderForm(_forms[name]);
-    }));
-  }
-  getStorage('sundriven', storageGetterErrorWrapper((forms) => {
-    removeElement('#forms');
-    const sortedForms = Object.keys(forms).sort().map((formKey) => {
-      return forms[formKey];
-    });
-    Templates.reminderTable({
-      createDefaultReminderForm, createReminder, sortedForms
-    });
-  }));
-}
-
-/**
  * @param {string} name
  * @returns {void}
  */
@@ -201,8 +148,13 @@ function getCoords () {
 */
 
 /**
+ * @callback UpdateListeners
  * @param {Object<ListenerName,ListenerData>} sundriven
  * @returns {void}
+ */
+
+/**
+ * @type {UpdateListeners}
  */
 function updateListeners (sundriven) {
   /**
@@ -284,12 +236,14 @@ function updateListeners (sundriven) {
           delete listeners[name];
           clearWatch(name);
           data.enabled = 'false';
-          setStorage('sundriven', sundriven, storageSetterErrorWrapper(() => {
-            if ($('#name').value === name) {
-              $('#enabled').checked = false;
-            }
-            buildReminderTable();
-          }));
+          setStorage(
+            'sundriven', sundriven, storageSetterErrorWrapper(_, () => {
+              if ($('#name').value === name) {
+                $('#enabled').checked = false;
+              }
+              buildReminderTable();
+            })
+          );
         }, time);
         break;
       }
@@ -394,121 +348,6 @@ function updateListeners (sundriven) {
 }
 
 /**
- * @param {Object<string,string|boolean>} settings
- * @returns {void}
- */
-function createReminderForm (settings = {}) {
-  if (formChanged) {
-    const continueWithNewForm = confirm(
-      _(
-        'You have unsaved changes; are you sure you wish to ' +
-                'continue and lose your unsaved changes?'
-      )
-    );
-    if (!continueWithNewForm) {
-      return;
-    }
-    formChanged = false;
-  }
-  removeChild('#table-container');
-  const formID = 'set-reminder';
-  Templates.reminderForm({
-    formID,
-    settings,
-    sortOptions (options) {
-      return options.sort((a, b) => {
-        return a[2][0] > b[2][0];
-      });
-    },
-    formChanged (e) {
-      const {target} = e;
-      if (target.id === 'name' && target.defaultValue !== '') {
-        const renameReminder = confirm(
-          _(
-            'Are you sure you wish to rename this reminder? If you ' +
-            'wish instead to create a new one, click "cancel" now ' +
-            'and then click "save" when you are ready.'
-          )
-        );
-        if (!renameReminder) {
-          const data = serializeForm(formID, {}, {
-            inputs: ['name', 'frequency', 'relativeEvent', 'minutes'],
-            checkboxes: ['enabled'],
-            radios: ['relativePosition']
-          });
-          // Temporarily indicate the changes are not changed
-          formChanged = false;
-          createReminderForm(data);
-        }
-      }
-      formChanged = true;
-    },
-    saveReminder (e) {
-      e.preventDefault();
-      const data = serializeForm(formID, {}, {
-        inputs: ['name', 'frequency', 'relativeEvent', 'minutes'],
-        checkboxes: ['enabled'],
-        radios: ['relativePosition']
-      });
-      // Firefox will ask for the user to fill out the required field
-      if (!data.name) {
-        // alert(_('ERROR: Please supply a name'));
-        return;
-      }
-
-      getStorage('sundriven', storageGetterErrorWrapper((sundriven) => {
-        if (
-          // If this form was for creating new as opposed to editing old
-          //   reminders
-          !settings.name &&
-                    sundriven[data.name]
-        ) {
-          alert(_('ERROR: Please supply a unique name'));
-          return;
-        }
-        const originalName = $('#name').defaultValue;
-        if (![$('#name').value, ''].includes(originalName)) {
-          // If this is a rename, we warned the user earlier about it,
-          //   so go ahead and delete now
-          clearTimeout(listeners[originalName]);
-          delete sundriven[originalName];
-        }
-        sundriven[data.name] = data;
-        setStorage('sundriven', sundriven, storageSetterErrorWrapper(() => {
-          formChanged = false;
-          buildReminderTable();
-          updateListeners(sundriven);
-          alert(_('Saved!'));
-        }));
-      }));
-    },
-    deleteReminder (e) {
-      e.preventDefault();
-      const name = $('#name').value;
-      if (!name) { // Required field will be used automatically
-        // alert(_('Please supply a reminder name for deletion.'));
-        return;
-      }
-      const okDelete = confirm(_(
-        'Are you sure you wish to delete this reminder?'
-      ));
-      if (okDelete) {
-        clearTimeout(listeners[name]);
-        getStorage('sundriven', storageGetterErrorWrapper((sundriven) => {
-          delete sundriven[name];
-          setStorage('sundriven', sundriven, storageSetterErrorWrapper(() => {
-            formChanged = false;
-            buildReminderTable();
-            createDefaultReminderForm();
-            alert(_('Reminder deleted!'));
-          }));
-        }));
-      }
-    }
-  });
-}
-
-/**
  *
  * @param {"granted"|"prompt"|"denied"} state
  * @returns {void}
@@ -527,6 +366,7 @@ function toggleButton (state) {
     break;
   }
 }
+
 const result = await navigator.permissions.query({name: 'geolocation'});
 result.addEventListener('change', () => {
   toggleButton(result.state);
@@ -554,7 +394,7 @@ Templates.settings({
     const data = serializeForm('settings', {}, {
       inputs: ['geoloc-usage', 'latitude', 'longitude']
     });
-    setStorage('sundriven-settings', data, storageSetterErrorWrapper());
+    setStorage('sundriven-settings', data, storageSetterErrorWrapper(_));
   },
   async allowNotifications () {
     const status = await Notification.requestPermission();
@@ -566,26 +406,14 @@ Templates.settings({
   }
 });
 
-getStorage('sundriven-settings', storageGetterErrorWrapper((settings) => {
+getStorage('sundriven-settings', storageGetterErrorWrapper(_, (settings) => {
   Object.entries(settings).forEach(([key, value]) => {
     $('#' + key).value = value;
   });
 }));
 
-window.addEventListener('beforeunload', (e) => {
-  if (formChanged) {
-    const msg = _(
-      'You have unsaved changes; are you sure you wish to leave the page?'
-    ); // Not utilized in Mozilla
-    e.returnValue = msg;
-    e.preventDefault();
-    return msg;
-  }
-  return undefined;
-});
-
 buildReminderTable();
 createDefaultReminderForm();
-getStorage('sundriven', storageGetterErrorWrapper(updateListeners));
+getStorage('sundriven', storageGetterErrorWrapper(_, updateListeners));
 // install();
 })();
