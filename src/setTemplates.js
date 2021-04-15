@@ -1,5 +1,26 @@
 import {jml, $, nbsp, body} from '../vendor/jml-es.js';
 
+/**
+ * @param groupName
+ * @param radios
+ * @param selected
+ */
+function radioGroup (groupName, radios, selected) {
+  return ['span', radios.map(({id, label}) => {
+    return ['label', [
+      ['input', {
+        type: 'radio',
+        name: groupName,
+        id,
+        // For some reason, we can't set this successfully on a
+        //   jml() DOM object below, so we do it here
+        checked: id === selected
+      }],
+      label
+    ]];
+  })];
+}
+
 const Templates = (_) => ({
   document () {
     document.title = _('Sun Driven');
@@ -136,6 +157,102 @@ const Templates = (_) => ({
       ]],
       ['br']
     ], $('#settings-container'));
+  },
+  reminderForm ({
+    formID, settings, sortOptions, formChanged, saveReminder, deleteReminder
+  }) {
+    /**
+     * @param id
+     * @param options
+     */
+    function select (id, options) {
+      return jml('select', {
+        id,
+        value: settings[id] || ''
+      }, options, null);
+    }
+    /**
+     * @param id
+     */
+    function checkbox (id) {
+      return ['input', {
+        id,
+        type: 'checkbox',
+        checked: settings[id]
+      }];
+    }
+
+    jml('form', {id: formID, $on: {
+      change: formChanged
+    }}, [['fieldset', [
+      ['legend', [_('Set Reminder')]],
+      ['label', [
+        _('Name') + ' ',
+        ['input', {
+          id: 'name',
+          required: true,
+          defaultValue: settings.name || '',
+          value: settings.name || ''
+        }]
+      ]],
+      ['label', [
+        checkbox('enabled'),
+        _('Enabled')
+      ]],
+      ['br'],
+      ['label', [
+        _('Frequency') + ' ',
+        select('frequency', [
+          ['option', {value: 'daily'}, [_('Daily')]],
+          ['option', {value: 'one-time'}, [_('One-time')]]
+        ])
+      ]],
+      ['br'],
+      ['label', [
+        _('Relative to') + ' ',
+        select('relativeEvent', [
+          ['option', {value: 'now'}, [_('now')]],
+          // Others not included within MeeusSunMoon
+          ...(sortOptions([
+            'sunrise', 'sunset',
+            'solarNoon',
+            'civilDawn', 'civilDusk',
+            'nauticalDawn', 'nauticalDusk',
+            'astronomicalDawn', 'astronomicalDusk'
+            /*
+            // Not present in MSM: https://github.com/janrg/MeeusSunMoon/issues/3
+            'nadir', 'sunriseEnd', 'sunsetStart',
+            'goldenHourEnd', 'goldenHour'
+            */
+          ].map((eventType) => {
+            return ['option', {value: eventType}, [_(eventType)]];
+          })))
+        ])
+      ]],
+      nbsp.repeat(2),
+      ['label', [
+        ['input', {id: 'minutes', type: 'number', step: 1, value: settings.minutes}],
+        ' ' + _('Minutes')
+      ]],
+      ['br'],
+      radioGroup('relativePosition', [
+        {label: _('after'), id: 'after'},
+        {label: _('before'), id: 'before'}
+      ], settings.relativePosition),
+      ['br'],
+      ['button', {
+        $on: {
+          click: saveReminder
+        }}, [
+        _('Save')
+      ]],
+      ['button', {
+        class: 'delete',
+        $on: {
+          click: deleteReminder
+        }
+      }, [_('Delete')]]
+    ]]], $('#table-container'));
   }
 });
 

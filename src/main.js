@@ -1,6 +1,6 @@
 import * as MeeusSunMoon from '../vendor/meeussunmoon.esm.js';
 import {DateTime} from '../vendor/luxon.js';
-import {jml, $, nbsp} from '../vendor/jml-es.js';
+import {$} from '../vendor/jml-es.js';
 
 import {removeElement, removeChild} from './generic-utils/dom.js';
 import {serializeForm} from './generic-utils/forms.js';
@@ -350,47 +350,6 @@ function updateListeners (sundriven) {
  * @param settings
  */
 function createReminderForm (settings = {}) {
-  /**
-   * @param groupName
-   * @param radios
-   * @param selected
-   */
-  function radioGroup (groupName, radios, selected) {
-    return ['span', radios.map(({id, label}) => {
-      return ['label', [
-        ['input', {
-          type: 'radio',
-          name: groupName,
-          id,
-          // For some reason, we can't set this successfully on a
-          //   jml() DOM object below, so we do it here
-          checked: id === selected
-        }],
-        label
-      ]];
-    })];
-  }
-  /**
-   * @param id
-   * @param options
-   */
-  function select (id, options) {
-    return jml('select', {
-      id,
-      value: settings[id] || ''
-    }, options, null);
-  }
-  /**
-   * @param id
-   */
-  function checkbox (id) {
-    return ['input', {
-      id,
-      type: 'checkbox',
-      checked: settings[id]
-    }];
-  }
-
   if (formChanged) {
     const continueWithNewForm = confirm(
       _(
@@ -405,86 +364,37 @@ function createReminderForm (settings = {}) {
   }
   removeChild('#table-container');
   const formID = 'set-reminder';
-  jml('form', {id: formID, $on: {change (e) {
-    const {target} = e;
-    if (target.id === 'name' && target.defaultValue !== '') {
-      const renameReminder = confirm(
-        _(
-          'Are you sure you wish to rename this reminder? If you ' +
-          'wish instead to create a new one, click "cancel" now ' +
-          'and then click "save" when you are ready.'
-        )
-      );
-      if (!renameReminder) {
-        const data = serializeForm(formID, {}, {
-          inputs: ['name', 'frequency', 'relativeEvent', 'minutes'],
-          checkboxes: ['enabled'],
-          radios: ['relativePosition']
-        });
-        formChanged = false; // Temporarily indicate the changes are not changed
-        createReminderForm(data);
+  Templates.reminderForm({
+    formID,
+    settings,
+    sortOptions (options) {
+      return options.sort((a, b) => {
+        return a[2][0] > b[2][0];
+      });
+    },
+    formChanged (e) {
+      const {target} = e;
+      if (target.id === 'name' && target.defaultValue !== '') {
+        const renameReminder = confirm(
+          _(
+            'Are you sure you wish to rename this reminder? If you ' +
+            'wish instead to create a new one, click "cancel" now ' +
+            'and then click "save" when you are ready.'
+          )
+        );
+        if (!renameReminder) {
+          const data = serializeForm(formID, {}, {
+            inputs: ['name', 'frequency', 'relativeEvent', 'minutes'],
+            checkboxes: ['enabled'],
+            radios: ['relativePosition']
+          });
+          formChanged = false; // Temporarily indicate the changes are not changed
+          createReminderForm(data);
+        }
       }
-    }
-    formChanged = true;
-  }}}, [['fieldset', [
-    ['legend', [_('Set Reminder')]],
-    ['label', [
-      _('Name') + ' ',
-      ['input', {
-        id: 'name',
-        required: true,
-        defaultValue: settings.name || '',
-        value: settings.name || ''
-      }]
-    ]],
-    ['label', [
-      checkbox('enabled'),
-      _('Enabled')
-    ]],
-    ['br'],
-    ['label', [
-      _('Frequency') + ' ',
-      select('frequency', [
-        ['option', {value: 'daily'}, [_('Daily')]],
-        ['option', {value: 'one-time'}, [_('One-time')]]
-      ])
-    ]],
-    ['br'],
-    ['label', [
-      _('Relative to') + ' ',
-      select('relativeEvent', [
-        ['option', {value: 'now'}, [_('now')]],
-        // Others not included within MeeusSunMoon
-        ...([
-          'sunrise', 'sunset',
-          'solarNoon',
-          'civilDawn', 'civilDusk',
-          'nauticalDawn', 'nauticalDusk',
-          'astronomicalDawn', 'astronomicalDusk'
-          /*
-          // Not present in MSM: https://github.com/janrg/MeeusSunMoon/issues/3
-          'nadir', 'sunriseEnd', 'sunsetStart',
-          'goldenHourEnd', 'goldenHour'
-          */
-        ].map((eventType) => {
-          return ['option', {value: eventType}, [_(eventType)]];
-        }).sort((a, b) => {
-          return a[2][0] > b[2][0];
-        }))
-      ])
-    ]],
-    nbsp.repeat(2),
-    ['label', [
-      ['input', {id: 'minutes', type: 'number', step: 1, value: settings.minutes}],
-      ' ' + _('Minutes')
-    ]],
-    ['br'],
-    radioGroup('relativePosition', [
-      {label: _('after'), id: 'after'},
-      {label: _('before'), id: 'before'}
-    ], settings.relativePosition),
-    ['br'],
-    ['button', {$on: {click (e) {
+      formChanged = true;
+    },
+    saveReminder (e) {
       e.preventDefault();
       const data = serializeForm(formID, {}, {
         inputs: ['name', 'frequency', 'relativeEvent', 'minutes'],
@@ -519,8 +429,8 @@ function createReminderForm (settings = {}) {
           alert(_('Saved!'));
         }));
       }));
-    }}}, [_('Save')]],
-    ['button', {class: 'delete', $on: {click (e) {
+    },
+    deleteReminder (e) {
       e.preventDefault();
       const name = $('#name').value;
       if (!name) { // Required field will be used automatically
@@ -540,8 +450,8 @@ function createReminderForm (settings = {}) {
           }));
         }));
       }
-    }}}, [_('Delete')]]
-  ]]], $('#table-container'));
+    }
+  });
 }
 
 /**
