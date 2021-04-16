@@ -294,10 +294,14 @@ function getUpdateListeners ({
       }
 
       /**
-       * If coordinates cannot be obtained due to being prohibited and no manual
-       * ones have been entered, alert the user.
+       * If coordinates cannot be obtained due to Geolocation being denied
+       * and no manual ones have been entered, alert the user.
        *
-       * Checks a single reminder of the astronomical variety.
+       * If the user wants to fallback to manual coordinates when offline,
+       * but no valid manual coordinates are available, alert the user.
+       *
+       * Otherwise (if valid coordinates are available), attempt to check a
+       * single reminder of the astronomical variety.
        *
        * @returns {void}
        */
@@ -321,7 +325,7 @@ function getUpdateListeners ({
         watchers[name] = getGeoPositionWrapper(
           _,
           getTimesForCoords(relativeEvent),
-          (($('#geoloc-usage').value === 'when-available')
+          ($('#geoloc-usage').value === 'when-available'
             ? function () {
               const coords = getCoords();
               if (!coords) {
@@ -333,7 +337,7 @@ function getUpdateListeners ({
                 ));
                 return;
               }
-              getTimesForCoords(relativeEvent)(getCoords());
+              getTimesForCoords(relativeEvent)(coords);
             }
             : null)
         );
