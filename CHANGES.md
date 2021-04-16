@@ -1,5 +1,14 @@
 # CHANGES for sundriven
 
+## 0.7.0 (UNRELEASED)
+
+### User-impacing
+
+- Fix: `solarNoon`
+- Docs (README): Update to working demo
+- Docs (Code): Document
+- Refactoring: - Set locale dynamically, separation of concerns
+
 ## 0.6.1
 
 ### User-impacting
