@@ -1,4 +1,4 @@
-// import { terser } from 'rollup-plugin-terser';
+import {terser} from 'rollup-plugin-terser';
 
 import nodeResolve from '@rollup/plugin-node-resolve';
 // import commonjs from '@rollup/plugin-commonjs';
@@ -73,6 +73,17 @@ export default [
         babelHelpers: 'bundled'
       })
       */
+    ]
+  },
+  {
+    input: 'src/main.js',
+    output: {
+      format: 'esm',
+      sourcemap: true,
+      file: 'dist/sundriven.js'
+    },
+    plugins: [
+      terser()
     ]
   }
 ];

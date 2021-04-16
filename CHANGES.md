@@ -4,7 +4,11 @@
 
 ### User-impacing
 
-- Fix: `solarNoon`
+- Enhancement: Change existing `index.html` to `index-dev.html` but make new
+  `index.html` using bundled version
+- Fix: Avoid prematurely expiring recurring daily timers triggering flood of
+  notifications
+- Fix: `solarNoon` when time is somehow negative for now
 - Docs (README): Update to working demo
 - Docs (Code): Document
 - Refactoring: - Set locale dynamically, separation of concerns

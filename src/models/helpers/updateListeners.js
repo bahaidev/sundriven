@@ -8,6 +8,7 @@ import {incrementDate} from '../../generic-utils/date.js';
 import {storageSetterErrorWrapper} from './storageWrapper.js';
 import getGeoPositionWrapper from './getGeoPositionWrapper.js';
 
+const msThresholdToIgnore = 999;
 const watchers = {};
 
 /**
@@ -46,19 +47,33 @@ function getCoords () {
  * expiry; also returns `date` which, if originally missing, will reflect
  * a new `Date` just begun.
  * @param {ListenerData} data
- * @param {Integer} [date]
- * @returns {{date: Date, time: Integer}}
+ * @param {Integer} [expiryDate]
+ * @returns {{date: Date, durationToExpire: Integer}}
  */
-function getMillisecondsTillExpiry (data, date) {
+function getMillisecondsTillExpiry (data, expiryDate) {
   let minutes = Number.parseFloat(data.minutes);
   minutes = data.relativePosition === 'before'
     ? -minutes
     : minutes; // after|before
   const startTime = Date.now();
+  const date = expiryDate && typeof expiryDate !== 'number'
+    ? expiryDate
+    : new Date(startTime);
+  const durationToExpire = Math.max(
+    0,
+    date.getTime() + (minutes * 60 * 1000) - startTime
+  );
   // eslint-disable-next-line no-console -- Debugging
-  console.log('date', date);
-  date = date && typeof date !== 'number' ? date : new Date(startTime);
-  return {date, time: (date.getTime() - startTime) + minutes * 60 * 1000};
+  console.log(
+    ...(expiryDate
+      ? ['Original timestamp', expiryDate, new Date(expiryDate)]
+      : ['New date', date]
+    ),
+    'Minutes for timer', minutes,
+    'Expiry duration (minutes)', durationToExpire / (60 * 1000),
+    'Start time (now)', startTime, 'Start time as date', new Date(startTime)
+  );
+  return {date, durationToExpire};
 }
 
 /**
@@ -111,8 +126,7 @@ function getUpdateListeners ({
    * @returns {void}
    */
   function notify (name, _body) {
-    // show the notification
-    // console.log('notifying');
+    // Show the notification
     const notification = new Notification(
       _('Reminder (Click inside me to stop)'),
       {
@@ -124,7 +138,7 @@ function getUpdateListeners ({
     ); // tag=string, icon=url, dir (ltr|rtl|auto)
 
     // eslint-disable-next-line no-console -- Debugging
-    console.log('notification', notification);
+    console.log('Notification object', notification);
     /*
       notification.onshow = function(e) {
       };
@@ -172,14 +186,17 @@ function getUpdateListeners ({
        * @returns {void}
        */
       function timedNotifyRelativeToDateAndReminder (date, astronomicalEvent) {
+        // eslint-disable-next-line no-console -- Debugging
+        console.log(
+          'astronomicalEvent', astronomicalEvent, 'Frequency', data.frequency
+        );
         const dt = getMillisecondsTillExpiry(data, date);
-        const {time} = dt;
+        const {durationToExpire} = dt;
         ({date} = dt); // Also may give us new date if none supplied.
         clearTimeout(listeners[name]);
         let timeoutID;
         switch (data.frequency) {
         case 'daily':
-          console.log('time', time);
           timeoutID = setTimeout(() => {
             notify(name, _(
               astronomicalEvent
@@ -187,18 +204,26 @@ function getUpdateListeners ({
                 : 'notification_message_daily',
               name,
               date,
-              new Date(Date.now() - time),
+              new Date(Date.now() - durationToExpire),
               new Date(),
               astronomicalEvent ? _(astronomicalEvent) : null
             ));
 
             if (astronomicalEvent) {
-              console.log('aaaa', name, data, time);
-              setTimeout(() => {
-                updateListenerByName([name, data]);
-              }, 5000);
+              // Don't avoid frequent timers!
+              if (durationToExpire < msThresholdToIgnore) {
+                // eslint-disable-next-line no-console -- Debugging
+                console.log(
+                  `Duration ${durationToExpire} less than threshhold ` +
+                  `of ${msThresholdToIgnore}, so increment`
+                );
+                date = incrementDate(date);
+              }
+              // eslint-disable-next-line no-console -- Debugging
+              console.log('Recalculating for...', date, astronomicalEvent);
+              timedNotifyRelativeToDateAndReminder(date, astronomicalEvent);
             }
-          }, time);
+          }, durationToExpire);
           break;
         default: // one-time
           timeoutID = setTimeout(() => {
@@ -210,7 +235,7 @@ function getUpdateListeners ({
                   : 'notification_message_onetime',
                 name,
                 date,
-                new Date(Date.now() - time),
+                new Date(Date.now() - durationToExpire),
                 new Date(),
                 astronomicalEvent ? _(astronomicalEvent) : null
               )
@@ -226,7 +251,7 @@ function getUpdateListeners ({
                 builder.buildReminderTable();
               })
             );
-          }, time);
+          }, durationToExpire);
           break;
         }
         listeners[name] = timeoutID;
@@ -248,7 +273,10 @@ function getUpdateListeners ({
        */
       function handleNowTypeReminderCheck () {
         timedNotifyRelativeToDateAndReminder(
-          getMillisecondsTillExpiry(data).time < 0 ? incrementDate() : null
+          getMillisecondsTillExpiry(data).durationToExpire <=
+            msThresholdToIgnore
+            ? incrementDate()
+            : null
         );
       }
 
@@ -300,7 +328,10 @@ function getUpdateListeners ({
             );
           }
           const timestamp = luxonTime.valueOf();
-          console.log('111', timestamp, new Date(timestamp));
+          // eslint-disable-next-line no-console -- Debugging
+          console.log(
+            'Timestamp for astronomical event', timestamp, new Date(timestamp)
+          );
           timedNotifyRelativeToDateAndReminder(timestamp, relativeEvent);
         };
       }
@@ -333,7 +364,7 @@ function getUpdateListeners ({
           getTimesForCoords(relativeEvent)(coords);
           return;
         }
-        console.log('4444');
+
         watchers[name] = getGeoPositionWrapper(
           _,
           getTimesForCoords(relativeEvent),
