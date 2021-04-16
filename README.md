@@ -23,6 +23,7 @@ npm install .
 ## Higher priority todos
 
 1. Add Cypress tests
+1. Experiment to see if switching to `watchPosition` is too noisy
 1. Change cache.manifest to service worker; add `<link>` for Web Manifest
     discovery <https://developer.mozilla.org/en-US/docs/Web/Manifest#Deploying_a_manifest_with_the_link_tag>
     1. Test offline manifest on server, ensuring no dependencies missing
