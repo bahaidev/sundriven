@@ -235,11 +235,29 @@ function getUpdateListeners ({
       * @param {string} root.longitude
       * @returns {void}
       */
+
       /**
+       * Checks a single reminder of the relative-to-`now` variety.
+       *
+       * Increments the date if the expiry relative to the timer has already
+       * passed and uses the current time otherwise.
+       * @returns {void}
+       */
+      function handleNowTypeReminderCheck () {
+        timedNotifyRelativeToDateAndReminder(
+          getMillisecondsTillExpiry(data).time < 0 ? incrementDate() : null
+        );
+      }
+
+      /**
+       * Utility for `handleAstronomicalReminderCheck`.
        * @param {AstronomicalEvent} relativeEvent
        * @returns {getTimesForCoordsCallback}
        */
       function getTimesForCoords (relativeEvent) {
+        /**
+         * @type {getTimesForCoordsCallback}
+         */
         return function ({coords: {latitude, longitude}}) {
           const luxonDate = DateTime.now();
           let luxonTime;
@@ -275,7 +293,53 @@ function getUpdateListeners ({
         };
       }
 
-      // BEGIN `updateListenerByName` main code
+      /**
+       * If coordinates cannot be obtained due to being prohibited and no manual
+       * ones have been entered, alert the user.
+       *
+       * Checks a single reminder of the astronomical variety.
+       *
+       * @returns {void}
+       */
+      function handleAstronomicalReminderCheck () {
+        if ($('#geoloc-usage').value === 'never') { // when-available|always
+          const coords = getCoords();
+          if (!coords) {
+            alert(_(
+              'Per your settings, Geolocation is disallowed, and the ' +
+              'manual coordinates are not formatted correctly, so the ' +
+              'astronomical event cannot be determined at this time. Please ' +
+              'either permit Geolocation or enter valid numeric coordinates ' +
+              'manually.'
+            ));
+            return;
+          }
+          getTimesForCoords(relativeEvent)(coords);
+          return;
+        }
+        console.log('4444');
+        watchers[name] = getGeoPositionWrapper(
+          _,
+          getTimesForCoords(relativeEvent),
+          (($('#geoloc-usage').value === 'when-available')
+            ? function () {
+              const coords = getCoords();
+              if (!coords) {
+                alert(_(
+                  'Geolocation is not currently available, and the manual ' +
+                  'coordinates are not formatted correctly in your ' +
+                  'settings, so the astronomical event cannot be ' +
+                  'determined at this time.'
+                ));
+                return;
+              }
+              getTimesForCoords(relativeEvent)(getCoords());
+            }
+            : null)
+        );
+      }
+
+      // BEGIN `updateListenerByName` main code to check single timer
 
       if (!data.enabled) {
         return;
@@ -284,52 +348,10 @@ function getUpdateListeners ({
       const {relativeEvent} = data;
       switch (relativeEvent) {
       case 'now':
-        timedNotifyRelativeToDateAndReminder(
-          getMillisecondsTillExpiry(data).time < 0 ? incrementDate() : null
-        );
+        handleNowTypeReminderCheck();
         break;
       default: // sunrise, etc.
-        if ($('#geoloc-usage').value === 'never') { // when-available|always
-          const coords = getCoords();
-          if (!coords) {
-            alert(
-              _(
-                'Per your settings, Geolocation is ' +
-                'disallowed, and the manual coordinates are ' +
-                'not formatted correctly, so the ' +
-                'astronomical event cannot be determined ' +
-                'at this time.'
-              )
-            );
-            return;
-          }
-          getTimesForCoords(relativeEvent)(coords);
-        } else {
-          console.log('4444');
-          watchers[name] = getGeoPositionWrapper(
-            _,
-            getTimesForCoords(relativeEvent),
-            (($('#geoloc-usage').value === 'when-available')
-              ? function () {
-                const coords = getCoords();
-                if (!coords) {
-                  alert(
-                    _(
-                      'Geolocation is not currently ' +
-                      'available, and the manual ' +
-                      'coordinates are not formatted ' +
-                      'correctly in your settings, so the ' +
-                      'astronomical event cannot be ' +
-                      'determined at this time.'
-                    )
-                  );
-                  return;
-                }
-                getTimesForCoords(relativeEvent)(getCoords());
-              }
-              : null)
-          );
-        }
+        handleAstronomicalReminderCheck();
         break;
       }
     }
