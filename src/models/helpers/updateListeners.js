@@ -56,8 +56,12 @@ function getMillisecondsTillExpiry (data, expiryDate) {
     ? -minutes
     : minutes; // after|before
   const startTime = Date.now();
-  const date = expiryDate && typeof expiryDate !== 'number'
-    ? expiryDate
+  const date = expiryDate
+    ? (
+      typeof expiryDate !== 'number'
+        ? expiryDate
+        : new Date(expiryDate)
+    )
     : new Date(startTime);
   const durationToExpire = Math.max(
     0,
@@ -180,7 +184,7 @@ function getUpdateListeners ({
        *
        * @param {Integer|Date} date
        * @param {AstronomicalEvent} astronomicalEvent
-       * @todo Daily "now" events should recur tomorrow if not already!
+       * @todo Daily "now" events to recur tomorrow if not already!
        * @todo Could add timer config as to whether to save the timer at all
        * if just a one-time one.
        * @returns {void}
@@ -188,7 +192,7 @@ function getUpdateListeners ({
       function timedNotifyRelativeToDateAndReminder (date, astronomicalEvent) {
         // eslint-disable-next-line no-console -- Debugging
         console.log(
-          'astronomicalEvent', astronomicalEvent, 'Frequency', data.frequency
+          'astronomicalEvent', astronomicalEvent, '; frequency:', data.frequency
         );
         const dt = getMillisecondsTillExpiry(data, date);
         const {durationToExpire} = dt;

@@ -197,8 +197,16 @@ const setTemplates = (_) => ({
     function select (id, options) {
       return jml('select', {
         id,
-        value: settings[id] || ''
-      }, options, null);
+        value: settings[id] || '',
+        defaultValue: settings[id] || ''
+      }, options.map((opt) => {
+        // Neither the `value` or `defaultValue` setting above
+        //  is working, so select here
+        if (opt[1].value === settings[id]) {
+          opt[1].selected = true;
+        }
+        return opt;
+      }), null);
     }
     /**
      * @param {string} id
@@ -221,7 +229,6 @@ const setTemplates = (_) => ({
         ['input', {
           id: 'name',
           required: true,
-          defaultValue: settings.name || '',
           value: settings.name || ''
         }]
       ]],
@@ -263,7 +270,8 @@ const setTemplates = (_) => ({
       nbsp.repeat(2),
       ['label', [
         ['input', {
-          id: 'minutes', type: 'number', step: 1, value: settings.minutes
+          id: 'minutes', type: 'number', step: 1,
+          value: settings.minutes
         }],
         ' ' + _('Minutes')
       ]],

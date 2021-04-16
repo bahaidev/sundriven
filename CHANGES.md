@@ -1,6 +1,6 @@
 # CHANGES for sundriven
 
-## 0.7.0 (UNRELEASED)
+## 0.7.0
 
 ### User-impacing
 
@@ -9,6 +9,8 @@
 - Fix: Avoid prematurely expiring recurring daily timers triggering flood of
   notifications
 - Fix: `solarNoon` when time is somehow negative for now
+- Fix: Ensure numeric astronomical event type
+- Fix: Ensure setting astronomical event type properly
 - Docs (README): Update to working demo
 
 ### Dev-impacting
