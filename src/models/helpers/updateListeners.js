@@ -256,6 +256,13 @@ function getUpdateListeners ({
        */
       function getTimesForCoords (relativeEvent) {
         /**
+         * Gets a luxon time from MeeusSunMoon based on an astronomical event
+         * but converts this to a numeric timestamp (so as to have less
+         * lock-in).
+         *
+         * Then sets a notification to execute on a timeout at the reminder's
+         * approximate expiry time (relative to the current time and
+         * supplied timestamp).
          * @type {getTimesForCoordsCallback}
          */
         return function ({coords: {latitude, longitude}}) {
