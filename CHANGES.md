@@ -6,6 +6,8 @@
 
 - Enhancement: Change existing `index.html` to `index-dev.html` but make new
   `index.html` using bundled version
+- Enhancement: Use checkbox instead of "x" for enabled status to prevent
+  confusion with delete
 - Fix: Avoid prematurely expiring recurring daily timers triggering flood of
   notifications
 - Fix: `solarNoon` when time is somehow negative for now

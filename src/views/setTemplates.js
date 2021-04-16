@@ -92,7 +92,7 @@ const setTemplates = (_) => ({
           }, [
             ['td', [name]],
             ['td', {class: 'focus'}, [
-              enabled ? 'x' : ''
+              enabled ? '✓' : ''
             ]]
           ]];
         })
