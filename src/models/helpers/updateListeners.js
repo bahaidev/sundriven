@@ -85,6 +85,7 @@ function getMillisecondsTillExpiry (data, date) {
  */
 
 /**
+ * Returns the `updateListeners` function based on shared listeners and i18n.
  * @param {PlainObject} cfg
  * @param {Internationalizer} cfg._
  * @param {Locale} cfg.locale
@@ -129,6 +130,7 @@ function getUpdateListeners ({
   }
 
   /**
+   * Calls `updateListenersByName` for each `sundriven` entry.
    * @type {UpdateListeners}
    */
   return function updateListeners (sundriven) {
@@ -140,11 +142,27 @@ function getUpdateListeners ({
      */
     function updateListenerByName ([name, data]) {
       /**
+       * Sets a notification to execute on a timeout at the reminder's
+       * approximate expiry time (relative to the current time and
+       * supplied date).
+       *
+       * If the user's timer frequency is daily, the timed notification will
+       * be set to execute, and if the event is not relative to "now", it
+       * will recur.
+       *
+       * If the user's timer frequency is one-time, the timed notification
+       * will be set to execute, and the `enabled` value for this timer set
+       * to `false` (allowing the user to reuse if desired but not recurring
+       * and requiring the user to delete the timer).
+       *
        * @param {Integer|Date} date
        * @param {AstronomicalEvent} astronomicalEvent
+       * @todo Daily "now" events should recur tomorrow if not already!
+       * @todo Could add timer config as to whether to save the timer at all
+       * if just a one-time one.
        * @returns {void}
        */
-      function getRelative (date, astronomicalEvent) {
+      function timedNotifyRelativeToDateAndReminder (date, astronomicalEvent) {
         const dt = getMillisecondsTillExpiry(data, date);
         const {time} = dt;
         ({date} = dt); // Also may give us new date if none supplied.
@@ -152,6 +170,7 @@ function getUpdateListeners ({
         let timeoutID;
         switch (data.frequency) {
         case 'daily':
+          console.log('time', time);
           timeoutID = setTimeout(() => {
             notify(name, _(
               astronomicalEvent
@@ -244,9 +263,11 @@ function getUpdateListeners ({
           }
           const timestamp = luxonTime.valueOf();
           console.log('111', timestamp, new Date(timestamp));
-          getRelative(timestamp, relativeEvent);
+          timedNotifyRelativeToDateAndReminder(timestamp, relativeEvent);
         };
       }
+
+      // BEGIN `updateListenerByName` main code
 
       if (!data.enabled) {
         return;
@@ -255,7 +276,9 @@ function getUpdateListeners ({
       const {relativeEvent} = data;
       switch (relativeEvent) {
       case 'now':
-        getRelative(getMillisecondsTillExpiry(data).time < 0 ? incrementDate() : null);
+        timedNotifyRelativeToDateAndReminder(
+          getMillisecondsTillExpiry(data).time < 0 ? incrementDate() : null
+        );
         break;
       default: // sunrise, etc.
         if ($('#geoloc-usage').value === 'never') { // when-available|always

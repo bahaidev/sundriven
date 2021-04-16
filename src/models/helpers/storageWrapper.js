@@ -1,9 +1,14 @@
 import {setStorage} from '../../generic-utils/storage.js';
 
 /**
+ * @callback StorageGetterErrorWrapper
  * @param {Internationalizer} _
  * @param {StorageGetCallback} cb
  * @returns {StorageGetCallback}
+ */
+
+/**
+ * @type {StorageGetterErrorWrapper}
  */
 function storageGetterErrorWrapper (_, cb) {
   return (data) => {

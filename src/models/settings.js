@@ -4,17 +4,30 @@ import {serializeForm} from '../generic-utils/forms.js';
 import {setStorage} from '../generic-utils/storage.js';
 
 import {storageSetterErrorWrapper} from './helpers/storageWrapper.js';
-
 import getGeoPositionWrapper from './helpers/getGeoPositionWrapper.js';
+import toggleGrantPermissionButton from
+  './helpers/toggleGrantPermissionButton.js';
 
 /**
  * @param {PlainObject} cfg
  * @param {TemplatesObject} cfg.Templates
- * @param {PermissionStatus} cfg.result
  * @param {Internationalizer} cfg._
- * @returns {void}
+ * @param {GetStorage} cfg.getStorage
+ * @param {StorageGetterErrorWrapper} cfg.storageGetterErrorWrapper
+ * @returns {Promise<void>}
  */
-function settings ({Templates, result, _}) {
+async function settings ({
+  Templates, _,
+  getStorage, storageGetterErrorWrapper
+}) {
+  // Request to get geolocation information to know whether to present the
+  //  permission granting button and to alter it when the user makes permission
+  //  changes for their browser.
+  const result = await navigator.permissions.query({name: 'geolocation'});
+  result.addEventListener('change', () => {
+    toggleGrantPermissionButton(result.state);
+  });
+
   Templates.settings({
     grantPermissionHidden: result.state === 'granted',
     retrieveCoordinates (e) {
@@ -48,6 +61,13 @@ function settings ({Templates, result, _}) {
       }
     }
   });
+
+  // Set up setting defaults
+  getStorage('sundriven-settings', storageGetterErrorWrapper(_, (_settings) => {
+    Object.entries(_settings).forEach(([key, value]) => {
+      $('#' + key).value = value;
+    });
+  }));
 }
 
 export default settings;

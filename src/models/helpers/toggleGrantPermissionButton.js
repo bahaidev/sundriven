@@ -5,7 +5,7 @@ import {$} from '../../../vendor/jml-es.js';
  * @param {"granted"|"prompt"|"denied"} state
  * @returns {void}
  */
-function toggleButton (state) {
+function toggleGrantPermissionButton (state) {
   switch (state) {
   case 'granted':
     $('#grantPermission').hidden = true;
@@ -20,4 +20,4 @@ function toggleButton (state) {
   }
 }
 
-export default toggleButton;
+export default toggleGrantPermissionButton;

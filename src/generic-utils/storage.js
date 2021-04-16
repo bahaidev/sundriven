@@ -11,9 +11,14 @@
 */
 
 /**
+ * @callback GetStorage
  * @param {string} item
  * @param {StorageGetCallback} cb
  * @returns {void}
+ */
+
+/**
+ * @type {GetStorage}
  */
 function getStorage (item, cb) {
   const itemVal = localStorage.getItem(item);

@@ -1,5 +1,3 @@
-import {$} from '../vendor/jml-es.js';
-
 import {setLocale} from './generic-utils/i18n.js';
 import {getStorage} from './generic-utils/storage.js';
 
@@ -11,7 +9,6 @@ import setTemplates from './views/setTemplates.js';
 
 import {getUpdateListeners} from './models/helpers/updateListeners.js';
 import {storageGetterErrorWrapper} from './models/helpers/storageWrapper.js';
-import toggleButton from './models/helpers/toggleButton.js';
 // import install from './install.js';
 
 /**
@@ -28,7 +25,9 @@ const
   builder = {};
 
 (async () => {
-// SETUP
+//
+// 1. SETUP (SHARED STATE)
+//
 const {_, locale} = await setLocale();
 
 const updateListeners = getUpdateListeners({_, locale, builder, listeners});
@@ -42,26 +41,19 @@ const buildReminderTable = reminderTable({
 // For circular dependencies
 builder.buildReminderTable = buildReminderTable;
 
-// BEGIN TEMPLATE BUILDING
+//
+// 2. BEGIN TEMPLATE BUILDING
+//
 
 Templates.document();
 Templates.body();
 
-const result = await navigator.permissions.query({name: 'geolocation'});
-result.addEventListener('change', () => {
-  toggleButton(result.state);
-});
-
-settings({_, Templates, result});
-
-getStorage('sundriven-settings', storageGetterErrorWrapper(_, (_settings) => {
-  Object.entries(_settings).forEach(([key, value]) => {
-    $('#' + key).value = value;
-  });
-}));
+await settings({_, Templates, getStorage, storageGetterErrorWrapper});
 
 buildReminderTable();
 createDefaultReminderForm();
+
+// Set up listeners based on existing timers
 getStorage('sundriven', storageGetterErrorWrapper(_, updateListeners));
 // install();
 })();
