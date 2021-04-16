@@ -10,8 +10,13 @@
   notifications
 - Fix: `solarNoon` when time is somehow negative for now
 - Docs (README): Update to working demo
+
+### Dev-impacting
+
 - Docs (Code): Document
 - Refactoring: - Set locale dynamically, separation of concerns
+- Linting: Ignore dist
+- npm: Add prepublish script to copy and rollup
 
 ## 0.6.1
 

@@ -330,7 +330,8 @@ function getUpdateListeners ({
           const timestamp = luxonTime.valueOf();
           // eslint-disable-next-line no-console -- Debugging
           console.log(
-            'Timestamp for astronomical event', timestamp, new Date(timestamp)
+            'Timestamp for astronomical event', relativeEvent,
+            timestamp, new Date(timestamp)
           );
           timedNotifyRelativeToDateAndReminder(timestamp, relativeEvent);
         };

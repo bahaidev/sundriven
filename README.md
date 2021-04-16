@@ -22,7 +22,6 @@ npm install .
 
 ## Higher priority todos
 
-1. Fix with times like sunset; recurring
 1. Add Cypress tests
 1. Change cache.manifest to service worker; add `<link>` for Web Manifest
     discovery <https://developer.mozilla.org/en-US/docs/Web/Manifest#Deploying_a_manifest_with_the_link_tag>
@@ -31,6 +30,7 @@ npm install .
             if Firefox will, with an add-on if not by default, display this
             (for privacy reassurances to user))
 1. Use `intl-dom` in place of our custom i18n.
+1. Way to copy `jquery-ui` files as dev. copy step?
 1. Debug and reinstall "install" button
 
 ## Possible to-dos

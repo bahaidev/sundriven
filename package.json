@@ -7,6 +7,7 @@
   "author": "Brett Zamir",
   "contributors": [],
   "scripts": {
+    "prepublish": "npm run copy && npm run rollup",
     "rollup": "rollup -c",
     "copy": "cp ./node_modules/jamilih/dist/jml-es.js vendor/jml-es.js",
     "lint": "eslint --ext=js,md,html .",
