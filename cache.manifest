@@ -11,7 +11,7 @@ locales/en-US.js
 src/dom.js
 src/i18n.js
 src/install.js
-src/main.js
+src/sundriven.js
 src/storage.js
 src/templates.js
 

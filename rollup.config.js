@@ -2,6 +2,7 @@ import {terser} from 'rollup-plugin-terser';
 
 import nodeResolve from '@rollup/plugin-node-resolve';
 // import commonjs from '@rollup/plugin-commonjs';
+import dynamicImportVars from '@rollup/plugin-dynamic-import-vars';
 
 // import babel from '@rollup/plugin-babel';
 // import packageJson from './package.json';
@@ -76,13 +77,14 @@ export default [
     ]
   },
   {
-    input: 'src/main.js',
+    input: 'src/sundriven.js',
     output: {
       format: 'esm',
       sourcemap: true,
-      file: 'dist/sundriven.js'
+      dir: 'dist'
     },
     plugins: [
+      dynamicImportVars(),
       terser()
     ]
   }
