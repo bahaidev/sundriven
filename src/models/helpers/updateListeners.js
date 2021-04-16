@@ -250,13 +250,15 @@ function getUpdateListeners ({
       }
 
       /**
-       * Utility for `handleAstronomicalReminderCheck`.
+       * Utility for `handleAstronomicalReminderCheck`. Bakes in
+       * `relativeEvent` for the callback to get and convert a Luxon time
+       * to a timestamp and notify on a timeout at expiry time.
        * @param {AstronomicalEvent} relativeEvent
        * @returns {getTimesForCoordsCallback}
        */
       function getTimesForCoords (relativeEvent) {
         /**
-         * Gets a luxon time from MeeusSunMoon based on an astronomical event
+         * Gets a Luxon time from MeeusSunMoon based on an astronomical event
          * but converts this to a numeric timestamp (so as to have less
          * lock-in).
          *
