@@ -11,6 +11,8 @@ import getGeoPositionWrapper from './getGeoPositionWrapper.js';
 const watchers = {};
 
 /**
+ * Clears a watched geolocation observer. Not really in use at the moment
+ * since we are n updating the timers based on geolocation changes.
  * @param {string} name
  * @returns {void}
  */
@@ -21,7 +23,9 @@ function clearWatch (name) {
 }
 
 /**
- * @returns {{coords: {latitude: string, longitude: string}}}
+ * Returns the latitude and longitude from the interface or `false`
+ * if either value is non-numeric.
+ * @returns {false|{coords: {latitude: string, longitude: string}}}
  */
 function getCoords () {
   const latitude = $('#latitude').value;
@@ -100,6 +104,8 @@ function getUpdateListeners ({
   listeners
 }) {
   /**
+   * Creates a Notification with the supplied body and vibrates where the
+   * API is available.
    * @param {string} name Not presently in use
    * @param {string} _body
    * @returns {void}
@@ -130,11 +136,13 @@ function getUpdateListeners ({
   }
 
   /**
-   * Calls `updateListenersByName` for each `sundriven` entry.
+   * Checks reminders to see if a notification should be called) for each
+   * `sundriven` entry (obtained from form and set in storage).
    * @type {UpdateListeners}
    */
   return function updateListeners (sundriven) {
     /**
+     * Check individual reminders to see if a notification should be called.
      * @param {GenericArray} root0
      * @param {ListenerName} root0."0" The listener name
      * @param {ListenerData} root0."1" The listener data
