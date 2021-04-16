@@ -15,27 +15,26 @@ due to my specific location or network settings.
 
 **[Demo](https://brettz9.github.io/sundriven/)**
 
-# Installation
+## Installation
 ```
 npm install .
 ```
 
-# Higher priority todos
+## Higher priority todos
 
 1. Fix with times like sunset; recurring
-1. Debug and reinstall "install" button
-1. Get ES6 modules working
+1. Add Cypress tests
 1. Change cache.manifest to service worker; add `<link>` for Web Manifest
     discovery <https://developer.mozilla.org/en-US/docs/Web/Manifest#Deploying_a_manifest_with_the_link_tag>
     1. Test offline manifest on server, ensuring no dependencies missing
         1. Add content policy directive indicating no Ajax needed, etc. (see
             if Firefox will, with an add-on if not by default, display this
             (for privacy reassurances to user))
-1. Modularize and use localization function `_` (and separating out
-    the locales as well including in createNotification file),
-    so it can be reused across modules); publish to npm
+1. Use `intl-dom` in place of our custom i18n.
+1. Debug and reinstall "install" button
 
-# Possible to-dos
+## Possible to-dos
+
 1. Allow fractional minutes (if able to keep input steps)
 1. Make geolocation options (and option to use `watchPosition` in
     place of `getCurrentPosition`--the latter being used currently due to
@@ -54,7 +53,7 @@ npm install .
     noon, or sunset), dawn prayers (though configurable afterward, e.g., in
     relative minutes after or before)
 
-# Credits
+## Credits
 
 Thanks to MeeusSunMoon for a great library and to
 [dear_theophilus](http://openclipart.org/user-detail/dear_theophilus) of

@@ -156,7 +156,8 @@ function getUpdateListeners ({
        *
        * If the user's timer frequency is daily, the timed notification will
        * be set to execute, and if the event is not relative to "now", it
-       * will recur.
+       * will recur (could recur at same time every day, but if we want
+       * specific time-based control, we should add clocks, etc.).
        *
        * If the user's timer frequency is one-time, the timed notification
        * will be set to execute, and the `enabled` value for this timer set
@@ -192,8 +193,10 @@ function getUpdateListeners ({
             ));
 
             if (astronomicalEvent) {
-              console.log('aaaa');
-              updateListenerByName([name, data]);
+              console.log('aaaa', name, data, time);
+              setTimeout(() => {
+                updateListenerByName([name, data]);
+              }, 5000);
             }
           }, time);
           break;
