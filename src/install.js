@@ -16,7 +16,7 @@ function install () {
     ev.preventDefault();
     // install the app
     const installLocFind = apps.install(manifestURL);
-    installLocFind.onsuccess = function (data) {
+    installLocFind.onsuccess = function (/* data */) {
       // App is installed, do something if you like
     };
     installLocFind.addEventListener('error', function () {

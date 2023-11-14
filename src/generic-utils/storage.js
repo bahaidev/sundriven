@@ -1,12 +1,15 @@
 /**
+ * @typedef {any} AnyValue
+ */
+/**
 * @callback StorageGetCallback
-* @param {any} value
+* @param {AnyValue} value
 * @returns {void}
 */
 
 /**
 * @callback StorageSetCallback
-* @param {any} value
+* @param {AnyValue} value
 * @returns {void}
 */
 
@@ -26,7 +29,7 @@ function getStorage (item, cb) {
 }
 /**
  * @param {string} item
- * @param {any} value
+ * @param {AnyValue} value
  * @param {StorageSetCallback} cb
  * @returns {void}
  */

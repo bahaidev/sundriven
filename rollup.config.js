@@ -1,6 +1,6 @@
-import {terser} from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 
-import nodeResolve from '@rollup/plugin-node-resolve';
+import {nodeResolve} from '@rollup/plugin-node-resolve';
 // import commonjs from '@rollup/plugin-commonjs';
 import dynamicImportVars from '@rollup/plugin-dynamic-import-vars';
 
@@ -14,11 +14,11 @@ import dynamicImportVars from '@rollup/plugin-dynamic-import-vars';
  */
 
 /**
- * @param {PlainObject} [config={}]
- * @param {boolean} [config.minifying=false]
- * @param {string} [config.format="umd"]
- * @param {boolean} [config.lite=false]
- * @returns {external:RollupConfig}
+ * @param {PlainObject} [config]
+ * @param {boolean} [config.minifying]
+ * @param {string} [config.format]
+ * @param {boolean} [config.lite]
+ * @returns {RollupConfig}
  */
 function getRollupObject ({
   minifying = false, format = 'umd', lite = false
@@ -60,22 +60,6 @@ function getRollupObject ({
 
 export default [
   getRollupObject({minifying: false, format: 'esm'}),
-  {
-    input: './node_modules/luxon/src/luxon.js',
-    output: {
-      format: 'esm',
-      sourcemap: false,
-      file: 'vendor/luxon.js'
-    },
-    plugins: [
-      nodeResolve()
-      /*
-      babel({
-        babelHelpers: 'bundled'
-      })
-      */
-    ]
-  },
   {
     input: 'src/sundriven.js',
     output: {

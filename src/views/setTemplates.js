@@ -12,7 +12,7 @@ import {jml, $, nbsp, body} from '../../vendor/jml-es.js';
  * @param {string} groupName
  * @param {{id: string, label: string}} radios
  * @param {string} selected
- * @returns {external:JamilihArray}
+ * @returns {JamilihArray}
  */
 function radioGroup (groupName, radios, selected) {
   return ['span', radios.map(({id, label}) => {
@@ -210,7 +210,7 @@ const setTemplates = (_) => ({
     }
     /**
      * @param {string} id
-     * @returns {external:JamilihArray}
+     * @returns {JamilihArray}
      */
     function checkbox (id) {
       return ['input', {

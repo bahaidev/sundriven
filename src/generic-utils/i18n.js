@@ -18,7 +18,7 @@ let localeObj;
 function _ (s, ...args) {
   // Todo: Provide proper i18n keys so we can drop the fallback behavior
   const msg = localeObj[s] || s;
-  return msg.replace(/\{(?:[^}]*)\}/ug, () => {
+  return msg.replaceAll(/\{(?:[^}]*)\}/ug, () => {
     return args.shift();
   });
 }

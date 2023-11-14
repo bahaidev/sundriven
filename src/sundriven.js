@@ -24,7 +24,6 @@ const
   // For a circular dependency
   builder = {};
 
-(async () => {
 //
 // 1. SETUP (SHARED STATE)
 //
@@ -56,4 +55,3 @@ createDefaultReminderForm();
 // Set up listeners based on existing timers
 getStorage('sundriven', storageGetterErrorWrapper(_, updateListeners));
 // install();
-})();
