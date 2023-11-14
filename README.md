@@ -13,7 +13,7 @@ calculations.
 I have experienced Geolocation errors periodically, but that may be
 due to my specific location or network settings.
 
-**[Demo](https://brettz9.github.io/sundriven/)**
+**[Demo](https://bahaidev.github.io/sundriven/)**
 
 ## Installation
 ```

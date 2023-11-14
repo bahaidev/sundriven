@@ -49,11 +49,11 @@
   "engines": {
     "node": ">=12.0.0"
   },
-  "bugs": "https://github.com/brettz9/sundriven/issues",
-  "homepage": "https://github.com/brettz9/sundriven",
+  "bugs": "https://github.com/bahaidev/sundriven/issues",
+  "homepage": "https://github.com/bahaidev/sundriven",
   "repository": {
     "type": "git",
-    "url": "https://github.com/brettz9/sundriven.git"
+    "url": "https://github.com/bahaidev/sundriven.git"
   },
   "description": "Very simple app to provide toaster-style notification reminders (daily or one-time) given relative to either the current time or to astronomical events such as dawn, sunrise, or sunset. Note that the astronomical event times are currently determined mathematically rather than by querying an online service.",
   "keywords": [
