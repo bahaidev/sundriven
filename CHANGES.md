@@ -1,9 +1,11 @@
 # CHANGES for sundriven
 
-## 0.8.0 (unreleased)
+## 0.8.0
 
 - Breaking: Require Node >= 20
+- Breaking: Switch to ESM
 - chore: update jamilih, luxon, devDeps.; lint
+- docs: update ownership
 
 ## 0.7.0
 
