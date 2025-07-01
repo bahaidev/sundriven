@@ -1,5 +1,10 @@
 # CHANGES for sundriven
 
+## 0.8.0 (unreleased)
+
+- Breaking: Require Node >= 20
+- chore: update jamilih, luxon, devDeps.; lint
+
 ## 0.7.0
 
 ### User-impacing

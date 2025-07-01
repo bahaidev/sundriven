@@ -16,38 +16,26 @@
     "start": "static -p 8093"
   },
   "dependencies": {
-    "jamilih": "0.58.2",
-    "luxon": "^3.4.4",
+    "jamilih": "0.60.0",
+    "luxon": "^3.6.1",
     "meeussunmoon": "3.0.3"
   },
   "devDependencies": {
-    "@brettz9/eslint-plugin": "^1.0.4",
     "@brettz9/node-static": "^0.1.1",
-    "@rollup/plugin-dynamic-import-vars": "^2.1.0",
-    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-dynamic-import-vars": "^2.1.5",
+    "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
-    "eslint": "^8.53.0",
-    "eslint-config-ash-nazg": "35.1.0",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-array-func": "^4.0.0",
-    "eslint-plugin-compat": "^4.2.0",
-    "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-html": "^7.1.0",
-    "eslint-plugin-import": "^2.29.0",
-    "eslint-plugin-jsdoc": "^46.9.0",
-    "eslint-plugin-markdown": "^3.0.1",
-    "eslint-plugin-no-unsanitized": "^4.0.2",
-    "eslint-plugin-no-use-extend-native": "^0.5.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^6.1.1",
-    "eslint-plugin-sonarjs": "^0.23.0",
-    "eslint-plugin-standard": "4.1.0",
-    "eslint-plugin-unicorn": "^49.0.0",
-    "open-cli": "^7.2.0",
-    "rollup": "^4.4.0"
+    "eslint": "^9.30.0",
+    "eslint-config-ash-nazg": "38.0.2",
+    "open-cli": "^8.0.0",
+    "rollup": "^4.44.1"
   },
+  "browserslist": [
+    "last 2 Firefox versions",
+    "last 2 Chrome versions"
+  ],
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=20.0.0"
   },
   "bugs": "https://github.com/bahaidev/sundriven/issues",
   "homepage": "https://github.com/bahaidev/sundriven",

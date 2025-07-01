@@ -18,7 +18,7 @@ const localeEnUs = {
     */
   // i18n functions to allow reordering of dynamic arguments (without
   //   string substitutions)
-  /* eslint-disable camelcase, @stylistic/max-len -- Chrome */
+  /* eslint-disable camelcase -- Chrome */
   geo_error: 'ERROR ({code}): {msg}',
   notification_message_onetime: 'NOTICE: Your reminder, {name}, has expired; recent time launched: {alarmDateTime}; current time: {nowDateTime}; relative to: {date}',
   notification_message_onetime_astronomical: 'NOTICE: Your reminder, {name}, has expired; recent time launched: {alarmDateTime}; current time: {nowDateTime}; relative to {astronomicalEvent}: {date}',
@@ -27,7 +27,7 @@ const localeEnUs = {
 
   browser_not_support_notifications: 'This browser does not support notifications.',
   click_allow_notifications: 'Click to allow notifications (required)'
-  /* eslint-enable camelcase, @stylistic/max-len -- Chrome */
+  /* eslint-enable camelcase -- Chrome */
 };
 
 export default localeEnUs;

@@ -18,7 +18,7 @@ let localeObj;
 function _ (s, ...args) {
   // Todo: Provide proper i18n keys so we can drop the fallback behavior
   const msg = localeObj[s] || s;
-  return msg.replaceAll(/\{(?:[^}]*)\}/ug, () => {
+  return msg.replaceAll(/\{(?:[^\}]*)\}/vg, () => {
     return args.shift();
   });
 }
@@ -41,7 +41,7 @@ async function setLocale () {
   // Todo: Use `URLSearchParams`; could use history state
   const frag = '#lang=';
   const langInURLPos = loc.indexOf(frag);
-  const langInURL = (langInURLPos > -1)
+  const langInURL = (langInURLPos !== -1)
     ? loc.slice(langInURLPos + frag.length)
     : false;
 
@@ -50,7 +50,7 @@ async function setLocale () {
   if (!locales.includes(locale)) {
     locale = 'en-US';
   }
-  // eslint-disable-next-line no-unsanitized/method -- Is sanitized
+  // // eslint-disable-next-line no-unsanitized/method -- Is sanitized
   localeObj = (await import(`../../locales/${locale}.js`)).default;
   return {_, locale};
 }
