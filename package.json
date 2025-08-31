@@ -13,11 +13,12 @@
     "copy": "cp ./node_modules/jamilih/dist/jml-es.js vendor/jml-es.js && cp ./node_modules/luxon/build/es6/luxon.js vendor/luxon.js",
     "lint": "eslint --ext=js,md,html .",
     "open": "open-cli http://localhost:8093 && npm start",
-    "start": "static -p 8093"
+    "start": "static -p 8093",
+    "test": "npm run lint && npm run rollup"
   },
   "dependencies": {
     "jamilih": "0.60.0",
-    "luxon": "^3.6.1",
+    "luxon": "^3.7.1",
     "meeussunmoon": "3.0.3"
   },
   "devDependencies": {
@@ -25,10 +26,10 @@
     "@rollup/plugin-dynamic-import-vars": "^2.1.5",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
-    "eslint": "^9.30.0",
-    "eslint-config-ash-nazg": "38.0.2",
+    "eslint": "^9.34.0",
+    "eslint-config-ash-nazg": "39.0.1",
     "open-cli": "^8.0.0",
-    "rollup": "^4.44.1"
+    "rollup": "^4.50.0"
   },
   "browserslist": [
     "last 2 Firefox versions",

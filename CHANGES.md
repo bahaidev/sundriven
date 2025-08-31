@@ -1,5 +1,9 @@
 # CHANGES for sundriven
 
+## ?
+
+- chore: update luxon and devDeps.
+
 ## 0.8.0
 
 - Breaking: Require Node >= 20
