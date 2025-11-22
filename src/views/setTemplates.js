@@ -1,4 +1,4 @@
-import {jml, $, nbsp, body} from '../../vendor/jml-es.js';
+import {jml, $, nbsp, body} from '../../vendor/jml.mjs';
 
 /**
 * @external JamilihArray
@@ -30,15 +30,17 @@ function radioGroup (groupName, radios, selected) {
   })];
 }
 
+/* eslint-disable jsdoc/reject-any-type -- Arbitrary */
 /**
  * @callback TemplateFunction
  * @param {...any} any
  * @returns {void}
  */
+/* eslint-enable jsdoc/reject-any-type -- Arbitrary */
 
 /**
-* @typedef {Object<string,TemplateFunction>} TemplatesObject
-*/
+ * @typedef {Object<string,TemplateFunction>} TemplatesObject
+ */
 
 /**
  * @function

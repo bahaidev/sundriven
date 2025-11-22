@@ -17,8 +17,8 @@ src/templates.js
 
 style/style.css
 style/ui-lightness/jquery-ui-1.10.4.custom.min.css
-vendor/jml-es.js
-vendor/luxon.js
+vendor/jml.mjs
+vendor/luxon.mjs
 vendor/meeussunmoon.esm.js
 
 # Not currently referenced within the app

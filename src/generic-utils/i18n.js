@@ -8,7 +8,7 @@ let localeObj;
 /**
  * @callback Internationalizer
  * @param {string} s
- * @param {...any} args
+ * @param {...string[]} args
  * @returns {string}
  */
 

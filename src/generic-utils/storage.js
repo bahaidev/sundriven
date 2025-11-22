@@ -1,6 +1,8 @@
+/* eslint-disable jsdoc/reject-any-type -- Arbitrary */
 /**
  * @typedef {any} AnyValue
  */
+/* eslint-enable jsdoc/reject-any-type -- Arbitrary */
 /**
 * @callback StorageGetCallback
 * @param {AnyValue} value

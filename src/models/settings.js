@@ -1,4 +1,4 @@
-import {$} from '../../vendor/jml-es.js';
+import {$} from '../../vendor/jml.mjs';
 
 import {serializeForm} from '../generic-utils/forms.js';
 import {setStorage} from '../generic-utils/storage.js';

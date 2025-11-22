@@ -1,6 +1,6 @@
-import {$} from '../../../vendor/jml-es.js';
+import {$} from '../../../vendor/jml.mjs';
 import * as MeeusSunMoon from '../../../vendor/meeussunmoon.esm.js';
-import {DateTime} from '../../../vendor/luxon.js';
+import {DateTime} from '../../../vendor/luxon.mjs';
 
 import {setStorage} from '../../generic-utils/storage.js';
 import {incrementDate} from '../../generic-utils/date.js';

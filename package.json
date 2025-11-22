@@ -10,26 +10,26 @@
   "scripts": {
     "prepublish": "npm run copy && npm run rollup",
     "rollup": "rollup -c",
-    "copy": "cp ./node_modules/jamilih/dist/jml-es.js vendor/jml-es.js && cp ./node_modules/luxon/build/es6/luxon.js vendor/luxon.js",
+    "copy": "cp ./node_modules/jamilih/dist/jml.mjs vendor/jml.mjs && cp ./node_modules/luxon/build/es6/luxon.mjs vendor/luxon.mjs",
     "lint": "eslint --ext=js,md,html .",
     "open": "open-cli http://localhost:8093 && npm start",
     "start": "static -p 8093",
     "test": "npm run lint && npm run rollup"
   },
   "dependencies": {
-    "jamilih": "0.60.0",
-    "luxon": "^3.7.1",
-    "meeussunmoon": "3.0.3"
+    "jamilih": "0.62.1",
+    "luxon": "^3.7.2",
+    "meeussunmoon": "3.1.0"
   },
   "devDependencies": {
     "@brettz9/node-static": "^0.1.1",
     "@rollup/plugin-dynamic-import-vars": "^2.1.5",
-    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
-    "eslint": "^9.34.0",
-    "eslint-config-ash-nazg": "39.0.1",
+    "eslint": "^9.39.1",
+    "eslint-config-ash-nazg": "39.8.0",
     "open-cli": "^8.0.0",
-    "rollup": "^4.50.0"
+    "rollup": "^4.53.3"
   },
   "browserslist": [
     "last 2 Firefox versions",

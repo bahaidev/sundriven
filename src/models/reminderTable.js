@@ -34,7 +34,7 @@ function reminderTable ({
     }
     getStorage('sundriven', storageGetterErrorWrapper(_, (forms) => {
       removeElement('#forms');
-      const sortedForms = Object.keys(forms).sort().map((formKey) => {
+      const sortedForms = Object.keys(forms).toSorted().map((formKey) => {
         return forms[formKey];
       });
       Templates.reminderTable({

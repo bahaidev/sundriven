@@ -1,4 +1,4 @@
-import {$} from '../../vendor/jml-es.js';
+import {$} from '../../vendor/jml.mjs';
 
 import {removeChild} from '../generic-utils/dom.js';
 import {getStorage, setStorage} from '../generic-utils/storage.js';
@@ -72,7 +72,7 @@ function reminderForm ({
       formID,
       settings,
       sortOptions (options) {
-        return options.sort((a, b) => {
+        return options.toSorted((a, b) => {
           return a[2][0] > b[2][0];
         });
       },
